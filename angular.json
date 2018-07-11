@@ -121,6 +121,212 @@
           }
         }
       }
+    },
+    "Scheduling": {
+      "root": "projects/Scheduling/",
+      "sourceRoot": "projects/Scheduling/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/Scheduling",
+            "index": "projects/Scheduling/src/index.html",
+            "main": "projects/Scheduling/src/main.ts",
+            "polyfills": "projects/Scheduling/src/polyfills.ts",
+            "tsConfig": "projects/Scheduling/tsconfig.app.json",
+            "assets": [
+              "projects/Scheduling/src/favicon.ico",
+              "projects/Scheduling/src/assets"
+            ],
+            "styles": [
+              "projects/Scheduling/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/Scheduling/src/environments/environment.ts",
+                  "with": "projects/Scheduling/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "Scheduling:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "Scheduling:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "Scheduling:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/Scheduling/src/test.ts",
+            "polyfills": "projects/Scheduling/src/polyfills.ts",
+            "tsConfig": "projects/Scheduling/tsconfig.spec.json",
+            "karmaConfig": "projects/Scheduling/karma.conf.js",
+            "styles": [
+              "projects/Scheduling/src/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/Scheduling/src/favicon.ico",
+              "projects/Scheduling/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/Scheduling/tsconfig.app.json",
+              "projects/Scheduling/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "DominionApp": {
+      "root": "projects/DominionApp/",
+      "sourceRoot": "projects/DominionApp/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {
+        "@schematics/angular:class": {
+          "spec": false
+        },
+        "@schematics/angular:component": {
+          "spec": false
+        },
+        "@schematics/angular:directive": {
+          "spec": false
+        },
+        "@schematics/angular:guard": {
+          "spec": false
+        },
+        "@schematics/angular:module": {
+          "spec": false
+        },
+        "@schematics/angular:pipe": {
+          "spec": false
+        },
+        "@schematics/angular:service": {
+          "spec": false
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/DominionApp",
+            "index": "projects/DominionApp/src/index.html",
+            "main": "projects/DominionApp/src/main.ts",
+            "polyfills": "projects/DominionApp/src/polyfills.ts",
+            "tsConfig": "projects/DominionApp/tsconfig.app.json",
+            "assets": [
+              "projects/DominionApp/src/favicon.ico",
+              "projects/DominionApp/src/assets"
+            ],
+            "styles": [
+              "projects/DominionApp/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/DominionApp/src/environments/environment.ts",
+                  "with": "projects/DominionApp/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "DominionApp:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "DominionApp:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "DominionApp:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/DominionApp/src/test.ts",
+            "polyfills": "projects/DominionApp/src/polyfills.ts",
+            "tsConfig": "projects/DominionApp/tsconfig.spec.json",
+            "karmaConfig": "projects/DominionApp/karma.conf.js",
+            "styles": [
+              "projects/DominionApp/src/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/DominionApp/src/favicon.ico",
+              "projects/DominionApp/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/DominionApp/tsconfig.app.json",
+              "projects/DominionApp/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "Ng6Projects"
