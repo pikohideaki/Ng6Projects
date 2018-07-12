@@ -329,5 +329,24 @@
       }
     }
   },
-  "defaultProject": "Ng6Projects"
+  "defaultProject": "Ng6Projects",
+  "schematics": {
+    "@schematics/angular": {
+      "component": {
+        "spec": false
+      },
+      "class": {
+        "spec": false
+      },
+      "service": {
+        "spec": false
+      },
+      "directive": {
+        "spec": false
+      },
+      "module": {
+        "spec": false
+      }
+    }
+  }
 }
