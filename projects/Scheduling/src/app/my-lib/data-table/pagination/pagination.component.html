@@ -1,3 +1,58 @@
-<p>
-  pagination works!
-</p>
+<ng-container *ngIf="{
+    pageNumber: pageNumber$ | async,
+    rangeStart: rangeStart$ | async,
+    rangeEnd:   rangeEnd$   | async,
+    rowSize:    rowSize$    | async,
+    pageLength: pageLength$ | async,
+    pageIndice: pageIndice$ | async
+  } as data">
+
+<ng-container *ngIf="!!data.pageIndice; then main; else loading"></ng-container>
+<ng-template #loading>Loading...</ng-template>
+<ng-template #main>
+  <div class='pagination'>
+    <button mat-raised-button class="navigationButton"
+        (click)='setPageNumber(1)'
+        [disabled]='data.pageNumber <= 1' >
+      <mat-icon>first_page</mat-icon>
+    </button>
+
+    <button mat-raised-button class="navigationButton"
+        (click)='setPageNumber( data.pageNumber - 1 )'
+        [disabled]='data.pageNumber <= 1' >
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <div *ngIf="data.pageLength <= 10; then thenBlock; else elseBlock" ></div>
+    <ng-template #thenBlock>
+      <mat-button-toggle-group #group="matButtonToggleGroup" >
+        <mat-button-toggle *ngFor='let pageIndex of data.pageIndice'
+            [value]="pageIndex"
+            [class.mat-button-toggle-normal]="data.pageNumber !== pageIndex"
+            [class.mat-button-toggle-selected]="data.pageNumber === pageIndex"
+            (click)="setPageNumber( pageIndex )" >
+          <span>{{pageIndex}}</span>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </ng-template>
+    <ng-template #elseBlock>
+      <span class="range">
+        {{data.rangeStart}}-{{data.rangeEnd}} of {{data.rowSize}}
+      </span>
+    </ng-template>
+
+
+    <button mat-raised-button class="navigationButton"
+        (click)='setPageNumber( data.pageNumber + 1 )'
+        [disabled]='data.pageNumber >= data.pageLength' >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+    <button mat-raised-button class="navigationButton"
+        (click)='setPageNumber( data.pageLength )'
+        [disabled]='data.pageNumber >= data.pageLength' >
+      <mat-icon>last_page</mat-icon>
+    </button>
+  </div>
+</ng-template>
+</ng-container>

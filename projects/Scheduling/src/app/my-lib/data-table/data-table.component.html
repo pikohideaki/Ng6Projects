@@ -1,3 +1,94 @@
-<p>
-  data-table works!
-</p>
+<ng-container *ngIf="{
+      table:                  table$                  | async,
+      tableSlicedTransformed: tableSlicedTransformed$ | async,
+      itemsPerPage:           itemsPerPage$           | async,
+      headerValuesAll:        headerValuesAll$        | async,
+      selectorOptionsAll:     selectorOptionsAll$     | async
+    } as data">
+  <app-waiting-spinner [waiting]="!data.table"></app-waiting-spinner>
+
+  <ng-container *ngIf="!!data.table">
+
+    <div>
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
+        <app-items-per-page
+            [options]='settings.itemsPerPageOptions'
+            [itemsPerPage]='data.itemsPerPage'
+            (itemsPerPageChange)="itemsPerPageOnChange( $event )">
+        </app-items-per-page>
+        <app-pagination
+            [itemsPerPage$]='itemsPerPage$'
+            [pageLength$]='pageLength$'
+            [pageNumber$]='pageNumber$'
+            [rowSize$]='tableFilteredRowSize$'
+            (pageNumberChange)="pageNumberOnChange( $event )">
+        </app-pagination>
+      </div>
+      <button class='reset-button' mat-raised-button (click)="resetAll()">
+        Reset All
+      </button>
+      <div>{{data.tableSlicedTransformed.length}} items</div>
+    </div>
+
+    <table class='data-table shadow3px vertical-line'>
+      <thead>
+        <tr>
+          <th *ngFor='let header of settings.headerSettings; let idx = index'
+              [class.cell-align-left]  ="header.align === 'l' "
+              [class.cell-align-center]="header.align === 'c' "
+              [class.cell-align-right] ="header.align === 'r' " >
+            <app-header-cell
+              [headerValue]="data.headerValuesAll[idx]"
+              [selectorOptions]="data.selectorOptionsAll[idx]"
+              (headerValueChange)="headerValueOnChange( idx, $event )"
+              (reset)="reset( idx )">
+            </app-header-cell>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor='let line of data.tableSlicedTransformed; let rowIndex = index'>
+          <td *ngFor='let header of settings.headerSettings; let colIndex = index'
+              [class.cell-align-left]  ="header.align=='l'"
+              [class.cell-align-center]="header.align=='c'"
+              [class.cell-align-right] ="header.align=='r'" >
+
+            <div *ngIf="header.isButton; then thenBlock; else elseBlock"></div>
+            <ng-template #thenBlock>
+              <button mat-button color="primary"
+                    (click)="cellOnClick(
+                        data.table,
+                        rowIndex,
+                        colIndex,
+                        data.headerValuesAll )">
+                {{ line[colIndex] }}
+              </button>
+            </ng-template>
+            <ng-template #elseBlock>
+              {{ line[colIndex] }}
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div>
+      <div *ngIf="settings.usepagination" class="pager-wrapper">
+        <app-items-per-page
+            [options]='settings.itemsPerPageOptions'
+            [itemsPerPage]='data.itemsPerPage'
+            (itemsPerPageChange)="itemsPerPageOnChange( $event )">
+        </app-items-per-page>
+        <app-pagination
+            [itemsPerPage$]='itemsPerPage$'
+            [pageLength$]='pageLength$'
+            [pageNumber$]='pageNumber$'
+            [rowSize$]='tableFilteredRowSize$'
+            (pageNumberChange)="pageNumberOnChange( $event )">
+        </app-pagination>
+      </div>
+      <div>{{data.tableSlicedTransformed.length}} items</div>
+    </div>
+
+  </ng-container>
+</ng-container>

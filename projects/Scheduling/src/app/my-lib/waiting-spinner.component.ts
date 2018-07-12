@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-waiting-spinner',
   template: `
-    <p>
-      waiting-spinner works!
-    </p>
+    <div *ngIf="waiting" class="waiting-spinner">
+      <mat-spinner strokeWidth="6" diameter="48" ></mat-spinner>
+    </div>
   `,
-  styles: []
+  styles: [`.waiting-spinner { margin: 10px; }`],
 })
 export class WaitingSpinnerComponent implements OnInit {
+
+  @Input() waiting: boolean = true;
 
   constructor() { }
 

@@ -1,3 +1,20 @@
-<p>
-  app-list works!
-</p>
+<ng-container *ngIf="(apps$ | async) as apps">
+  <app-waiting-spinner [done]="!!apps"></app-waiting-spinner>
+
+  <ng-container *ngIf="!!appName && !!apps">
+    <mat-toolbar color="primary">
+      <span>{{appName}}</span>
+    </mat-toolbar>
+  </ng-container>
+
+  <div *ngFor="let app of apps">
+    <mat-card class="app-element"
+        [class.in-service]="app.inService"
+        [class.not-in-service]="!(app.inService)"
+        [routerLink]="( app.inService ? app.routerLink : '' )">
+      <mat-card-title>{{app.title}}</mat-card-title>
+      <mat-card-subtitle>{{app.subtitle}}</mat-card-subtitle>
+      <mat-card-content>{{app.description}}</mat-card-content>
+    </mat-card>
+  </div>
+</ng-container>

@@ -1,0 +1,12 @@
+.app-element {
+    margin-top: 10px;
+}
+
+.app-element.-in-service:hover {
+    cursor: pointer;
+}
+
+.app-element.not-in-service {
+    background-color: #D2D2D2;
+    color: #737373;
+}
