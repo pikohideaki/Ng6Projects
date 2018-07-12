@@ -15,7 +15,7 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   private alive = true;
 
   @Input() width: number = 300;
-  @Input() filterFunction = (e => true);
+  @Input() filterFunction = (_ => true);
   @Input() dayLabelLanguage: 'eng'|'jp' = 'eng';
   @Input() initialDateList$: Observable<Date[]>;
   @Output() selectedDatesChange = new EventEmitter<Date[]>();
@@ -23,8 +23,10 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   dayStrings: string[];
   weeks$: Observable<{ date: Date, selected: boolean }[][]>;
 
-  private currentYearSource  = new BehaviorSubject<number>( (new Date()).getFullYear() );
-  private currentMonthSource = new BehaviorSubject<number>( (new Date()).getMonth() );
+  private currentYearSource
+    = new BehaviorSubject<number>( (new Date()).getFullYear() );
+  private currentMonthSource
+    = new BehaviorSubject<number>( (new Date()).getMonth() );
   currentYear$:  Observable<number> = this.currentYearSource .asObservable();
   currentMonth$: Observable<number> = this.currentMonthSource.asObservable();
 

@@ -34,8 +34,8 @@ npm install ngx-clipboard --save
   * MyClassNameOnDatabase というinterfaceを別に作る
       （class定義部分でinitObjのメンバ名を変えたときに
       database上での文字列を変更するのをよく忘れてしまうので）
-  * cloud-fire-store.service.ts は database.ts に
-      or databaseを変えても同じように使えるように、apiは database.ts に吸収させる
+  * cloud-fire-store.service.ts は firedatabase.ts に
+      or databaseを変えても同じように使えるように、apiは firedatabase.ts に吸収させる
 
 * directive使って共用cssを整理
 * symbolidは型チェックさせる ( symbol-settings.ts )
@@ -48,3 +48,4 @@ npm install ngx-clipboard --save
   * select-dates.component
   * edit-event.component
 
+* 
