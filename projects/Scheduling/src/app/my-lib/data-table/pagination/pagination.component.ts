@@ -14,10 +14,10 @@ export class PaginationComponent implements OnInit {
 
   @Input()  rowSize$: Observable<number>;
   @Input()  itemsPerPage$: Observable<number>;
-  @Input()  pageLength$: Observable<number>;
   @Input()  pageNumber$: Observable<number>;
   @Output() pageNumberChange = new EventEmitter<number>();
 
+  pageLength$: Observable<number>;
   rangeStart$: Observable<number>;
   rangeEnd$:   Observable<number>;
   pageIndice$: Observable<number[]>;
@@ -28,6 +28,10 @@ export class PaginationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.pageLength$
+      = combineLatest( this.rowSize$, this.itemsPerPage$,
+          (rowSize, itemsPerPage) => Math.ceil( rowSize / itemsPerPage ) );
+
     this.pageIndice$
       = this.pageLength$.pipe( map( len => utils.number.numSeq( 1, len ) ) );
 

@@ -1,16 +1,6 @@
 # ToDo
 
 
-## 環境構築
-
-```
-npm install --save @angular/material @angular/cdk
-npm install --save @angular/animations
-npm install --save hammerjs
-npm install angularfire2 firebase --save
-npm install ngx-pipes --save
-npm install ngx-clipboard --save
-```
 
 
 ## app
