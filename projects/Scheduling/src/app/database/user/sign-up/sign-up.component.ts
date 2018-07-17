@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material';
-import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from 'angularfire2/auth';
 
@@ -74,8 +73,8 @@ export class SignUpComponent implements OnInit {
       this.waitingForResponse = false;
 
       this.database.user.setUser(
-          afUser.uid,
-          new User( afUser.uid, {
+          afUser.user.uid,
+          new User( afUser.user.uid, {
             name:      this.name,
             nameYomi: this.nameYomi,
           } ) );
