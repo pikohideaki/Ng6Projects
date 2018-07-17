@@ -10,8 +10,19 @@ import { UserService } from './database/user/user.service';
   selector: 'app-home',
   template: `
     <div class="body-with-padding">
-      <app-list appName="Piko Apps" [apps$]="apps$" > </app-list>
+      <app-app-list appName="Piko Apps" [apps$]="apps$"></app-app-list>
     </div>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
+    a<br>
   `,
   styles: [],
 })
@@ -28,12 +39,14 @@ export class HomeComponent implements OnInit {
   constructor(
     private user: UserService
   ) {
-    this.apps$ = this.user.signedIn$.pipe(map( signedIn => [
-        { routerLink: '/scheduling', inService: true,
-          title: 'New Event', subtitle: '新しいイベントを作成' },
-        { routerLink: '/scheduling', inService: true,
-          title: 'My Events', subtitle: '調整中のイベント' },
-      ] ));
+    this.apps$
+      = this.user.signedIn$
+          .pipe( map( signedIn => [
+            { routerLink: '/new-event', inService: true,
+              title: 'New Event', subtitle: '新しいイベントを作成' },
+            { routerLink: '/my-events', inService: signedIn,
+              title: 'My Events', subtitle: '調整中のイベント' },
+          ] ));
   }
 
   ngOnInit() {

@@ -11,7 +11,7 @@ import { MatIconRegistry } from '@angular/material';
 
 
 @Component({
-  providers: [AngularFireAuth],
+  // providers: [AngularFireAuth],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

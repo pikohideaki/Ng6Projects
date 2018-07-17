@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 import { AngularMaterialModule } from '../angular-material.module';
 
@@ -24,6 +25,7 @@ import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-dat
 @NgModule({
   imports: [
     CommonModule,
+    RouterModule,
     AngularMaterialModule,
   ],
   exports: [

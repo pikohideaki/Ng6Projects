@@ -18,7 +18,6 @@
         </app-items-per-page>
         <app-pagination
             [itemsPerPage$]='itemsPerPage$'
-            [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">
@@ -81,7 +80,6 @@
         </app-items-per-page>
         <app-pagination
             [itemsPerPage$]='itemsPerPage$'
-            [pageLength$]='pageLength$'
             [pageNumber$]='pageNumber$'
             [rowSize$]='tableFilteredRowSize$'
             (pageNumberChange)="pageNumberOnChange( $event )">

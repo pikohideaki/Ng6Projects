@@ -10,12 +10,12 @@ import { DatabaseService } from '../database.service';
 @Injectable()
 export class UserService {
   private uid: string = '';
-  uid$:      Observable<string>;
-  signedIn$: Observable<boolean>;
+  uid$:        Observable<string>;
+  signedIn$:   Observable<boolean>;
 
   private user$: Observable<User>;
-  name$:      Observable<string>;
-  nameYomi$: Observable<string>;
+  name$:         Observable<string>;
+  nameYomi$:     Observable<string>;
 
 
 

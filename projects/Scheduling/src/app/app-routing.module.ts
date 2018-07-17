@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-// import { HomeComponent          } from './home.component';
-// import { NotFoundPageComponent  } from './not-found-page.component';
+import { HomeComponent          } from './home.component';
+import { NotFoundPageComponent  } from './not-found-page.component';
 // import { EditDatabaseComponent  } from './firebase-mediator/edit-database.component';
 // import { UserAdminComponent     } from './firebase-mediator/user-admin/user-admin.component';
 // import { FeedbackComponent      } from './feedback/feedback.component';
@@ -28,7 +28,7 @@ import { RouterModule } from '@angular/router';
   imports: [
     CommonModule,
     RouterModule.forRoot([
-      // { component: HomeComponent,              path: '' },
+      { component: HomeComponent,              path: '' },
       // { component: EditDatabaseComponent,      path: 'edit-database' },
       // { component: UserAdminComponent,         path: 'user-admin' },
       // { component: FeedbackComponent,          path: 'feedback' },
@@ -41,7 +41,7 @@ import { RouterModule } from '@angular/router';
       // { component: ToolsCollectionComponent,   path: 'tools-collection' },
       // { component: Tsv2jsonComponent,          path: 'tools-collection/tsv2json' },
       // { component: JsonPrettyPrintComponent,   path: 'tools-collection/json-pretty-print' },
-      // { component: NotFoundPageComponent,      path: '**' },
+      { component: NotFoundPageComponent,      path: '**' },
     ], { useHash: true } ),
   ],
   exports: [

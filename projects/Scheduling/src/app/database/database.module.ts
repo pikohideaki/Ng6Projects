@@ -9,31 +9,40 @@ import { AngularFireAuthModule     } from 'angularfire2/auth';
 // import { AngularFirestoreModule    } from 'angularfire2/firestore';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 
-
 import { AngularMaterialModule } from '../angular-material.module';
 import { MyLibModule } from '../my-lib/my-lib.module';
 
+
+import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFireDatabase } from 'angularfire2/database';
+
 // auth
-import { UserService         } from './user/user.service';
+import { UserService } from './user/user.service';
+import { DatabaseService } from './database.service';
+
 import { UserAdminComponent  } from './user/user-admin.component';
 import { LoginComponent      } from './user/login/login.component';
 import { SignUpComponent     } from './user/sign-up/sign-up.component';
 import { MyPageComponent     } from './user/my-page.component';
 
-import { DatabaseService } from './database.service';
 
 
 @NgModule({
   imports: [
     CommonModule,
     AngularFireModule,
-    AngularFireAuthModule,
     // AngularFirestoreModule,
-    AngularFireDatabaseModule,
     AngularMaterialModule,
     MyLibModule,
+    AngularFireModule.initializeApp(environment.firebase, 'PikoApps'), // imports firebase/app needed for everything
+    AngularFireAuthModule, // imports firebase/auth, only needed for auth features
+    AngularFireDatabaseModule, // imports firebase/firestore, only needed for database features
   ],
   exports: [
+    UserAdminComponent,
+    LoginComponent,
+    SignUpComponent,
+    MyPageComponent,
   ],
   declarations: [
     UserAdminComponent,
@@ -41,9 +50,11 @@ import { DatabaseService } from './database.service';
     SignUpComponent,
     MyPageComponent,
   ],
-  entryComponents: [
+  providers: [
+    AngularFireAuth,
+    AngularFireDatabase,
     UserService,
     DatabaseService,
-  ]
+  ],
 })
-export class AppRoutingModule { }
+export class DatabaseModule { }
