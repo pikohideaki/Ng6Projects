@@ -1,17 +1,20 @@
+import { FeedbackCategory } from './feedbackCategory';
+
+
 export class Feedback {
   databaseKey: string;
   name:        string = '';
   content:     string = '';
   date:        Date;
   closed:      boolean = false;
-  category:    'bugReport'|'suggestion'|'';
+  category:    FeedbackCategory;
 
   constructor( databaseKey?: string, initObj?: {
     name:      string,
     content:   string,
     timeStamp: number,
     closed:    boolean,
-    category:  'bugReport'|'suggestion'|'',
+    category:  FeedbackCategory,
   }) {
     this.databaseKey = ( databaseKey || '' );
 
