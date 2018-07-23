@@ -10,19 +10,8 @@ import { UserService } from './database/user/user.service';
   selector: 'app-home',
   template: `
     <div class="body-with-padding">
-      <app-app-list appName="Piko Apps" [apps$]="apps$"></app-app-list>
+      <app-app-list appName="Scheduling Apps" [apps$]="apps$"></app-app-list>
     </div>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
-    a<br>
   `,
   styles: [],
 })

@@ -1,6 +1,16 @@
 <mat-toolbar color='primary' class='header box-shadow'>
+  <a mat-icon-button routerLink='/'> <mat-icon>home</mat-icon> </a>
+
+
   <span class="spacer"></span>
-  <!--
+
+
+  <a mat-button href="http://twitter.com/share?url=window.location.href&text={{title}}&hashtags=PikoApps" target="_blank">
+    <mat-icon>share</mat-icon>ツイート
+  </a>
+  <a mat-button routerLink='/feedback'>
+    <mat-icon>feedback</mat-icon>フィードバック
+  </a>
 
   <span class="userName">{{ myName$ | async }}</span>
 
@@ -15,21 +25,10 @@
     </mat-menu>
   </ng-template>
   <ng-template #elseBlock>
-    <a mat-icon-button routerLink='/user-admin'> <mat-icon>person</mat-icon> </a>
-  </ng-template> -->
-
-  <a mat-button href="http://twitter.com/share?url=window.location.href&text={{title}}&hashtags=PikoApps" target="_blank">
-    <mat-icon>share</mat-icon>ツイート
-  </a>
-  <a mat-button routerLink='/feedback'>
-    <mat-icon>feedback</mat-icon>フィードバック
-  </a>
-
-
+    <a mat-icon-button routerLink='/user-admin'>
+      <mat-icon>person</mat-icon>
+    </a>
+  </ng-template>
 </mat-toolbar>
-
-
-<!--dummy-->
-<!-- <mat-toolbar> </mat-toolbar> -->
 
 <router-outlet></router-outlet>

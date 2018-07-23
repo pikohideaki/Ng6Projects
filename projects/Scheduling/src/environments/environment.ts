@@ -5,12 +5,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyA3Vvlg_KBNcZdSkXRou6Bl-qyoWm2uAKE',
-    authDomain: 'pikoappsdevlopment.firebaseapp.com',
-    databaseURL: 'https://pikoappsdevlopment.firebaseio.com',
-    projectId: 'pikoappsdevlopment',
-    storageBucket: 'pikoappsdevlopment.appspot.com',
-    messagingSenderId: '352451149439'
+    apiKey: 'AIzaSyDnpUVXXdd9XRDMSqgUN_wkYbgJG-efPE0',
+    authDomain: 'schedulingappdev.firebaseapp.com',
+    databaseURL: 'https://schedulingappdev.firebaseio.com',
+    projectId: 'schedulingappdev',
+    storageBucket: 'schedulingappdev.appspot.com',
+    messagingSenderId: '629320165127'
   }
 };
 
