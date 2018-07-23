@@ -32,14 +32,14 @@ export class UserService {
         ( uid: string, users: User[] ) =>
           (!uid || users.length === 0) ? new User() : users.find( e => e.databaseKey === uid ) || new User() );
 
-    this.name$      = this.user$.pipe( map( e => e.name      ), distinctUntilChanged() );
+    this.name$     = this.user$.pipe( map( e => e.name     ), distinctUntilChanged() );
     this.nameYomi$ = this.user$.pipe( map( e => e.nameYomi ), distinctUntilChanged() );
 
     this.uid$.subscribe( val => this.uid = val );
   }
 
 
-  setMyName( value: string ) {
+  setMyName( value: string ): Promise<void> {
     if ( !this.uid ) return Promise.resolve();
     return this.database.user.set.name( this.uid, value );
   }

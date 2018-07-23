@@ -17,6 +17,7 @@ import { SelectorOption } from './types/selector-option';
 import { TCell } from './types/table-cell';
 import { CellPosition } from './types/cell-position';
 import { TableSettings } from './types/table-settings';
+import { isValidSetting } from './functions/is-valid-setting';
 
 
 @Component({
@@ -46,6 +47,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
   headerValuesAll$: Observable<TCell[]>;
   selectorOptionsAll$: Observable<SelectorOption[][]>;
 
+  private tableWithDefault$: Observable<TCell[][]>;
   private tableFiltered$: Observable<TCell[][]>;
   private indiceFiltered$: Observable<number[]>;
   tableFilteredRowSize$: Observable<number>;
@@ -70,13 +72,17 @@ export class DataTableComponent implements OnInit, OnDestroy {
     this.itemsPerPageSource.next( this.settings.itemsPerPageInit );
 
     /* observables */
+    this.tableWithDefault$
+      = this.table$
+          .pipe( map( table => isValidSetting( this.settings ) ? table : [] ) );
+
     this.headerValuesAll$
       = this.headerValuesAllSource.asObservable()
               .pipe( debounceTime(300) );
 
     this.indiceFiltered$
       = combineLatest(
-          this.table$,
+          this.tableWithDefault$,
           this.headerValuesAll$,
           (table, headerValuesAll) =>
             table.map( (e, i) => ({ val: e, idx: i }) )
@@ -88,13 +94,13 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
     this.tableFiltered$
       = this.indiceFiltered$.pipe(
-          withLatestFrom( this.table$ ),
+          withLatestFrom( this.tableWithDefault$ ),
           map( ([indice, table]) => indice.map( idx => table[idx] ) )
         );
 
     this.selectorOptionsAll$
       = this.tableFiltered$.pipe(
-          withLatestFrom( this.table$ ),
+          withLatestFrom( this.tableWithDefault$ ),
           map( ([tableFiltered, table]) =>
                   makeSelectOptions(
                     table,

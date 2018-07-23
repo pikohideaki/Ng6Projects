@@ -22,8 +22,8 @@ export class FeedbackAdminComponent implements OnInit {
   ngOnInit() {
   }
 
-  issueClosedChange( feedbackID: string, value: boolean ) {
-    this.database.feedbacks.closeIssue( feedbackID, value );
+  closeIssue( feedbackId: string, value: boolean ) {
+    this.database.feedbacks.closeIssue( feedbackId, value );
   }
 
 }

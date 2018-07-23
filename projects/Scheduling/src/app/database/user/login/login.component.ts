@@ -8,7 +8,15 @@ import { AngularFireAuth } from 'angularfire2/auth';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styles: [`
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+  `]
 })
 export class LoginComponent implements OnInit {
 

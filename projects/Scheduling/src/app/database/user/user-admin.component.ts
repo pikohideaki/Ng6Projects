@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-user-admin',
   template: `
-    <div class="bodyWithoutHeader loginFormWrapper">
+    <div class="login-form-wrapper">
       <mat-tab-group class="center-window">
         <mat-tab label="ログイン">
           <app-login></app-login>
@@ -15,17 +15,19 @@ import { Component, OnInit } from '@angular/core';
     </div>
   `,
   styles: [`
-    .loginFormWrapper {
+    .login-form-wrapper {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-    }
-
-    .bodyWithoutHeader {
-      height: calc(100vh - 64px);  /* subtract header height */
+      height: 100vh;
       width: 100vw;
     }
+
+    /*.body-without-header {
+      height: calc(100vh - 64px);
+      width: 100vw;
+    }*/
   `]
 })
 export class UserAdminComponent implements OnInit {
