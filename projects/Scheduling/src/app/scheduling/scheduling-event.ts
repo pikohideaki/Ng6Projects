@@ -2,6 +2,7 @@ import { utils } from '../my-lib/utilities';
 import { SchedulingSymbol } from './scheduling-symbol';
 import { Answer } from './answer';
 
+
 export class SchedulingEvent {
   databaseKey:       string     = '';
   title:             string     = '';
@@ -12,15 +13,7 @@ export class SchedulingEvent {
   answers:           Answer[]   = [];
   password:          string     = '';
 
-  constructor( databaseKey?: string, initObj?: {
-      title:                       string,
-      notes:                       string,
-      selectedDatetimesTimeStamps: number[],
-      answerDeadlineTimeStamp:     number,
-      symbols:                     SchedulingSymbol[],
-      answers:                     object,
-      password:                    string,
-  }) {
+  constructor( databaseKey?: string, initObj?: SchedulingEventInitObj ) {
     this.databaseKey = ( databaseKey || '' );
 
     if ( !initObj ) return;
@@ -35,3 +28,16 @@ export class SchedulingEvent {
     this.password = ( initObj.password || '' );
   }
 }
+
+
+
+export interface SchedulingEventInitObj {
+  title:                       string;
+  notes:                       string;
+  selectedDatetimesTimeStamps: number[];
+  answerDeadlineTimeStamp:     number;
+  symbols:                     SchedulingSymbol[];
+  answers:                     object;
+  password:                    string;
+}
+

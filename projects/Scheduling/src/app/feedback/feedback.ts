@@ -9,13 +9,7 @@ export class Feedback {
   closed:      boolean = false;
   category:    FeedbackCategory;
 
-  constructor( databaseKey?: string, initObj?: {
-    name:      string,
-    content:   string,
-    timeStamp: number,
-    closed:    boolean,
-    category:  FeedbackCategory,
-  }) {
+  constructor( databaseKey?: string, initObj?: FeedbackInitObj ) {
     this.databaseKey = ( databaseKey || '' );
 
     if ( !initObj ) return;
@@ -25,4 +19,13 @@ export class Feedback {
     this.closed   = !!initObj.closed;
     this.category = ( initObj.category || '' );
   }
+}
+
+
+export interface FeedbackInitObj {
+  name:      string;
+  content:   string;
+  timeStamp: number;
+  closed:    boolean;
+  category:  FeedbackCategory;
 }

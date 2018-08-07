@@ -8,10 +8,10 @@ import * as firebase from 'firebase/app';
 
 import { utils } from '../my-lib/utilities';
 
-import { User } from './user/user';
-import { SchedulingEvent } from '../scheduling/scheduling-event';
+import { User, UserInitObj } from './user/user';
+import { SchedulingEvent, SchedulingEventInitObj } from '../scheduling/scheduling-event';
 import { Answer } from '../scheduling/answer';
-import { Feedback } from '../feedback/feedback';
+import { Feedback, FeedbackInitObj } from '../feedback/feedback';
 
 
 @Injectable()
@@ -56,18 +56,19 @@ export class DatabaseService {
       = this.afdb.list( this.fdPath.users,
               ref => ref.orderByChild('nameYomi') ).snapshotChanges()
           .pipe( map( actions => actions.map( action =>
-            new User( action.key, action.payload.val() as { name: string, nameYomi: string, } ) ) ) );
+            new User( action.key, action.payload.val() as UserInitObj ) ) ) );
           // .do( val => console.log( 'users$ changed', JSON.stringify(val), val ) );
 
     this.schedulingEvents$
       = this.afdb.list( this.fdPath.schedulingEvents ).snapshotChanges()
           .pipe( map( actions => actions.map( action =>
-            new SchedulingEvent( action.key, action.payload.val() ) ) ) );
+            new SchedulingEvent( action.key, action.payload.val() as SchedulingEventInitObj ) ) ) );
           // .do( val => console.log( 'schedulingEvents$ changed', JSON.stringify(val), val ) );
 
     this.feedbacks$
       = this.afdb.list( this.fdPath.feedbacks ).snapshotChanges()
-          .pipe( map( actions => actions.map( action => new Feedback( action.key, action.payload.val() ) ) ) );
+          .pipe( map( actions => actions.map( action =>
+            new Feedback( action.key, action.payload.val() as FeedbackInitObj ) ) ) );
           // .do( val => console.log( 'feedbacks$ changed', JSON.stringify(val), val ) );
 
 
