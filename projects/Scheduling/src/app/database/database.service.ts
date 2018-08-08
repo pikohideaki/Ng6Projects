@@ -8,10 +8,10 @@ import * as firebase from 'firebase/app';
 
 import { utils } from '../my-lib/utilities';
 
-import { User } from './user/user';
-import { SchedulingEvent } from '../scheduling/scheduling-event';
+import { User, UserInitObj } from './user/user';
+import { SchedulingEvent, SchedulingEventInitObj } from '../scheduling/scheduling-event';
 import { Answer } from '../scheduling/answer';
-import { Feedback } from '../feedback/feedback';
+import { Feedback, FeedbackInitObj } from '../feedback/feedback';
 
 
 @Injectable()
@@ -56,28 +56,27 @@ export class DatabaseService {
       = this.afdb.list( this.fdPath.users,
               ref => ref.orderByChild('nameYomi') ).snapshotChanges()
           .pipe( map( actions => actions.map( action =>
-            new User( action.key, action.payload.val() as { name: string, nameYomi: string, } ) ) ) );
-          // .do( val => console.log( 'users$ changed', JSON.stringify(val), val ) );
+            new User( action.key, action.payload.val() as UserInitObj ) ) ) );
 
     this.schedulingEvents$
       = this.afdb.list( this.fdPath.schedulingEvents ).snapshotChanges()
           .pipe( map( actions => actions.map( action =>
-            new SchedulingEvent( action.key, action.payload.val() ) ) ) );
-          // .do( val => console.log( 'schedulingEvents$ changed', JSON.stringify(val), val ) );
+            new SchedulingEvent( action.key, action.payload.val() as SchedulingEventInitObj ) ) ) );
 
     this.feedbacks$
       = this.afdb.list( this.fdPath.feedbacks ).snapshotChanges()
-          .pipe( map( actions => actions.map( action => new Feedback( action.key, action.payload.val() ) ) ) );
-          // .do( val => console.log( 'feedbacks$ changed', JSON.stringify(val), val ) );
+          .pipe( map( actions => actions.map( action =>
+            new Feedback( action.key, action.payload.val() as FeedbackInitObj ) ) ) );
 
 
 
 
     /*** methods ***/
 
-    const userSetProperty = ( uid: string, pathPrefix: string, value: any ) => {
+    const userSetProperty = ( uid: string, path: string, value: any ) => {
       if ( !uid ) throw new Error('uid is empty');
-      return this.afdb.object( `${this.fdPath.users}/${uid}/${pathPrefix}` )
+      if ( !( path in UserInitObj ) ) throw new Error(`property '${path}' doesn't exists in UserInitObj`);
+      return this.afdb.object( `${this.fdPath.users}/${uid}/${path}` )
                       .set( value );
     };
     this.user = {
@@ -106,8 +105,11 @@ export class DatabaseService {
         return this.afdb.list( this.fdPath.feedbacks ).push( copy );
       },
 
-      closeIssue: ( feedbackID: string, value: boolean ) =>
-        this.afdb.object( `${this.fdPath.feedbacks}/${feedbackID}/closed`).set( value ),
+      closeIssue: ( feedbackId: string, value: boolean ) => {
+        const path = 'closed';
+        if ( !( path in UserInitObj ) ) throw new Error(`property '${path}' doesn't exists in UserInitObj`);
+        this.afdb.object( `${this.fdPath.feedbacks}/${feedbackId}/${path}`).set( value ),
+      }
     };
 
     this.scheduling = {
@@ -143,11 +145,13 @@ export class DatabaseService {
       },
 
       addAnswer: ( eventID: string, value: Answer ) => {
+        const path = 'answers';
+        if ( !( path in Answer ) ) 
         const copy = utils.object.copy( value );
         delete copy.databaseKey;
         copy.selection
           = value.selection.map( e => ({ dateValue: e.date.valueOf(), symbolID: e.symbolID }) );
-        return this.afdb.list( `${this.fdPath.schedulingEvents}/${eventID}/answers` ).push( copy );
+        return this.afdb.list( `${this.fdPath.schedulingEvents}/${eventID}/${path}` ).push( copy );
       },
 
       setAnswer: ( eventID: string, answerID: string, value: Answer ) => {

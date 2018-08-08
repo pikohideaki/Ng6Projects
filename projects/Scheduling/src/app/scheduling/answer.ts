@@ -7,7 +7,7 @@ export class Answer {
   constructor( databaseKey?: string, initObj?: {
     userName: string,
     comment: string,
-    selection: { dateValue: number, symbolID: string }[],
+    selection: { timeStamp: number, symbolID: string }[],
   }) {
     this.databaseKey = ( databaseKey || '' );
 
@@ -15,8 +15,10 @@ export class Answer {
     this.userName = ( initObj.userName || '' );
     this.comment  = ( initObj.comment  || '' );
     this.selection = ( (initObj.selection || []).map( e => ({
-                          date     : new Date( e.dateValue ),
+                          date     : new Date( e.timeStamp ),
                           symbolID : e.symbolID,
                         })) || [] );
   }
 }
+
+
