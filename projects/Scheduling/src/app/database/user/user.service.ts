@@ -9,7 +9,6 @@ import { DatabaseService } from '../database.service';
 
 @Injectable()
 export class UserService {
-  private uid: string = '';
   uid$:        Observable<string>;
   signedIn$:   Observable<boolean>;
 
@@ -30,17 +29,16 @@ export class UserService {
         this.uid$,
         this.database.users$,
         ( uid: string, users: User[] ) =>
-          (!uid || users.length === 0) ? new User() : users.find( e => e.databaseKey === uid ) || new User() );
+          (!uid || users.length === 0)
+              ? new User()
+              : users.find( e => e.id === uid ) || new User() );
 
     this.name$     = this.user$.pipe( map( e => e.name     ), distinctUntilChanged() );
     this.nameYomi$ = this.user$.pipe( map( e => e.nameYomi ), distinctUntilChanged() );
-
-    this.uid$.subscribe( val => this.uid = val );
   }
 
 
-  setMyName( value: string ): Promise<void> {
-    if ( !this.uid ) return Promise.resolve();
-    return this.database.user.set.name( this.uid, value );
+  setMyName( uid: string, name: string ): Promise<void> {
+    return this.database.user.updateName( uid, name );
   }
 }

@@ -22,8 +22,12 @@ export class FeedbackAdminComponent implements OnInit {
   ngOnInit() {
   }
 
-  closeIssue( feedbackId: string, value: boolean ) {
-    this.database.feedbacks.closeIssue( feedbackId, value );
+  closeOrOpenIssue( id: string, checkboxValue: boolean ) {
+    if ( checkboxValue === true ) {
+      this.database.feedbacks.closeIssue( id );
+    } else {
+      this.database.feedbacks.openIssue( id );
+    }
   }
 
 }

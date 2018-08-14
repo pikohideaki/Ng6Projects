@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material';
 import { DatabaseService } from '../database/database.service';
 import { ConfirmDialogComponent } from '../my-lib/confirm-dialog.component';
 import { Feedback } from './feedback';
-import { FeedbackCategory } from './feedbackCategory';
+import { FeedbackCategory } from './feedback-category';
 
 @Component({
   selector: 'app-feedback',
@@ -48,10 +48,11 @@ export class FeedbackComponent implements OnInit {
     dialogRef.componentInstance.message = '送信してもよろしいですか？';
     dialogRef.afterClosed().subscribe( result => {
       if ( result === 'yes' ) {
-        this.database.feedbacks.add( new Feedback( null, {
+        this.database.feedbacks.add( new Feedback( {
+          id:        '',
           name:      this.name,
           content:   this.feedbackText,
-          timeStamp: Date.now(),
+          timestamp: Date.now(),
           closed:    false,
           category:  this.category,
         }) );

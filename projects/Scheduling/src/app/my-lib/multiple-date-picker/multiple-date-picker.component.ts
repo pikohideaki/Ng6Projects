@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
 import { map, takeWhile, startWith, first } from 'rxjs/operators';
 
 import { utils } from '../utilities';
@@ -15,12 +15,12 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   private alive = true;
 
   @Input() width: number = 300;
-  @Input() filterFunction = (_ => true);
+  @Input() filterFunction = ((_: any) => true);
   @Input() dayLabelLanguage: 'eng'|'jp' = 'eng';
-  @Input() initialDateList$: Observable<Date[]>;
+  @Input() initialDateList$!: Observable<Date[]>;
   @Output() selectedDatesChange = new EventEmitter<Date[]>();
 
-  dayStrings: string[];
+  dayStrings: string[] = [];
   weeks$: Observable<{ date: Date, selected: boolean }[][]>;
 
   private currentYearSource
@@ -31,13 +31,12 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   currentMonth$: Observable<number> = this.currentMonthSource.asObservable();
 
   private selectedDateValuesSource = new BehaviorSubject<number[]>([]);
-  private selectedDateValues$ = this.selectedDateValuesSource.asObservable()
-                                  .pipe( startWith([]) );
+  private selectedDateValues$: Observable<number[]>
+     = this.selectedDateValuesSource.asObservable().pipe( startWith([]) );
 
 
 
-  constructor(
-  ) {
+  constructor() {
     this.weeks$ = combineLatest(
         this.currentYear$,
         this.currentMonth$,

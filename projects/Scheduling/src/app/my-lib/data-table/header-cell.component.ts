@@ -81,8 +81,8 @@ export class HeaderCellComponent implements OnInit {
   @Input() headerSetting!: HeaderSetting;
   @Input() selectorOptions!: SelectorOption[];
 
-  @Input() headerValue!: TCell;
-  @Output() headerValueChange = new EventEmitter<TCell>();
+  @Input() headerValue!: TCell|undefined;
+  @Output() headerValueChange = new EventEmitter<TCell|undefined>();
 
 
   constructor() { }
@@ -90,7 +90,7 @@ export class HeaderCellComponent implements OnInit {
   ngOnInit() {
   }
 
-  changeHeaderValue( value: TCell ) {
+  changeHeaderValue( value: TCell|undefined ) {
     this.headerValueChange.emit( value );
   }
 

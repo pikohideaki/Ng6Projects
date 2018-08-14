@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 // import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material';
 
-// import { UserService } from './firebase-mediator/user.service';
+import { UserService } from './database/user/user.service';
 // import { AutoBackupOnFirebaseService } from './firebase-mediator/auto-backup-on-firebase.service';
 
 
@@ -26,14 +26,14 @@ export class AppComponent {
     private afAuth: AngularFireAuth,
     iconRegistry: MatIconRegistry,
     // sanitizer: DomSanitizer
-    // private user: UserService,
+    private user: UserService,
     // private autoBackup: AutoBackupOnFirebaseService,
   ) {
     // iconRegistry.addSvgIcon(
     //     'twitter',
     //     sanitizer.bypassSecurityTrustResourceUrl('assets/img/twitter.svg'));
-    // this.myName$ = user.name$;
-    // this.signedIn$ = this.user.signedIn$;
+    this.myName$ = user.name$;
+    this.signedIn$ = this.user.signedIn$;
     // this.autoBackup.checkAndExecuteBackup();
   }
 

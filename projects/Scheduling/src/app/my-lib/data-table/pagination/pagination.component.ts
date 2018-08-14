@@ -12,15 +12,15 @@ import { utils } from '../../utilities';
 })
 export class PaginationComponent implements OnInit {
 
-  @Input()  rowSize$: Observable<number>;
-  @Input()  itemsPerPage$: Observable<number>;
-  @Input()  pageNumber$: Observable<number>;
+  @Input()  rowSize$!: Observable<number>;
+  @Input()  itemsPerPage$!: Observable<number>;
+  @Input()  pageNumber$!: Observable<number>;
   @Output() pageNumberChange = new EventEmitter<number>();
 
-  pageLength$: Observable<number>;
-  rangeStart$: Observable<number>;
-  rangeEnd$:   Observable<number>;
-  pageIndice$: Observable<number[]>;
+  pageLength$!: Observable<number>;
+  rangeStart$!: Observable<number>;
+  rangeEnd$!:   Observable<number>;
+  pageIndice$!: Observable<number[]>;
 
 
   constructor(

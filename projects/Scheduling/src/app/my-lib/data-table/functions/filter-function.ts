@@ -6,7 +6,7 @@ import { TCell, TCellPrimitive } from '../types/table-cell';
 export const filterFunction = (
   tableLine: TCell[],
   headerSettings: HeaderSetting[],
-  headerValuesAll: TCell[],
+  headerValuesAll: (TCell|undefined)[],
 ): boolean => {
 
   for ( let colIndex = 0; colIndex < headerSettings.length; ++colIndex ) {

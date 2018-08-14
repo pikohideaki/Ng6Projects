@@ -1,7 +1,7 @@
 
 export class Stopwatch {
-  private _startTime;
-  private _endTime;
+  private _startTime = 0;
+  private _endTime = 0;
   private _result = 0;
   private _name = '';
 
@@ -10,13 +10,13 @@ export class Stopwatch {
   }
 
   start( log = false ) {
-    this._startTime = (new Date()).valueOf();
+    this._startTime = (new Date()).getTime();
     this._result = 0;
     if ( log ) console.log( `${this._name} started.` );
   }
 
   stop ( log = false ) {
-    this._endTime = (new Date()).valueOf();
+    this._endTime = (new Date()).getTime();
     this._result = this._endTime - this._startTime;
     if ( log ) console.log( `${this._name} stopped.` );
   }
@@ -42,7 +42,7 @@ export const utils = {
       localStorage.setItem( key, JSON.stringify( value ) ),
 
     get: ( key: string ) =>
-      JSON.parse( localStorage.getItem( key ) ),
+      JSON.parse( localStorage.getItem( key ) || '' ),
 
     has: ( key: string ): boolean =>
       ( localStorage.getItem( key ) != null ),
@@ -63,29 +63,28 @@ export const utils = {
     },
   },
 
-
   object: {
-    keysAsNumber: ( obj: Object ): number[] =>
+    keysAsNumber: ( obj: object ): number[] =>
       Object.keys( obj || {} ).map( e => Number(e) ),
 
-    forEach: ( obj: Object, f: (element: any, key?: string, object?: any) => any ) =>
+    forEach: ( obj: any, f: (element: any, key?: string, object?: any) => any ) =>
       Object.keys( obj || {} ).forEach( key => f( obj[key], key, obj ) ),
 
-    map: ( obj: Object, f: (element: any, key?: string, object?: any) => any ) =>
+    map: ( obj: any, f: (element: any, key?: string, object?: any) => any ) =>
       Object.keys( obj || {} ).map( key => f( obj[key], key, obj ) ),
 
-    values: ( obj: Object ) =>
+    values: ( obj: object ) =>
       utils.object.map( obj, e => e ),
 
-    entries: ( obj: Object ) =>
+    entries: ( obj: object ) =>
       utils.object.map( obj, (el, key) => ({ key: key, value: el }) ),
 
-    copy: ( obj: Object ) => JSON.parse( JSON.stringify( obj || {} ) ),
+    copy: ( obj: object ) => JSON.parse( JSON.stringify( obj || {} ) ),
 
-    compareByJsonString: ( obj1: Object, obj2: Object ) =>
+    compareByJsonString: ( obj1: object, obj2: object ) =>
       JSON.stringify(obj1) === JSON.stringify(obj2),
 
-    shallowCopy: ( obj: Object, asArray?: boolean ) =>
+    shallowCopy: ( obj: object, asArray?: boolean ) =>
       ( asArray ? Object.assign([], obj) : Object.assign({}, obj) ),
 
   },
@@ -108,10 +107,10 @@ export const utils = {
      * @description alias of `ar.splice( index, 1 )[0]`;  Delete the element at address `index`
      * @return the deleted element
      */
-    removeAt: <T>( arr: T[], index: number ): T =>
+    removeAt: <T>( arr: T[], index: number ): T|undefined =>
       ( index < 0 ? undefined : arr.splice( index, 1 )[0] ),
 
-    removeIf: <T>( arr: T[], f: (T) => boolean ): T =>
+    removeIf: <T>( arr: T[], f: (value: T) => boolean ): T|undefined =>
       utils.array.removeAt( arr, arr.findIndex(f) ),
 
     remove: <T>( arr: T[], value: T ): T|undefined =>
@@ -123,12 +122,12 @@ export const utils = {
     getRemovedCopy: <T>( arr: T[], target: T ): T[] =>
       arr.filter( e => e !== target ),
 
-    filterRemove: <T>( arr: T[], f: (T) => boolean ): [ T[], T[] ] =>
+    filterRemove: <T>( arr: T[], f: (value: T) => boolean ): [ T[], T[] ] =>
       [ arr.filter(f), arr.filter( e => !f(e) ) ],
 
-    append: ( arr1: any[], arr2: any[] ): any[] => [].concat( arr1, arr2 ),
+    getCombined: ( arr1: any[], arr2: any[] ): any[] => [...arr1, ...arr2],
 
-    copy: <T>( arr: T[] ): T[] => [].concat( arr ),
+    copy: <T>( arr: T[] ): T[] => [...arr],
 
     getReversed: ( arr: any[] ) => utils.array.copy( arr ).reverse(),
 
@@ -138,10 +137,10 @@ export const utils = {
     /**
      * @desc copy and return unique array
      * @param arr target array
-     * @param mapFunction perform identity check after mapping by the map function
+     * @param mapFn perform identity check after mapping by the map function
      */
-    uniq: <T>( arr: T[], mapFunction: (T) => any = (e => e) ) =>
-      arr.map( (e) => [ e, mapFunction(e) ] )
+    uniq: <T>( arr: T[], mapFn: (value: T) => any = (e => e) ) =>
+      arr.map( (e) => [ e, mapFn(e) ] )
          .filter( (val, index, array) => (array.map( a => a[1] ).indexOf( val[1] ) === index) )
          .map( a => a[0] ),
 
@@ -187,7 +186,7 @@ export const utils = {
       return result;
     },
 
-    minValue: ( arr: Array<number> ): number => {
+    minValue: ( arr: number[] ): number => {
       let min = Infinity;
       const QUANTUM = 32768;
 
@@ -198,7 +197,7 @@ export const utils = {
       return min;
     },
 
-    maxValue: ( arr: Array<number> ): number => {
+    maxValue: ( arr: number[] ): number => {
       let max = -Infinity;
       const QUANTUM = 32768;
 
@@ -209,8 +208,11 @@ export const utils = {
       return max;
     },
 
-    isInArrayRange: ( target: number, arr: any[] ): boolean =>
-      utils.number.isInRange( target, 0, arr.length ),
+    isInArrayRange: ( index: number, arr: any[] ): boolean =>
+      utils.number.isInRange( index, 0, arr.length ),
+
+    expandAndCombine: ( array2d: any[][] ): any[] =>
+      array2d.reduce( (prev, curr) => utils.array.getCombined(prev, curr), [] ),
   },
 
 
@@ -253,7 +255,7 @@ export const utils = {
         Math.round( Math.random() * (max - min) + min ),
 
       getRandomElement: <T>( array: T[] ): T =>
-        array[ this.randomNumber( 0, array.length - 1 ) ],
+        array[ utils.number.random.genIntegerIn( 0, array.length - 1 ) ],
 
       getShuffled: ( arr: any[] ): any[] =>
         arr.map( e => [e, Math.random()] )
@@ -273,16 +275,21 @@ export const utils = {
 
 
   date: {
-    weekNumber: ( dat: Date ) => {
-      const date0Saturday = dat.getDate() - 1 + ( 6 - dat.getDay() );
+    /**
+     * @description 何週目か(0-origin)を返す
+     */
+    weekNumber: ( date: Date|number ): number => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      const date0Saturday = dt.getDate() - 1 + ( 6 - dt.getDay() );  // 同じ週の土曜日
       return Math.floor( date0Saturday / 7 );
     },
 
-    isToday: ( dat: Date ) => {
+    isToday: ( date: Date|number ): boolean => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
       // Get today's date
-      const todaysDate = new Date();
+      const today = new Date();
       // call setHours to take the time out of the comparison
-      return ( dat.setHours(0, 0, 0, 0).valueOf() === todaysDate.setHours(0, 0, 0, 0).valueOf() );
+      return ( dt.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0) );
     },
 
     getAllDatesIn: ( year: number, month: number ): Date[] => {
@@ -300,50 +307,71 @@ export const utils = {
      * date1  >  date2 -->  1
      * date1 === date2 -->  0
      */
-    compare: ( date1: Date, date2: Date ): -1|0|1 => {
-      const date1value = date1.getTime();
-      const date2value = date2.getTime();
-      if ( date1value  <  date2value ) return -1;
-      if ( date1value === date2value ) return  0;
-      if ( date1value  >  date2value ) return  1;
+    compare: ( date1: Date|number, date2: Date|number ): -1|0|1 => {
+      const date1value = ( typeof date1 === 'number' ? date1 : date1.getTime() );
+      const date2value = ( typeof date2 === 'number' ? date2 : date2.getTime() );
+      if ( date1value < date2value ) return -1;
+      if ( date1value > date2value ) return  1;
+      return 0;
     },
 
-    getDayStringJp: ( dat: Date ) =>
-      ['日', '月', '火', '水', '木', '金', '土'][ dat.getDay() ],
+    getDayStringJp: ( date: Date|number ): string => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return ['日', '月', '火', '水', '木', '金', '土'][ dt.getDay() ];
+    },
 
-    getDayStringEng: ( dat: Date ) =>
-      ['Sun', 'Mon', 'Tue', 'Wed', 'Thr', 'Fri', 'Sat'][ dat.getDay() ],
+    getDayStringEng: ( date: Date|number ): string => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return ['Sun', 'Mon', 'Tue', 'Wed', 'Thr', 'Fri', 'Sat'][ dt.getDay() ];
+    },
 
-    toYMD: ( dat: Date, delimiter: string = '/' ): string =>
-      dat.getFullYear()
-          + delimiter
-          + (dat.getMonth() + 1).toString().padStart( 2, '0' )
-          + delimiter
-          + dat.getDate().toString().padStart( 2, '0' ),
+    toYMD: ( date: Date|number, delimiter: string = '/' ): string => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return dt.getFullYear()
+              + delimiter
+              + (dt.getMonth() + 1).toString().padStart( 2, '0' )
+              + delimiter
+              + dt.getDate().toString().padStart( 2, '0' );
+    },
 
-    toHM: ( dat: Date, delimiter: string = ':' ): string =>
-      dat.getHours().toString().padStart( 2, '0' )
-          + delimiter
-          + dat.getMinutes().toString().padStart( 2, '0' ),
+    toHM: ( date: Date|number, delimiter: string = ':' ): string => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return dt.getHours().toString().padStart( 2, '0' )
+              + delimiter
+              + dt.getMinutes().toString().padStart( 2, '0' );
+    },
 
-    toHMS: ( dat: Date, delimiter: string = ':' ): string =>
-      dat.getHours().toString().padStart( 2, '0' )
-          + delimiter
-          + dat.getMinutes().toString().padStart( 2, '0' )
-          + delimiter
-          + dat.getSeconds().toString().padStart( 2, '0' ),
+    toHMS: ( date: Date|number, delimiter: string = ':' ): string => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return dt.getHours().toString().padStart( 2, '0' )
+              + delimiter
+              + dt.getMinutes().toString().padStart( 2, '0' )
+              + delimiter
+              + dt.getSeconds().toString().padStart( 2, '0' );
+    },
 
-    toYMDHMS: ( dat: Date ): string =>
-      `${utils.date.toYMD( dat )} ${utils.date.toHMS( dat )}`,
+    toYMDHMS: ( date: Date|number ): string =>
+      `${utils.date.toYMD( date )} ${utils.date.toHMS( date )}`,
 
-    getYestereday: ( dat: Date ): Date =>
-      new Date( ( new Date( dat ) ).setDate( dat.getDate() - 1) ),
+    getYestereday: ( date: Date|number ): Date => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return new Date( ( new Date( dt ) ).setDate( dt.getDate() - 1) );
+    },
 
-    getTomorrow: ( dat: Date ): Date =>
-      new Date( ( new Date( dat ) ).setDate( dat.getDate() + 1) ),
+    getYesteredayTimestamp: ( date: Date|number ): number =>
+      utils.date.getYestereday( date ).getTime(),
 
-    toMidnight: ( date: Date ): Date => {
-      const midnight = new Date( date );
+    getTomorrow: ( date: Date|number ): Date => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return new Date( ( new Date( dt ) ).setDate( dt.getDate() + 1) );
+    },
+
+    getTomorrowTimestamp: ( date: Date|number ): number =>
+      utils.date.getTomorrow( date ).getTime(),
+
+    toMidnight: ( date: Date|number ): Date => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      const midnight = new Date( dt );
       midnight.setHours(0);
       midnight.setMinutes(0);
       midnight.setSeconds(0);
@@ -351,6 +379,8 @@ export const utils = {
       return midnight;
     },
 
+    toMidnightTimestamp: ( date: Date|number ): number =>
+      utils.date.toMidnight( date ).getTime(),
   },
 
 
@@ -358,11 +388,13 @@ export const utils = {
     sleep: ( sec: number ): Promise<any> =>
       new Promise( resolve => setTimeout( resolve, sec * 1000 ) ),
 
-    asyncFilter: async ( array: any[], asyncFunction: Function ) => {
-      const result = await Promise.all( array.map( e => asyncFunction(e) ) );
+    asyncFilter: async ( array: any[], asyncFn: Function ) => {
+      const result = await Promise.all( array.map( e => asyncFn(e) ) );
       return array.filter( (_, i) => result[i] );
     },
   }
 
 
 };
+
+

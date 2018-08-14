@@ -10,8 +10,8 @@ import { Observable } from 'rxjs';
 })
 export class AppListComponent implements OnInit {
 
-  @Input() appName: string;
-  @Input() apps$: Observable<{
+  @Input() appName!: string;
+  @Input() apps$!: Observable<{
           routerLink:  string,
           inService:   boolean,
           title:       string,

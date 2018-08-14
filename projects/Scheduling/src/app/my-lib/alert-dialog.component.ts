@@ -23,7 +23,7 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class AlertDialogComponent implements OnInit {
 
-  @Input() message: string;
+  @Input() message!: string;
 
   constructor() {}
 

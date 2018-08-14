@@ -1,4 +1,4 @@
-export interface SchedulingSymbol {
+export interface ScheduleSymbol {
   id:          string;
   useThis:     boolean;
   iconName:    string;

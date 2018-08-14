@@ -26,7 +26,7 @@ export const makeSelectOptions = (
 
     if ( ![ 'select',
             'multiSelect-or',
-            'multiSelect-and',
+            'multiSelect-and'
           ].includes( header.filterType )
     ) {
       selectorOptions[ colIndex ] = [];
@@ -40,16 +40,16 @@ export const makeSelectOptions = (
             .map( e => ({
               value: e,
               viewValue: header.transform(e)
-                  + `(${colFiltered.filter( (cell: TCellPrimitive) => cell === e ).length})`,
+                  + `(${(<TCellPrimitive[]>colFiltered).filter( (cell: TCellPrimitive) => cell === e ).length})`,
             }) );
     } else {
       selectorOptions[ colIndex ]
-        = utils.array.uniq( [].concat( ...col ) )
+        = utils.array.uniq( utils.array.expandAndCombine( <TCellPrimitive[][]>col ) )
             .sort( header.compareFn )
             .map( e => ({
               value: e,
               viewValue: header.transform(e)
-                + `(${colFiltered.filter( (cell: TCellPrimitive[]) => cell.includes(e) ).length})`,
+                + `(${(<TCellPrimitive[][]>colFiltered).filter( (cell: TCellPrimitive[]) => cell.includes(e) ).length})`,
             }) );
     }
   }

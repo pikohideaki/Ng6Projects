@@ -25,13 +25,13 @@ export class SignUpComponent implements OnInit {
 
   waitingForResponse = false;
 
-  email: string;
-  password: string;
-  name: string;
-  nameYomi: string;
+  email:    string = '';
+  password: string = '';
+  name:     string = '';
+  nameYomi: string = '';
 
-  errorMessageForEmail: string;
-  errorMessageForPassword: string;
+  errorMessageForEmail:    string = '';
+  errorMessageForPassword: string = '';
 
 
   constructor(
@@ -46,20 +46,20 @@ export class SignUpComponent implements OnInit {
   }
 
 
-  emailOnChange( value ) {
-    this.email = value;
+  emailOnChange( email: string ) {
+    this.email = email;
   }
 
-  passwordOnChange( value ) {
-    this.password = value;
+  passwordOnChange( password: string ) {
+    this.password = password;
   }
 
-  nameOnChange( value ) {
-    this.name = value;
+  nameOnChange( name: string ) {
+    this.name = name;
   }
 
-  nameYomiOnChange( value ) {
-    this.nameYomi = value;
+  nameYomiOnChange( nameYomi: string ) {
+    this.nameYomi = nameYomi;
   }
 
 
@@ -72,11 +72,11 @@ export class SignUpComponent implements OnInit {
     .then( afUser => {
       this.waitingForResponse = false;
 
-      this.database.user.setUser(
-          afUser.user.uid,
-          new User( afUser.user.uid, {
+      this.database.user.add( new User( {
+            id:        ( afUser.user || { uid: ''} ).uid,
+            timestamp: Date.now(),
             name:      this.name,
-            nameYomi: this.nameYomi,
+            nameYomi:  this.nameYomi,
           } ) );
 
       this.location.back();

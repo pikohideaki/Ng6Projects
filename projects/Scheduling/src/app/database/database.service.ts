@@ -1,170 +1,89 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-// import { AngularFirestore    } from 'angularfire2/firestore';
-import { AngularFireDatabase } from 'angularfire2/database';
-import * as firebase from 'firebase/app';
-
-import { utils } from '../my-lib/utilities';
-
-import { User, UserInitObj } from './user/user';
-import { SchedulingEvent, SchedulingEventInitObj } from '../scheduling/scheduling-event';
+import { User } from './user/user';
+import { Schedule } from '../scheduling/schedule';
 import { Answer } from '../scheduling/answer';
-import { Feedback, FeedbackInitObj } from '../feedback/feedback';
+import { Feedback } from '../feedback/feedback';
+
+
+import { MyAngularFireDatabaseService } from './afdatabase.service';
 
 
 @Injectable()
 export class DatabaseService {
-  fdPath = {
-    users : '/users',
-    schedulingEvents: '/schedulingEvents',
-    feedbacks: '/feedbacks',
-  };
 
-  users$: Observable<User[]>;
+  users$:     Observable<User[]>;
   feedbacks$: Observable<Feedback[]>;
-  schedulingEvents$: Observable<SchedulingEvent[]>;
+  schedules$: Observable<Schedule[]>;
 
   /* methods */
   user: {
-    setUser: ( uid: string, newUser: User ) => Promise<void>,
-    set: {
-      name:     ( uid: string, value: string ) => Promise<void>,
-      nameYomi: ( uid: string, value: string ) => Promise<void>,
-    }
-  };
-
-  scheduling: {
-    addEvent:     ( value: SchedulingEvent ) => firebase.database.ThenableReference,
-    setEvent:     ( eventID: string, value: SchedulingEvent ) => Promise<void>,
-    addAnswer:    ( eventID: string, value: Answer ) => firebase.database.ThenableReference,
-    setAnswer:    ( eventID: string, answerID: string, value: Answer ) => Promise<void>,
-    removeAnswer: ( eventID: string, answerID: string )                => Promise<void>,
+    add:        (user: User)                => Promise<string>,
+    update:     (user: User)                => Promise<void>,
+    delete:     (uid: string)               => Promise<void>,
+    updateName: (uid: string, name: string) => Promise<void>,
   };
 
   feedbacks: {
-    add: ( value: Feedback ) => firebase.database.ThenableReference,
-    closeIssue: ( feedbackID: string, value: boolean ) => Promise<void>,
+    add:        (value: Feedback) => Promise<string>,
+    closeIssue: (id: string)      => Promise<void>,
+    openIssue:  (id: string)      => Promise<void>,
+  };
+
+  scheduling: {
+    add:          (schedule: Schedule)                   => Promise<string>,
+    update:       (schedule: Schedule)                   => Promise<void>,
+    addAnswer:    (scheduleId: string, answer: Answer)   => Promise<void>,
+    updateAnswer: (scheduleId: string, answer: Answer)   => Promise<void>,
+    deleteAnswer: (scheduleId: string, answerId: string) => Promise<void>,
   };
 
 
   constructor(
-    private afdb: AngularFireDatabase,
+    private myafdb: MyAngularFireDatabaseService,
   ) {
-    this.users$
-      = this.afdb.list( this.fdPath.users,
-              ref => ref.orderByChild('nameYomi') ).snapshotChanges()
-          .pipe( map( actions => actions.map( action =>
-            new User( action.key, action.payload.val() as UserInitObj ) ) ) );
-
-    this.schedulingEvents$
-      = this.afdb.list( this.fdPath.schedulingEvents ).snapshotChanges()
-          .pipe( map( actions => actions.map( action =>
-            new SchedulingEvent( action.key, action.payload.val() as SchedulingEventInitObj ) ) ) );
-
-    this.feedbacks$
-      = this.afdb.list( this.fdPath.feedbacks ).snapshotChanges()
-          .pipe( map( actions => actions.map( action =>
-            new Feedback( action.key, action.payload.val() as FeedbackInitObj ) ) ) );
-
-
+    this.users$ = this.myafdb.users$;
+    this.feedbacks$ = this.myafdb.feedbacks$;
+    this.schedules$ = this.myafdb.schedules$;
 
 
     /*** methods ***/
 
-    const userSetProperty = ( uid: string, path: string, value: any ) => {
-      if ( !uid ) throw new Error('uid is empty');
-      if ( !( path in UserInitObj ) ) throw new Error(`property '${path}' doesn't exists in UserInitObj`);
-      return this.afdb.object( `${this.fdPath.users}/${uid}/${path}` )
-                      .set( value );
-    };
     this.user = {
-      setUser: ( uid: string, newUser: User ) => {
-        const newUserObj = utils.object.copy( newUser );
-        delete newUserObj.databaseKey;
-        return this.afdb.object(`${this.fdPath.users}/${uid}`).set( newUserObj );
-      },
-
-      set: {
-        name: ( uid: string, value: string ) =>
-          userSetProperty( uid, 'name', value ),
-
-        nameYomi: ( uid: string, value: string ) =>
-          userSetProperty( uid, 'nameYomi', value ),
-      }
+      add:        (user: User)   => this.myafdb.user.add( user ),
+      update:     (user: User)   => this.myafdb.user.update( user ),
+      delete:     (uid: string)  => this.myafdb.user.delete( uid ),
+      updateName: (uid: string, name: string) => this.myafdb.user.updateName( uid, name ),
     };
-
 
     this.feedbacks = {
-      add: ( value: Feedback ) => {
-        const copy = utils.object.copy( value );
-        delete copy.databaseKey;
-        delete copy.date;
-        copy.timeStamp = value.date.valueOf();
-        return this.afdb.list( this.fdPath.feedbacks ).push( copy );
-      },
+      add: (fb: Feedback) =>
+        this.myafdb.feedback.add( fb ),
 
-      closeIssue: ( feedbackId: string, value: boolean ) => {
-        const path = 'closed';
-        if ( !( path in UserInitObj ) ) throw new Error(`property '${path}' doesn't exists in UserInitObj`);
-        this.afdb.object( `${this.fdPath.feedbacks}/${feedbackId}/${path}`).set( value ),
-      }
+      closeIssue: (id: string) =>
+        this.myafdb.feedback.closeIssue( id ),
+
+      openIssue: (id: string) =>
+        this.myafdb.feedback.openIssue( id ),
+
     };
 
     this.scheduling = {
-      addEvent: ( value: SchedulingEvent ) => {
-        const copy = utils.object.copy( value );
-        delete copy.databaseKey;
-        delete copy.selectedDatetimes;
-        delete copy.answerDeadline;
-        copy.selectedDatetimesTimeStamps = value.selectedDatetimes.map( e => e.valueOf() );
-        copy.answerDeadlineTimeStamp     = value.answerDeadline.valueOf();
-        return this.afdb.list( this.fdPath.schedulingEvents ).push( copy );
-      },
+      add: (schedule: Schedule) =>
+        this.myafdb.scheduling.add( schedule ),
 
-      setEvent: ( eventID: string, value: SchedulingEvent ) => {
-        const copy = utils.object.copy( value );
-        delete copy.databaseKey;
-        delete copy.selectedDatetimes;
-        delete copy.answerDeadline;
-        copy.selectedDatetimesTimeStamps = value.selectedDatetimes.map( e => e.valueOf() );
-        copy.answerDeadlineTimeStamp     = value.answerDeadline.valueOf();
-        copy.answers = {};
-        value.answers.forEach( answer => {
-          copy.answers[ answer.databaseKey ] = ({
-            comment   : answer.comment,
-            userName  : answer.userName,
-            selection : answer.selection.map( e => ({
-                            dateValue : e.date.valueOf(),
-                            symbolID  : e.symbolID
-                          }) ),
-          });
-        });
-        return this.afdb.object( `${this.fdPath.schedulingEvents}/${eventID}` ).set( copy );
-      },
+      update: (schedule: Schedule) =>
+        this.myafdb.scheduling.update( schedule ),
 
-      addAnswer: ( eventID: string, value: Answer ) => {
-        const path = 'answers';
-        if ( !( path in Answer ) ) 
-        const copy = utils.object.copy( value );
-        delete copy.databaseKey;
-        copy.selection
-          = value.selection.map( e => ({ dateValue: e.date.valueOf(), symbolID: e.symbolID }) );
-        return this.afdb.list( `${this.fdPath.schedulingEvents}/${eventID}/${path}` ).push( copy );
-      },
+      addAnswer: (scheduleId: string, answer: Answer) =>
+        this.myafdb.scheduling.addAnswer( scheduleId, answer ),
 
-      setAnswer: ( eventID: string, answerID: string, value: Answer ) => {
-        const copy = utils.object.copy( value );
-        delete copy.databaseKey;
-        copy.selection
-          = value.selection.map( e => ({ dateValue: e.date.valueOf(), symbolID: e.symbolID }) );
-        return this.afdb.object( `${this.fdPath.schedulingEvents}/${eventID}/answers/${answerID}` )
-          .set( copy );
-      },
+      updateAnswer: (scheduleId: string, answer: Answer) =>
+        this.myafdb.scheduling.updateAnswer( scheduleId, answer ),
 
-      removeAnswer: ( eventID: string, answerID: string ) =>
-          this.afdb.object( `${this.fdPath.schedulingEvents}/${eventID}/answers/${answerID}` ).remove(),
+      deleteAnswer: (scheduleId: string, answerId: string) =>
+        this.myafdb.scheduling.deleteAnswer( scheduleId, answerId ),
     };
 
   }

@@ -40,22 +40,22 @@ export class DataTableComponent implements OnInit, OnDestroy {
   @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValuesAllSource = new BehaviorSubject<TCell[]>([]);
+  private headerValuesAllSource = new BehaviorSubject<(TCell|undefined)[]>([]);
   private pageNumberSource = new BehaviorSubject<number>(1);
   private itemsPerPageSource = new BehaviorSubject<number>(100);
 
-  headerValuesAll$: Observable<TCell[]>;
-  selectorOptionsAll$: Observable<SelectorOption[][]>;
+  headerValuesAll$!: Observable<(TCell|undefined)[]>;
+  selectorOptionsAll$!: Observable<SelectorOption[][]>;
 
-  private tableWithDefault$: Observable<TCell[][]>;
-  private tableFiltered$: Observable<TCell[][]>;
-  private indiceFiltered$: Observable<number[]>;
-  tableFilteredRowSize$: Observable<number>;
-  itemsPerPage$: Observable<number>;
-  pageLength$: Observable<number>;
-  pageNumber$: Observable<number>;
-  private tableSliced$: Observable<TCell[][]>;
-  tableSlicedTransformed$: Observable<string[][]>;
+  private tableWithDefault$!: Observable<TCell[][]>;
+  private tableFiltered$!: Observable<TCell[][]>;
+  private indiceFiltered$!: Observable<number[]>;
+  tableFilteredRowSize$!: Observable<number>;
+  itemsPerPage$!: Observable<number>;
+  pageLength$!: Observable<number>;
+  pageNumber$!: Observable<number>;
+  private tableSliced$!: Observable<TCell[][]>;
+  tableSlicedTransformed$!: Observable<string[][]>;
 
 
 
@@ -172,15 +172,15 @@ export class DataTableComponent implements OnInit, OnDestroy {
   }
 
 
-  itemsPerPageOnChange( value ) {
-    this.itemsPerPageSource.next( value );
+  itemsPerPageOnChange( itemsPerPage: number ) {
+    this.itemsPerPageSource.next( itemsPerPage );
   }
 
-  pageNumberOnChange( value ) {
-    this.pageNumberSource.next( value );
+  pageNumberOnChange( pageNumber: number ) {
+    this.pageNumberSource.next( pageNumber );
   }
 
-  headerValueOnChange( columnIndex: number, value: TCell ) {
+  headerValueOnChange( columnIndex: number, value: TCell|undefined ) {
     const headerValues = this.headerValuesAllSource.getValue();
     headerValues[columnIndex] = value;
     this.headerValuesAllSource.next( headerValues );

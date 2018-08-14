@@ -16,7 +16,7 @@
           <td>
             <mat-checkbox
               [checked]="fb.closed"
-              (change)="closeIssue( fb.databaseKey, $event.checked )">
+              (change)="closeOrOpenIssue( fb.databaseKey, $event.checked )">
             </mat-checkbox>
           </td>
           <td>{{fb.name}}</td>
