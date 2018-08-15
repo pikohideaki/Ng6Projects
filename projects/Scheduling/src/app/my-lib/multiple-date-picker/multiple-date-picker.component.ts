@@ -15,13 +15,13 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   private alive = true;
 
   @Input() width: number = 300;
-  @Input() filterFunction = ((_: any) => true);
+  @Input() filterFn = ((_: any) => true);
   @Input() dayLabelLanguage: 'eng'|'jp' = 'eng';
-  @Input() initialDateList$!: Observable<Date[]>;
-  @Output() selectedDatesChange = new EventEmitter<Date[]>();
+  @Input() initialDateList$!: Observable<number[]>;
+  @Output() selectedDatesChange = new EventEmitter<number[]>();
 
   dayStrings: string[] = [];
-  weeks$: Observable<{ date: Date, selected: boolean }[][]>;
+  weeks$: Observable<{ timestamp: number, selected: boolean }[][]>;
 
   private currentYearSource
     = new BehaviorSubject<number>( (new Date()).getFullYear() );
@@ -30,9 +30,9 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
   currentYear$:  Observable<number> = this.currentYearSource .asObservable();
   currentMonth$: Observable<number> = this.currentMonthSource.asObservable();
 
-  private selectedDateValuesSource = new BehaviorSubject<number[]>([]);
-  private selectedDateValues$: Observable<number[]>
-     = this.selectedDateValuesSource.asObservable().pipe( startWith([]) );
+  private selectedDatesSource = new BehaviorSubject<number[]>([]);
+  private selectedDates$: Observable<number[]>
+     = this.selectedDatesSource.asObservable().pipe( startWith([]) );
 
 
 
@@ -40,28 +40,24 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
     this.weeks$ = combineLatest(
         this.currentYear$,
         this.currentMonth$,
-        this.selectedDateValues$,
-        (year, month, selectedDateValues) => {
-          const weeks: { date: Date, selected: boolean }[][] = [];
-          utils.date.getAllDatesIn( year, month ).forEach( date => {
-            const weekNumber = utils.date.weekNumber( date );
+        this.selectedDates$,
+        (year, month, selectedDate) => {
+          const weeks: { timestamp: number, selected: boolean }[][] = [];
+          utils.date.getAllDatesInTimestamp( year, month ).forEach( timestamp => {
+            const weekNumber = utils.date.weekNumber( timestamp );
             if ( weeks.length < weekNumber + 1 ) {
               weeks.push( Array(7).fill({ date: undefined, selected: false }) );
             }
-            weeks[ weekNumber ][ date.getDay() ] = {
-              date     : date,
-              selected : selectedDateValues.includes( date.valueOf() ),
+            weeks[ weekNumber ][ new Date( timestamp ).getDay() ] = {
+              timestamp : timestamp,
+              selected  : selectedDate.includes( timestamp ),
             };
           });
           return weeks;
         } );
 
-    this.selectedDateValues$
-      .pipe(
-        map( list => list.map( e => new Date(e) )
-                        .sort( (a, b) => utils.date.compare(a, b) ) ),
-        takeWhile( () => this.alive )
-      )
+    this.selectedDates$.pipe( map( list => list.sort() ),
+                             takeWhile( () => this.alive ) )
       .subscribe( val => this.selectedDatesChange.emit( val ) );
   }
 
@@ -77,14 +73,13 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
     }
 
     if ( !!this.initialDateList$ ) {
-      this.initialDateList$.pipe( first() ).subscribe( initialDateList => {
-        const initialDateValuesUniq
-          = utils.array.uniq(
-              initialDateList
-                .map( e => utils.date.toMidnight(e) )
-                .map( e => e.valueOf() ) );
-        this.selectedDateValuesSource.next( initialDateValuesUniq );
-      });
+      this.initialDateList$.pipe( first() )
+        .subscribe( initialDateList => {
+          const initialDateValuesUniq
+            = utils.array.uniq(
+                initialDateList.map( utils.date.toMidnightTimestamp ) );
+          this.selectedDatesSource.next( initialDateValuesUniq );
+        });
     }
   }
 
@@ -123,37 +118,37 @@ export class MultipleDatePickerComponent implements OnInit, OnDestroy {
 
 
   resetSelections() {
-    this.selectedDateValuesSource.next([]);
+    this.selectedDatesSource.next([]);
   }
 
-  dateOnSelectToggle( date: Date ) {
+  dateOnSelectToggle( date: number ) {
     if ( !date ) return;
-    if ( !this.filterFunction( date ) ) return;
-    const current = this.selectedDateValuesSource.getValue();
-    if ( current.includes( date.valueOf() ) ) {
-      utils.array.removeValue( current, date.valueOf() );
+    if ( !this.filterFn( date ) ) return;
+    const current: number[] = this.selectedDatesSource.getValue();
+    if ( current.includes( date ) ) {
+      utils.array.removeValue( current, date );
     } else {
-      current.push( date.valueOf() );
+      current.push( date );
     }
-    this.selectedDateValuesSource.next( current );
+    this.selectedDatesSource.next( current );
   }
 
   selectToggleDayColumn( dayIndex: number ) {
-    const current = this.selectedDateValuesSource.getValue();
+    const current = this.selectedDatesSource.getValue();
     const month = this.currentMonthSource.getValue();
     const year  = this.currentYearSource.getValue();
 
-    const datesOfDayColumn
-      = utils.date.getAllDatesIn( year, month )
-            .filter( date => date.getDay() === dayIndex )
-            .filter( this.filterFunction );
+    const datesOfDayColumn: number[]
+      = utils.date.getAllDatesInTimestamp( year, month )
+            .filter( date => new Date( date ).getDay() === dayIndex )
+            .filter( this.filterFn );
     const datesInColumnAllSelected
-      = datesOfDayColumn.every( e => current.includes( e.valueOf() ) );
+      = datesOfDayColumn.every( e => current.includes( e ) );
 
-    datesOfDayColumn.forEach( date => utils.array.remove( current, date.valueOf() ) );
+    datesOfDayColumn.forEach( date => utils.array.remove( current, date ) );
     if ( !datesInColumnAllSelected ) {
-      datesOfDayColumn.forEach( date => current.push( date.valueOf() ) );
+      datesOfDayColumn.forEach( date => current.push( date ) );
     }
-    this.selectedDateValuesSource.next( current );
+    this.selectedDatesSource.next( current );
   }
 }
