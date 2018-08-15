@@ -4,22 +4,27 @@ import { map } from 'rxjs/operators';
 
 import { AngularFirestore } from 'angularfire2/firestore';
 
-import { User, UserFS } from './user/user';
-import { Feedback, FeedbackFS } from '../feedback/feedback';
-import { Schedule, ScheduleFS } from '../scheduling/schedule';
-import { Answer, AnswerFS } from '../scheduling/answer';
+import { User, IUser } from './user/user';
+import { Feedback, IFeedback } from '../feedback/feedback';
+import { Schedule, ISchedule } from '../scheduling/schedule';
+import { Answer, IAnswer } from '../scheduling/answer';
+// import { utils } from '../my-lib/utilities';
+
 
 
 @Injectable()
 export class MyAngularFireDatabaseService {
 
-  private ref = {
+  private collRef = {
     users:
-      this.afdb.collection<UserFS>( 'users', ref => ref.orderBy('nameYomi') ),
+      this.afs.collection<IUser>( 'users', ref => ref.orderBy('nameYomi') ),
     feedBacks:
-      this.afdb.collection<FeedbackFS>( 'feedbacks', ref => ref.orderBy('date') ),
+      this.afs.collection<IFeedback>( 'feedbacks', ref => ref.orderBy('timestamp') ),
     schedules:
-      this.afdb.collection<ScheduleFS>( 'schedules', ref => ref.orderBy('createdDate') ),
+      this.afs.collection<ISchedule>( 'schedules', ref => ref.orderBy('createdDate') ),
+
+    answers: (scheduleId: string) =>
+      this.collRef.schedules.doc( scheduleId ).collection<IAnswer>( 'answers', ref => ref.orderBy('timestamp') ),
   };
 
 
@@ -46,25 +51,26 @@ export class MyAngularFireDatabaseService {
     add:          (schedule: Schedule)                   => Promise<string>,
     update:       (schedule: Schedule)                   => Promise<void>,
     delete:       (id: string)                           => Promise<void>,
-    addAnswer:    (scheduleId: string, answer: Answer)   => Promise<void>,
+    answers$:     (scheduleId: string)                   => Observable<Answer[]>,
+    addAnswer:    (scheduleId: string, answer: Answer)   => Promise<string>,
     updateAnswer: (scheduleId: string, answer: Answer)   => Promise<void>,
     deleteAnswer: (scheduleId: string, answerId: string) => Promise<void>,
   };
 
 
   constructor(
-    private afdb: AngularFirestore
+    private afs: AngularFirestore
   ) {
     this.users$
-      = this.ref.users.valueChanges()
+      = this.collRef.users.valueChanges()
           .pipe( map( users => users.map( user => new User( user ) ) ) );
 
     this.feedbacks$
-      = this.ref.feedBacks.valueChanges()
+      = this.collRef.feedBacks.valueChanges()
           .pipe( map( feedbacks => feedbacks.map( fb => new Feedback( fb ) ) ) );
 
     this.schedules$
-      = this.ref.schedules.valueChanges()
+      = this.collRef.schedules.valueChanges()
           .pipe( map( evlist => evlist.map( ev => new Schedule( ev ) ) ) );
 
 
@@ -73,78 +79,84 @@ export class MyAngularFireDatabaseService {
     this.user = {
       add: async (user: User) => {
         user.timestamp = (user.timestamp || Date.now());
-        const docref = await this.ref.users.add( new UserFS( user ) );
+        const docref = await this.collRef.users.add( user.asObject() );
         user.id = docref.id;
-        await docref.update( user );
+        await docref.update( user.asObject() );
         return user.id;
       },
 
       update: async (user: User) => {
-        await this.ref.users.doc( user.id ).set( new UserFS( user ) );
+        await this.collRef.users.doc( user.id ).set( user.asObject() );
       },
 
       delete: async (uid: string) => {
-        await this.ref.users.doc( uid ).delete();
+        await this.collRef.users.doc( uid ).delete();
       },
 
       updateName: async (uid: string, name: string) => {
-        await this.ref.users.doc( uid ).update({ name: name });
+        await this.collRef.users.doc( uid ).update({ name: name });
       }
     };
 
 
     this.feedback = {
       add: async (fb: Feedback) => {
-        const docref = await this.ref.feedBacks.add( new FeedbackFS( fb ) );
+        const docref = await this.collRef.feedBacks.add( fb.asObject() );
         fb.id = docref.id;
-        await docref.update( fb );
+        await docref.update( fb.asObject() );
         return fb.id;
       },
 
       update: async (fb: Feedback) => {
-        await this.ref.feedBacks.doc( fb.id ).update( new FeedbackFS( fb ) );
+        await this.collRef.feedBacks.doc( fb.id ).update( fb.asObject() );
       },
 
       delete: async (id: string) => {
-        await this.ref.feedBacks.doc( id ).delete();
+        await this.collRef.feedBacks.doc( id ).delete();
       },
 
       closeIssue: async (id: string) => {
-        await this.ref.feedBacks.doc(`${id}/closed`).set( true );
+        await this.collRef.feedBacks.doc( id ).set({ closed: true });
       },
 
       openIssue: async (id: string) => {
-        await this.ref.feedBacks.doc(`${id}/closed`).set( false );
+        await this.collRef.feedBacks.doc( id ).set({ closed: false });
       },
     };
 
     this.scheduling = {
       add: async (schedule: Schedule) => {
-        const docref = await this.ref.schedules.add( new ScheduleFS( schedule ) );
+        const docref = await this.collRef.schedules.add( schedule.asObject() );
         schedule.id = docref.id;
-        await docref.update( schedule );
+        await docref.update( schedule.asObject() );
         return schedule.id;
       },
 
       update: async (schedule: Schedule) => {
-        await this.ref.schedules.doc( schedule.id ).update( new ScheduleFS( schedule ) );
+        await this.collRef.schedules.doc( schedule.id ).update( schedule.asObject() );
       },
 
       delete: async (scheduleId: string) => {
-        await this.ref.schedules.doc( scheduleId ).delete();
+        await this.collRef.schedules.doc( scheduleId ).delete();
       },
 
+      answers$: (scheduleId: string) =>
+        this.collRef.answers( scheduleId ).valueChanges()
+          .pipe( map( answers => answers.map( ans => new Answer( ans ) ) ) ),
+
       addAnswer: async (scheduleId: string, answer: Answer) => {
-        answer.id = ( answer.id || Date.now().toString() );
-        await this.ref.schedules.doc(`${scheduleId}/answers/${answer.id}`).set( new AnswerFS( answer ) );
+        const docref = await this.collRef.answers( scheduleId ).add( answer.asObject() );
+        answer.id = docref.id;
+        await docref.update( answer.asObject() );
+        return answer.id;
       },
 
       updateAnswer: async (scheduleId: string, answer: Answer) => {
-        await this.ref.schedules.doc(`${scheduleId}/answers/${answer.id}`).set( new AnswerFS( answer ) );
+        await this.collRef.answers( scheduleId ).doc( answer.id ).update( answer.asObject() );
       },
 
       deleteAnswer: async (scheduleId: string, answerId: string) => {
-        await this.ref.schedules.doc(`${scheduleId}/answers/${answerId}`).delete();
+        await this.collRef.answers( scheduleId ).doc( answerId ).delete();
       },
     };
   }

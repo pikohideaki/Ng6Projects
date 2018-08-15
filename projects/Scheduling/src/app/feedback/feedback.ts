@@ -1,30 +1,17 @@
-import { firestore } from 'firebase';
 
 import { FeedbackCategory } from './feedback-category';
-import { timestampFrom } from '../database/af-utilities';
 
-
-abstract class FeedbackBase {
-  id:        string           = '';
-  name:      string           = '';
-  content:   string           = '';
-  category:  FeedbackCategory = '';
-  closed:    boolean          = false;
-  timestamp: (number | firestore.Timestamp) = Date.now();
-
-  constructor( initializer?: FeedbackBase ) {
-    if ( !initializer ) return;
-
-    this.id        = ( initializer.id        || '' );
-    this.name      = ( initializer.name      || '' );
-    this.content   = ( initializer.content   || '' );
-    this.category  = ( initializer.category  || '' );
-    this.closed    = !!initializer.closed;
-  }
+export interface IFeedback {
+  id:        string;
+  name:      string;
+  content:   string;
+  category:  FeedbackCategory;
+  closed:    boolean;
+  timestamp: number;
 }
 
 
-export class Feedback extends FeedbackBase {
+export class Feedback implements IFeedback {
   id:        string           = '';
   name:      string           = '';
   content:   string           = '';
@@ -32,39 +19,23 @@ export class Feedback extends FeedbackBase {
   closed:    boolean          = false;
   timestamp: number           = Date.now();
 
-  constructor( initializer?: (Feedback|FeedbackFS) ) {
-    super();
+  constructor( initializer?: IFeedback ) {
     if ( !initializer ) return;
-    if ( !initializer.timestamp ) return;
 
-    if ( initializer instanceof Feedback ) {
-      this.timestamp = ( initializer.timestamp );
-    } else {
-      this.timestamp = ( initializer.timestamp.toMillis() );
-    }
+    this.id        = ( initializer.id        || '' );
+    this.name      = ( initializer.name      || '' );
+    this.content   = ( initializer.content   || '' );
+    this.category  = ( initializer.category  || '' );
+    this.closed    = !!initializer.closed;
+    this.timestamp = ( initializer.timestamp || Date.now() );
   }
-}
 
-
-
-// Feedback class in firestore
-export class FeedbackFS extends FeedbackBase {
-  id:        string              = '';
-  name:      string              = '';
-  content:   string              = '';
-  category:  FeedbackCategory    = '';
-  closed:    boolean             = false;
-  timestamp: firestore.Timestamp = firestore.Timestamp.now();
-
-  constructor( initializer?: (Feedback|FeedbackFS) ) {
-    super();
-    if ( !initializer ) return;
-    if ( !initializer.timestamp ) return;
-
-    if ( initializer instanceof Feedback ) {
-      this.timestamp = firestore.Timestamp.fromMillis( initializer.timestamp );
-    } else {
-      this.timestamp = timestampFrom( initializer.timestamp );
-    }
-  }
+  asObject = (): IFeedback => ({
+    id:        this.id,
+    name:      this.name,
+    content:   this.content,
+    category:  this.category,
+    closed:    this.closed,
+    timestamp: this.timestamp,
+  })
 }

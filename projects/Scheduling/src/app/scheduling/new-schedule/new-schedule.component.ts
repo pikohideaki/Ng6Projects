@@ -6,7 +6,7 @@ import { DatabaseService } from '../../database/database.service';
 import { ConfirmDialogComponent } from '../../my-lib/confirm-dialog.component';
 
 import { Schedule } from '../schedule';
-import { ScheduleSymbol } from '../schedule-symbol';
+import { IScheduleSymbol, ScheduleSymbol } from '../schedule-symbol';
 
 
 @Component({
@@ -17,14 +17,14 @@ import { ScheduleSymbol } from '../schedule-symbol';
 export class NewEventComponent implements OnInit {
 
   symbolsInit: ScheduleSymbol[] = [
-    { id: 'fav',      useThis: false, score: 10, iconName: 'favorite',               description: 'できればこの日で' },
-    { id: 'ok',       useThis: true,  score: 10, iconName: 'radio_button_unchecked', description: '参加可能' },
-    { id: 'maybe',    useThis: true,  score:  5, iconName: 'change_history',         description: '行けるかも' },
-    { id: 'depends',  useThis: false, score:  5, iconName: 'watch',                  description: '時間によります' },
-    { id: 'late',     useThis: false, score:  5, iconName: 'schedule',               description: '遅れてなら参加可能' },
-    { id: 'unknown',  useThis: false, score:  5, iconName: 'help_outline',           description: '分からない' },
-    { id: 'ng',       useThis: true,  score:  0, iconName: 'clear',                  description: '参加不可' },
-    { id: 'kusonemi', useThis: false, score:  0, iconName: 'hotel',                  description: '起きられません' },
+    new ScheduleSymbol({ id: 'fav',      useThis: false, score: 10, description: 'できればこの日で' }),
+    new ScheduleSymbol({ id: 'ok',       useThis: true,  score: 10, description: '参加可能' }),
+    new ScheduleSymbol({ id: 'maybe',    useThis: true,  score:  5, description: '行けるかも' }),
+    new ScheduleSymbol({ id: 'depends',  useThis: false, score:  5, description: '時間によります' }),
+    new ScheduleSymbol({ id: 'late',     useThis: false, score:  5, description: '遅れてなら参加可能' }),
+    new ScheduleSymbol({ id: 'unknown',  useThis: false, score:  5, description: '分からない' }),
+    new ScheduleSymbol({ id: 'ng',       useThis: true,  score:  0, description: '参加不可' }),
+    new ScheduleSymbol({ id: 'kusonemi', useThis: false, score:  0, description: '起きられません' }),
   ];
 
 
@@ -35,7 +35,7 @@ export class NewEventComponent implements OnInit {
 
   linkTitle: string = '日程調整';
 
-  symbols: ScheduleSymbol[] = [];
+  symbols: IScheduleSymbol[] = [];
 
 
   constructor(

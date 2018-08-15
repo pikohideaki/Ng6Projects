@@ -1,90 +1,39 @@
-import { firestore } from 'firebase';
-import { timestampFrom } from '../database/af-utilities';
+import { ScheduleSymbolId } from './schedule-symbol';
 
-abstract class AnswerBase {
+export interface IAnswer {
+  id:        string;
+  userName:  string;  /* 回答者名 */
+  comment:   string;
+  selection: { timestamp: number, symbolId: ScheduleSymbolId }[];
+  timestamp: number;
+}
+
+
+export class Answer implements IAnswer {
   id:        string = '';
   userName:  string = '';  /* 回答者名 */
   comment:   string = '';
-  selection: { timestamp: (number|firestore.Timestamp), symbolId: string }[] = [];
-  timestamp: (number|firestore.Timestamp) = Date.now();
+  selection: { timestamp: number, symbolId: ScheduleSymbolId }[] = [];
+  timestamp: number = Date.now();
 
-  constructor( initializer?: Answer ) {
+  constructor( initializer?: IAnswer ) {
     if ( !initializer ) return;
 
     this.id        = ( initializer.id        || '' );
     this.userName  = ( initializer.userName  || '' );
     this.comment   = ( initializer.comment   || '' );
+    this.selection = ( initializer.selection || [] ).map( e => ({
+                        timestamp: ( e.timestamp || Date.now() ),
+                        symbolId:  ( e.symbolId || 'ng' ),
+                      }) );  // deep copy
+    this.timestamp = ( initializer.timestamp || Date.now() );
   }
-}
 
-export class Answer extends AnswerBase {
-  id:        string = '';
-  userName:  string = '';  /* 回答者名 */
-  comment:   string = '';
-  selection: { timestamp: number, symbolId: string }[] = [];
-  timestamp: number = Date.now();
-
-  constructor( initializer?: (Answer|AnswerFS) ) {
-    super();
-    if ( !initializer ) return;
-
-    if ( !!initializer.timestamp ) {
-      if ( initializer instanceof Answer ) {
-        this.timestamp = initializer.timestamp;
-      } else {
-        this.timestamp = ( initializer.timestamp.toMillis() );
-      }
-    }
-
-    if ( !!initializer.selection ) {
-      if ( initializer instanceof Answer ) {
-        this.selection = initializer.selection.map( e => ({
-                              timestamp: e.timestamp,
-                              symbolId:  e.symbolId
-                            }) );  // deep copy
-      } else {
-        this.selection = initializer.selection.map( e => ({
-                              timestamp: e.timestamp.toMillis(),
-                              symbolId:  e.symbolId
-                            }) );  // deep copy
-      }
-    }
-
-  }
-}
-
-
-export class AnswerFS extends AnswerBase {
-  id:        string = '';
-  userName:  string = '';  /* 回答者名 */
-  comment:   string = '';
-  selection: { timestamp: firestore.Timestamp, symbolId: string }[] = [];
-  timestamp: firestore.Timestamp = firestore.Timestamp.now();
-
-  constructor( initializer?: (Answer|AnswerFS) ) {
-    super();
-    if ( !initializer ) return;
-
-    if ( !!initializer.timestamp ) {
-      if ( initializer instanceof Answer ) {
-        this.timestamp = firestore.Timestamp.fromMillis( initializer.timestamp );
-      } else {
-        this.timestamp = timestampFrom( initializer.timestamp );
-      }
-    }
-
-    if ( !!initializer.selection ) {
-      if ( initializer instanceof Answer ) {
-        this.selection = initializer.selection.map( e => ({
-                              timestamp: firestore.Timestamp.fromMillis( e.timestamp ),
-                              symbolId:  e.symbolId
-                            }) );  // deep copy
-      } else {
-        this.selection = initializer.selection.map( e => ({
-                              timestamp: timestampFrom( e.timestamp ),
-                              symbolId:  e.symbolId
-                            }) );  // deep copy
-      }
-    }
-  }
+  asObject = (): IAnswer => ({
+    id:        this.id,
+    userName:  this.userName,
+    comment:   this.comment,
+    selection: this.selection,
+    timestamp: this.timestamp,
+  })
 }

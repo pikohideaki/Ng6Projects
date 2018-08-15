@@ -80,6 +80,7 @@ export const utils = {
       utils.object.map( obj, (el, key) => ({ key: key, value: el }) ),
 
     copy: ( obj: object ) => JSON.parse( JSON.stringify( obj || {} ) ),
+    serialize: ( obj: object ) => JSON.parse( JSON.stringify( obj || {} ) ),
 
     compareByJsonString: ( obj1: object, obj2: object ) =>
       JSON.stringify(obj1) === JSON.stringify(obj2),

@@ -34,7 +34,7 @@ export class DatabaseService {
   scheduling: {
     add:          (schedule: Schedule)                   => Promise<string>,
     update:       (schedule: Schedule)                   => Promise<void>,
-    addAnswer:    (scheduleId: string, answer: Answer)   => Promise<void>,
+    addAnswer:    (scheduleId: string, answer: Answer)   => Promise<string>,
     updateAnswer: (scheduleId: string, answer: Answer)   => Promise<void>,
     deleteAnswer: (scheduleId: string, answerId: string) => Promise<void>,
   };
@@ -51,9 +51,9 @@ export class DatabaseService {
     /*** methods ***/
 
     this.user = {
-      add:        (user: User)   => this.myafdb.user.add( user ),
-      update:     (user: User)   => this.myafdb.user.update( user ),
-      delete:     (uid: string)  => this.myafdb.user.delete( uid ),
+      add:        (user: User)                => this.myafdb.user.add( user ),
+      update:     (user: User)                => this.myafdb.user.update( user ),
+      delete:     (uid: string)               => this.myafdb.user.delete( uid ),
       updateName: (uid: string, name: string) => this.myafdb.user.updateName( uid, name ),
     };
 

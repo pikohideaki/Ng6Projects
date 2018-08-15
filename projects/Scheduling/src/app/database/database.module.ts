@@ -33,9 +33,9 @@ import { DatabaseTestComponent } from './database-test.component';
 @NgModule({
   imports: [
     CommonModule,
-    AngularFireModule,
     AngularMaterialModule,
     MyLibModule,
+    // AngularFireModule,
     AngularFireModule.initializeApp(environment.firebase, 'SchedulingApps'), // imports firebase/app needed for everything
     AngularFireAuthModule, // imports firebase/auth, only needed for auth features
     // AngularFireDatabaseModule, // imports firebase/firestore, only needed for database features
