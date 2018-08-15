@@ -32,6 +32,9 @@ export class Stopwatch {
 
 
 
+
+
+
 /* functions */
 
 export const utils = {
@@ -302,6 +305,9 @@ export const utils = {
               })
               .map( dateNumber => new Date( year, month, dateNumber, 0, 0, 0, 0 ) );
     },
+
+    getAllDatesInTimestamp: ( year: number, month: number ): number[] =>
+      utils.date.getAllDatesIn( year, month ).map( dt => dt.getTime() ),
 
     /**
      * date1  <  date2 --> -1

@@ -15,7 +15,7 @@ import { FeedbackCategory } from './feedback-category';
 export class FeedbackComponent implements OnInit {
 
   name: string = '';
-  feedbackText: string = '';
+  report: string = '';
   category: FeedbackCategory = '';
 
   feedbacks$: Observable<Feedback[]>;
@@ -30,16 +30,16 @@ export class FeedbackComponent implements OnInit {
   ngOnInit() {
   }
 
-  nameChange( value: string ) {
-    this.name = value;
+  nameChange( name: string ) {
+    this.name = name;
   }
 
-  feedbackTextChange( value: string ) {
-    this.feedbackText = value;
+  reportChange( report: string ) {
+    this.report = report;
   }
 
-  categoryChange( value: FeedbackCategory ) {
-    this.category = value;
+  categoryChange( category: FeedbackCategory ) {
+    this.category = category;
   }
 
 
@@ -51,13 +51,13 @@ export class FeedbackComponent implements OnInit {
         this.database.feedbacks.add( new Feedback( {
           id:        '',
           name:      this.name,
-          content:   this.feedbackText,
+          content:   this.report,
           timestamp: Date.now(),
           closed:    false,
           category:  this.category,
         }) );
         this.name = '';
-        this.feedbackText = '';
+        this.report = '';
       }
     });
   }

@@ -4,7 +4,6 @@ import { CellPosition } from './cell-position';
 export type FilterType = ''|'input'
                           //  |'autoComplete'
                           //  |'numberRange'
-                          //  |'dateRange'
                            |'select'
                            |'multiSelect-and'
                            |'multiSelect-or';
