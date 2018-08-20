@@ -4,7 +4,7 @@ export interface IAnswer {
   id:        string;
   userName:  string;  /* 回答者名 */
   comment:   string;
-  selection: { timestamp: number, symbolId: ScheduleSymbolId }[];
+  selection: { date: number, symbolId: ScheduleSymbolId }[];
   timestamp: number;
 }
 
@@ -13,7 +13,7 @@ export class Answer implements IAnswer {
   id:        string = '';
   userName:  string = '';  /* 回答者名 */
   comment:   string = '';
-  selection: { timestamp: number, symbolId: ScheduleSymbolId }[] = [];
+  selection: { date: number, symbolId: ScheduleSymbolId }[] = [];
   timestamp: number = Date.now();
 
   constructor( initializer?: IAnswer ) {
@@ -23,7 +23,7 @@ export class Answer implements IAnswer {
     this.userName  = ( initializer.userName  || '' );
     this.comment   = ( initializer.comment   || '' );
     this.selection = ( initializer.selection || [] ).map( e => ({
-                        timestamp: ( e.timestamp || Date.now() ),
+                        date: ( e.date || Date.now() ),
                         symbolId:  ( e.symbolId || 'ng' ),
                       }) );  // deep copy
     this.timestamp = ( initializer.timestamp || Date.now() );

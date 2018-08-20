@@ -15,10 +15,12 @@ import { DataTableComponent } from './data-table/data-table.component';
 import { PaginationComponent } from './data-table/pagination/pagination.component';
 import { ObjectDataTableComponent } from './data-table/object-data-table.component';
 import { HeaderCellComponent } from './data-table/header-cell.component';
+import { DataTableDemoComponent } from './data-table/data-table-demo.component';
 
 import { WaitingSpinnerComponent } from './waiting-spinner.component';
 import { AppListComponent } from './app-list/app-list.component';
 import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-date-picker.component';
+import { MultipleDatePickerDemoComponent } from './multiple-date-picker/multiple-date-picker-demo.component';
 
 
 
@@ -39,20 +41,24 @@ import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-dat
     PaginationComponent,
     ObjectDataTableComponent,
     HeaderCellComponent,
+    DataTableDemoComponent,
     MultipleDatePickerComponent,
+    MultipleDatePickerDemoComponent,
   ],
   declarations: [
     MessageDialogComponent,
     AlertDialogComponent,
     ConfirmDialogComponent,
     WaitingSpinnerComponent,
-    ItemsPerPageComponent,
+    AppListComponent,
     DataTableComponent,
+    ItemsPerPageComponent,
     PaginationComponent,
     ObjectDataTableComponent,
     HeaderCellComponent,
-    AppListComponent,
+    DataTableDemoComponent,
     MultipleDatePickerComponent,
+    MultipleDatePickerDemoComponent,
   ],
   entryComponents: [
     MessageDialogComponent,

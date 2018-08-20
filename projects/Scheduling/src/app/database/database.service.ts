@@ -31,10 +31,11 @@ export class DatabaseService {
     openIssue:  (id: string)      => Promise<void>,
   };
 
-  scheduling: {
+  schedule: {
     add:          (schedule: Schedule)                   => Promise<string>,
     update:       (schedule: Schedule)                   => Promise<void>,
     addAnswer:    (scheduleId: string, answer: Answer)   => Promise<string>,
+    answers$:     (scheduleId: string)                   => Observable<Answer[]>,
     updateAnswer: (scheduleId: string, answer: Answer)   => Promise<void>,
     deleteAnswer: (scheduleId: string, answerId: string) => Promise<void>,
   };
@@ -69,21 +70,24 @@ export class DatabaseService {
 
     };
 
-    this.scheduling = {
+    this.schedule = {
       add: (schedule: Schedule) =>
-        this.myafdb.scheduling.add( schedule ),
+        this.myafdb.schedule.add( schedule ),
 
       update: (schedule: Schedule) =>
-        this.myafdb.scheduling.update( schedule ),
+        this.myafdb.schedule.update( schedule ),
+
+      answers$: (scheduleId: string) =>
+        this.myafdb.schedule.answers$( scheduleId ),
 
       addAnswer: (scheduleId: string, answer: Answer) =>
-        this.myafdb.scheduling.addAnswer( scheduleId, answer ),
+        this.myafdb.schedule.addAnswer( scheduleId, answer ),
 
       updateAnswer: (scheduleId: string, answer: Answer) =>
-        this.myafdb.scheduling.updateAnswer( scheduleId, answer ),
+        this.myafdb.schedule.updateAnswer( scheduleId, answer ),
 
       deleteAnswer: (scheduleId: string, answerId: string) =>
-        this.myafdb.scheduling.deleteAnswer( scheduleId, answerId ),
+        this.myafdb.schedule.deleteAnswer( scheduleId, answerId ),
     };
 
   }

@@ -16,7 +16,7 @@ export interface IScheduleSymbol {
 }
 
 
-export class ScheduleSymbol {
+export class ScheduleSymbol implements IScheduleSymbol {
   id:          ScheduleSymbolId = '';
   useThis:     boolean          = false;
   description: string           = '';

@@ -47,7 +47,7 @@ export class MyAngularFireDatabaseService {
     openIssue:  (id: string)   => Promise<void>,
   };
 
-  scheduling: {
+  schedule: {
     add:          (schedule: Schedule)                   => Promise<string>,
     update:       (schedule: Schedule)                   => Promise<void>,
     delete:       (id: string)                           => Promise<void>,
@@ -124,7 +124,7 @@ export class MyAngularFireDatabaseService {
       },
     };
 
-    this.scheduling = {
+    this.schedule = {
       add: async (schedule: Schedule) => {
         const docref = await this.collRef.schedules.add( schedule.asObject() );
         schedule.id = docref.id;
@@ -142,7 +142,7 @@ export class MyAngularFireDatabaseService {
 
       answers$: (scheduleId: string) =>
         this.collRef.answers( scheduleId ).valueChanges()
-          .pipe( map( answers => answers.map( ans => new Answer( ans ) ) ) ),
+          .pipe( map( answers => (answers || []).map( ans => new Answer( ans ) ) ) ),
 
       addAnswer: async (scheduleId: string, answer: Answer) => {
         const docref = await this.collRef.answers( scheduleId ).add( answer.asObject() );

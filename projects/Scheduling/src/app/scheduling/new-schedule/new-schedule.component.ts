@@ -77,7 +77,7 @@ export class NewEventComponent implements OnInit {
     dialogRef.componentInstance.message = 'イベントを作成します。よろしいですか？';
     dialogRef.afterClosed().subscribe( async result => {
       if ( result === 'yes' ) {
-        const id = await this.database.scheduling.add( this.newSchedule );
+        const id = await this.database.schedule.add( this.newSchedule );
         this.eventPageId = id;
         stepper.next();
       }

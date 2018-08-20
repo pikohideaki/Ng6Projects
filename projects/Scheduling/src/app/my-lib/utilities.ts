@@ -288,6 +288,22 @@ export const utils = {
       return Math.floor( date0Saturday / 7 );
     },
 
+    /**
+     * @description 引数の日が含まれる月の最終日(28-31)の数値を返す
+     */
+    getLastDateNumberOfMonth: ( date: Date|number ): number => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      return new Date( dt.getFullYear(), dt.getMonth() + 1, 0 ).getDate();
+    },
+
+    nofWeeks: ( date: Date|number ): number => {
+      const dt = ( typeof date === 'number' ? new Date(date) : date );
+      const lastDateNumber = utils.date.getLastDateNumberOfMonth( dt );
+      const lastDate: Date = ( new Date( dt ) );
+      lastDate.setDate( lastDateNumber );
+      return utils.date.weekNumber( lastDate ) + 1;
+    },
+
     isToday: ( date: Date|number ): boolean => {
       const dt = ( typeof date === 'number' ? new Date(date) : date );
       // Get today's date
@@ -298,12 +314,8 @@ export const utils = {
 
     getAllDatesIn: ( year: number, month: number ): Date[] => {
       const firstDateOfMonth = new Date( year, month, 1, 0, 0, 0, 0 );
-      return utils.number.numSeq( 1, 31 )
-              .filter( dateNumber => {
-                const date = new Date( firstDateOfMonth.setDate( dateNumber ) );
-                return date.getMonth() === month;
-              })
-              .map( dateNumber => new Date( year, month, dateNumber, 0, 0, 0, 0 ) );
+      return utils.number.numSeq( 1, utils.date.getLastDateNumberOfMonth( firstDateOfMonth ) )
+              .map( date => new Date( year, month, date, 0, 0, 0, 0 ) );
     },
 
     getAllDatesInTimestamp: ( year: number, month: number ): number[] =>

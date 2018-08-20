@@ -1,0 +1,23 @@
+<div *ngIf="flipTableState; then dateUserTable; else userDateTable"></div>
+<ng-template #dateUserTable>
+  <app-date-user-table
+    [(flipTableState)]="flipTableState"
+    [answerDeadlineExpired$]="answerDeadlineExpired$"
+    [answers$]="answers$"
+    [event$]="event$"
+    [spreadSheet$]="spreadSheet$"
+    [symbols$]="symbols$"
+    (answerSelected)="answerOnSelect( $event )">
+  </app-date-user-table>
+</ng-template>
+<ng-template #userDateTable>
+  <app-user-date-table
+    [(flipTableState)]="flipTableState"
+    [answerDeadlineExpired$]="answerDeadlineExpired$"
+    [answers$]="answers$"
+    [event$]="event$"
+    [spreadSheet$]="spreadSheet$"
+    [symbols$]="symbols$"
+    (answerSelected)="answerOnSelect( $event )">
+  </app-user-date-table>
+</ng-template>
