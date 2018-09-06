@@ -327,6 +327,125 @@
           }
         }
       }
+    },
+    "ScheduleApp1": {
+      "root": "projects/ScheduleApp1/",
+      "sourceRoot": "projects/ScheduleApp1/src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/ScheduleApp1",
+            "index": "projects/ScheduleApp1/src/index.html",
+            "main": "projects/ScheduleApp1/src/main.ts",
+            "polyfills": "projects/ScheduleApp1/src/polyfills.ts",
+            "tsConfig": "projects/ScheduleApp1/tsconfig.app.json",
+            "assets": [
+              "projects/ScheduleApp1/src/favicon.ico",
+              "projects/ScheduleApp1/src/assets"
+            ],
+            "styles": [
+              "projects/ScheduleApp1/src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/ScheduleApp1/src/environments/environment.ts",
+                  "with": "projects/ScheduleApp1/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "ScheduleApp1:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "ScheduleApp1:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "ScheduleApp1:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ScheduleApp1/src/test.ts",
+            "polyfills": "projects/ScheduleApp1/src/polyfills.ts",
+            "tsConfig": "projects/ScheduleApp1/tsconfig.spec.json",
+            "karmaConfig": "projects/ScheduleApp1/karma.conf.js",
+            "styles": [
+              "projects/ScheduleApp1/src/styles.css"
+            ],
+            "scripts": [],
+            "assets": [
+              "projects/ScheduleApp1/src/favicon.ico",
+              "projects/ScheduleApp1/src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ScheduleApp1/tsconfig.app.json",
+              "projects/ScheduleApp1/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "ScheduleApp1-e2e": {
+      "root": "projects/ScheduleApp1-e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/ScheduleApp1-e2e/protractor.conf.js",
+            "devServerTarget": "ScheduleApp1:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "ScheduleApp1:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "projects/ScheduleApp1-e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "Ng6Projects",
