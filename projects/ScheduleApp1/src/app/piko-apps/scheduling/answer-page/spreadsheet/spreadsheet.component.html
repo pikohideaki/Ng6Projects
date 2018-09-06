@@ -1,0 +1,128 @@
+<ng-container *ngIf="{
+      scEvent               : scEvent$               | async,
+      answerDeadlineExpired : answerDeadlineExpired$ | async,
+      spreadSheet           : spreadSheet$           | async
+    } as data">
+
+
+  <div *ngIf="!!data.scEvent && !!data.spreadSheet">
+    <div *ngIf="flipTableState; then rowDateTable; else rowUserTable"></div>
+    <ng-template #rowDateTable>
+      <table
+          class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
+        <thead>
+          <tr>
+            <th>日程 <button mat-button (click)="flipTable()">行列入れ替え</button></th>
+            <th>スコア</th>
+            <ng-container *ngFor="let symbol of data.scEvent.symbols">
+              <th *ngIf="symbol.useThis">
+                <mat-icon aria-hidden="true" [title]="symbol.description">
+                  {{symbol.iconName}}
+                </mat-icon>
+              </th>
+            </ng-container>
+            <th *ngFor="let answer of data.scEvent.answers">
+              <span *ngIf="data.answerDeadlineExpired; then thenBlock; else elseBlock"></span>
+              <ng-template #thenBlock>
+                {{answer.userName}}
+              </ng-template>
+              <ng-template #elseBlock>
+                <button mat-button class="mini-button" (click)="userClicked( answer )">
+                  {{answer.userName}}
+                </button>
+              </ng-template>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let datetime of data.scEvent.selectedDatetimes"
+              [class.dateIsGood]="7 <= getAverageScore( data.scEvent, datetime )
+                                    && getAverageScore( data.scEvent, datetime ) < 10"
+              [class.dateIsPerfect]="getAverageScore( data.scEvent, datetime ) === 10" >
+            <th>
+              {{toYMD( datetime )}}
+              （{{getDayStringJp( datetime )}}）
+              {{toHM( datetime )}}
+            </th>
+            <th>{{getAverageScore( data.scEvent, datetime )}}</th>
+            <ng-container *ngFor="let symbol of data.scEvent.symbols">
+              <td *ngIf="symbol.useThis">
+                {{data.spreadSheet[ datetime ][ symbol.id ]}}
+                <span class="small-font">人</span>
+              </td>
+            </ng-container>
+            <td *ngFor="let answer of data.scEvent.answers">
+              <mat-icon>
+                {{getIconNameOfAnswer( answer, datetime, data.scEvent.symbols )}}
+              </mat-icon>
+            </td>
+          </tr>
+          <tr>
+            <th>コメント</th>
+            <td></td>
+            <ng-container *ngFor="let symbol of data.scEvent.symbols">
+              <td *ngIf="symbol.useThis"></td>
+            </ng-container>
+            <td *ngFor="let answer of data.scEvent.answers">
+              <button mat-icon-button *ngIf="!!answer.comment"
+                  title="コメントあり"
+                  (click)="commentOnClick( answer.comment )">
+                <mat-icon aria-hidden="true">comment</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-template>
+
+    <ng-template #rowUserTable>
+      <table
+          class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
+        <thead>
+          <tr>
+            <th>
+              日程<br>
+              <button mat-button (click)="flipTable()">行列入れ替え</button>
+            </th>
+            <th *ngFor="let datetime of data.scEvent.selectedDatetimes">
+              {{toYMD( datetime )}}<br>
+              （{{getDayStringJp( datetime )}}）<br>
+              {{toHM( datetime )}}
+            </th>
+            <th>コメント</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let answer of data.scEvent.answers">
+            <th>
+              <span *ngIf="data.answerDeadlineExpired; then thenBlock; else elseBlock"></span>
+              <ng-template #thenBlock>
+                {{answer.userName}}
+              </ng-template>
+              <ng-template #elseBlock>
+                <button mat-button class="mini-button" (click)="userClicked( answer )">
+                  {{answer.userName}}
+                </button>
+              </ng-template>
+            </th>
+            <td *ngFor="let datetime of data.scEvent.selectedDatetimes">
+              <mat-icon>
+                {{getIconNameOfAnswer( answer, datetime, data.scEvent.symbols )}}
+              </mat-icon>
+            </td>
+            <td>
+              <button mat-icon-button
+                  title="コメントあり"
+                  (click)="commentOnClick( answer.comment )">
+                <mat-icon aria-hidden="true" *ngIf="!!answer.comment">
+                  comment
+                </mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-template>
+
+  </div>
+</ng-container>
