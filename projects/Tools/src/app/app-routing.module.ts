@@ -9,11 +9,6 @@ import { UserAdminComponent     } from './database/user-admin/user-admin.compone
 import { FeedbackComponent      } from './feedback/feedback.component';
 import { FeedbackAdminComponent } from './feedback/feedback-admin.component';
 
-/* scheduling */
-import { SchedulingComponent } from './piko-apps/scheduling/scheduling.component';
-import { AnswerPageComponent } from './piko-apps/scheduling/answer-page/answer-page.component';
-import { EditEventComponent  } from './piko-apps/scheduling/edit-event/edit-event.component';
-
 /* toy-box */
 import { ToyBoxComponent } from './piko-apps/toy-box/toy-box.component';
 import { LambdaInterpreterComponent } from './piko-apps/toy-box/lambda-interpreter/lambda-interpreter.component';
@@ -33,9 +28,6 @@ import { JsonPrettyPrintComponent } from './piko-apps/tools-collection/json-pret
       { component: UserAdminComponent,         path: 'user-admin' },
       { component: FeedbackComponent,          path: 'feedback' },
       { component: FeedbackAdminComponent,     path: 'feedback-admin' },
-      { component: SchedulingComponent,        path: 'scheduling' },
-      { component: AnswerPageComponent,        path: 'scheduling/answer/:eventId' },
-      { component: EditEventComponent,         path: 'scheduling/edit-event/:eventId' },
       { component: ToyBoxComponent,            path: 'toybox' },
       { component: LambdaInterpreterComponent, path: 'toybox/lambda-interpreter' },
       { component: ToolsCollectionComponent,   path: 'tools-collection' },

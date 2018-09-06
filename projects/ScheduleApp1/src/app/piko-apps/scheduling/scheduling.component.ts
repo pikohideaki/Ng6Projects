@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatStepper, MatDialog } from '@angular/material';
 
 import { DatabaseService } from '../../database/database.service';
