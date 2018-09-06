@@ -16,7 +16,7 @@ import { makeSelectOptions } from './functions/make-select-options';
 import { SelectorOption } from './types/selector-option';
 import { TCell } from './types/table-cell';
 import { CellPosition } from './types/cell-position';
-import { TableSettings } from './types/table-settings';
+import { ITableSettings } from './types/table-settings';
 import { isValidSetting } from './functions/is-valid-setting';
 
 
@@ -33,7 +33,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
    */
 
   @Input() table$!: Observable<TCell[][]>;
-  @Input() settings!: TableSettings;
+  @Input() settings!: ITableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 

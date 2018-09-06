@@ -1,5 +1,5 @@
-import { TableSettings } from '../types/table-settings';
+import { ITableSettings } from '../types/table-settings';
 
-export const isValidSetting = (settings: TableSettings) => {
+export const isValidSetting = (settings: ITableSettings) => {
   return true;
 };

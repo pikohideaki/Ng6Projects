@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 
 import { TCell } from './types/table-cell';
 import { CellPosition } from './types/cell-position';
-import { ObjectTableSettings } from './types/object-table-settings';
+import { IObjectTableSettings } from './types/object-table-settings';
 
 @Component({
   selector: 'app-object-data-table',
@@ -19,7 +19,7 @@ import { ObjectTableSettings } from './types/object-table-settings';
 export class ObjectDataTableComponent implements OnInit {
 
   @Input() table$!: Observable<TCell[][]>;
-  @Input() settings!: ObjectTableSettings;
+  @Input() settings!: IObjectTableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 
