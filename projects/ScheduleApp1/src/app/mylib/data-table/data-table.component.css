@@ -32,6 +32,7 @@ table.data-table--shadow3px {
   font-size: 14px;
   color: rgba(0,0,0,.54);
   /*padding: 0 18px 12px 18px;  */
+  text-align: center;
 }
 
 .data-table.data-table--vertical-line th,

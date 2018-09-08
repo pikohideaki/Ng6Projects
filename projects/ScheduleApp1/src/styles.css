@@ -74,6 +74,12 @@ mat-icon {
   flex: 1 1 auto;
 }
 
+.align-center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+}
 
 .center-window {
   background-color: white;

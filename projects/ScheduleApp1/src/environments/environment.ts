@@ -6,11 +6,11 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyA3Vvlg_KBNcZdSkXRou6Bl-qyoWm2uAKE',
-    authDomain: 'pikoappsdevlopment.firebaseapp.com',
-    databaseURL: 'https://pikoappsdevlopment.firebaseio.com',
-    projectId: 'pikoappsdevlopment',
-    storageBucket: 'pikoappsdevlopment.appspot.com',
-    messagingSenderId: '352451149439'
+    apiKey: 'AIzaSyCpDsL_nidbhUCClBClfG_ZCbVsoBfAx38',
+    authDomain: 'scheduleapp1-dev.firebaseapp.com',
+    databaseURL: 'https://scheduleapp1-dev.firebaseio.com',
+    projectId: 'scheduleapp1-dev',
+    storageBucket: 'scheduleapp1-dev.appspot.com',
+    messagingSenderId: '1053719215032'
   }
 };

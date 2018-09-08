@@ -5,7 +5,7 @@ export const environment = {
     authDomain: 'pikoappsproduct.firebaseapp.com',
     databaseURL: 'https://pikoappsproduct.firebaseio.com',
     projectId: 'pikoappsproduct',
-    storageBucket: '',
+    storageBucket: 'pikoappsproduct.appspot.com',
     messagingSenderId: '745841731865'
   }
 };

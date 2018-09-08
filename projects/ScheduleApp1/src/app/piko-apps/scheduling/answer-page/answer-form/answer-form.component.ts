@@ -28,13 +28,13 @@ export class AnswerFormComponent implements OnInit, OnDestroy {
   @Input() set scEvent( value: Schedule ) {
     this.scEventSource.next( value );
   }
-  private scEvent$ = this.scEventSource.asObservable();
+  scEvent$ = this.scEventSource.asObservable();
 
   private answerIdSource = new ReplaySubject<string>(1);
   @Input() set answerId( value: string ) {
     this.answerIdSource.next( value );
   }
-  private answerId$: Observable<string> = this.answerIdSource.asObservable();
+  answerId$: Observable<string> = this.answerIdSource.asObservable();
 
   @Output() answerIdChange = new EventEmitter<string>();
 

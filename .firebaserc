@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "scheduleapp1-prod": "pikoappsproduct",
+    "public": "dist/ScheduleApp1",
+    "default": "pikoappsproduct"
+  }
+}

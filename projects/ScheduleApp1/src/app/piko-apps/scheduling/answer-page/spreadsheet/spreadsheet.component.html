@@ -6,19 +6,35 @@
 
 
   <div *ngIf="!!data.scEvent && !!data.spreadSheet">
-    <div *ngIf="flipTableState; then rowDateTable; else rowUserTable"></div>
-    <ng-template #rowDateTable>
+    <div *ngIf="!flipTableState; then rowIsDate; else rowIsUser"></div>
+    <ng-template #rowIsDate>
       <table
+          matSort (matSortChange)="sortData( $event, data.scEvent, data.spreadSheet )"
           class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
         <thead>
           <tr>
-            <th>日程 <button mat-button (click)="flipTable()">行列入れ替え</button></th>
-            <th>スコア</th>
+            <th><button mat-button (click)="flipTable()">行列入れ替え</button></th>
+          </tr>
+          <tr>
+            <th>
+              <div class="align-center-wrapper">
+                <div mat-sort-header="date">日程</div>
+              </div>
+            </th>
+            <th>
+              <div class="align-center-wrapper">
+                <div mat-sort-header="score">スコア</div>
+              </div>
+            </th>
             <ng-container *ngFor="let symbol of data.scEvent.symbols">
               <th *ngIf="symbol.useThis">
-                <mat-icon aria-hidden="true" [title]="symbol.description">
-                  {{symbol.iconName}}
-                </mat-icon>
+                <div class="align-center-wrapper">
+                  <div [mat-sort-header]="symbol.id">
+                    <mat-icon aria-hidden="true" [title]="symbol.description">
+                      {{symbol.iconName}}
+                    </mat-icon>
+                  </div>
+                </div>
               </th>
             </ng-container>
             <th *ngFor="let answer of data.scEvent.answers">
@@ -35,7 +51,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let datetime of data.scEvent.selectedDatetimes"
+          <tr *ngFor="let datetime of selectedDatetimesAfterSort"
               [class.dateIsGood]="7 <= getAverageScore( data.scEvent, datetime )
                                     && getAverageScore( data.scEvent, datetime ) < 10"
               [class.dateIsPerfect]="getAverageScore( data.scEvent, datetime ) === 10" >
@@ -75,15 +91,15 @@
       </table>
     </ng-template>
 
-    <ng-template #rowUserTable>
+    <ng-template #rowIsUser>
       <table
           class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
         <thead>
           <tr>
-            <th>
-              日程<br>
-              <button mat-button (click)="flipTable()">行列入れ替え</button>
-            </th>
+            <th><button mat-button (click)="flipTable()">行列入れ替え</button></th>
+          </tr>
+          <tr>
+            <th>日程</th>
             <th *ngFor="let datetime of data.scEvent.selectedDatetimes">
               {{toYMD( datetime )}}<br>
               （{{getDayStringJp( datetime )}}）<br>
