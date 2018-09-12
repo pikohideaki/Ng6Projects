@@ -77,7 +77,7 @@ export class SelectDatesComponent implements OnInit, OnDestroy {
     // });
 
     // const selectedDatetimesGrouped$
-    //   = Observable.combineLatest(
+    //   = combineLatest(
     //       this.selectedDatesSource.asObservable(),
     //       this.dateToTimeChangedSource.asObservable(),
     //       (selectedDates) => selectedDates.map( date => {

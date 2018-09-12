@@ -5,8 +5,8 @@ import { RouterModule } from '@angular/router';
 import { HomeComponent          } from './home.component';
 import { NotFoundPageComponent  } from './not-found-page.component';
 import { DatabaseTestComponent  } from './database/database-test.component';
-// import { EditDatabaseComponent  } from './firebase-mediator/edit-database.component';
-// import { UserAdminComponent     } from './firebase-mediator/user-admin/user-admin.component';
+// import { EditDatabaseComponent  } from './database/edit-database.component';
+// import { UserAdminComponent     } from './database/user-admin/user-admin.component';
 import { FeedbackComponent      } from './feedback/feedback.component';
 import { FeedbackAdminComponent } from './feedback/feedback-admin.component';
 

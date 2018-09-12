@@ -20,7 +20,7 @@ import { ScheduleSymbolId, IScheduleSymbol } from '../../schedule-symbol';
   selector: 'app-answer-form',
   templateUrl: './answer-form.component.html',
   styleUrls: [
-    '../../../../my-own-library/data-table/data-table.component.css',
+    '../../../../mylib/data-table/data-table.component.css',
     './answer-form.component.css'
   ]
 })

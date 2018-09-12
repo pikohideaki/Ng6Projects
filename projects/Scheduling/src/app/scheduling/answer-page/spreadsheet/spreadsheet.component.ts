@@ -9,7 +9,7 @@ import { Answer } from '../../answer';
 import { DatabaseService } from '../../../database/database.service';
 
 // import { SchedulingEvent, Answer, MySymbol } from '../../scheduling-event';
-// import { utils } from '../../../../my-own-library/utilities';
+// import { utils } from '../../../../mylib/utilities';
 
 @Component({
   selector: 'app-spreadsheet',

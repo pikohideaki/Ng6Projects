@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { MatIconRegistry } from '@angular/material';
 
 import { UserService } from './database/user/user.service';
-// import { AutoBackupOnFirebaseService } from './firebase-mediator/auto-backup-on-firebase.service';
+// import { AutoBackupOnFirebaseService } from './database/auto-backup-on-firebase.service';
 
 
 @Component({
