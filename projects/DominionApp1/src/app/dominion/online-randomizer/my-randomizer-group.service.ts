@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs';
-import { Subject } from 'rxjs/Subject';
-import { switchMap, switchMapTo } from 'rxjs/operators';
+import { Observable, combineLatest, Subject } from 'rxjs';
+import { switchMap, switchMapTo, map, distinctUntilChanged } from 'rxjs/operators';
 
 import { FireDatabaseService } from '../../database/database.service';
 import { UserService } from '../../database/user.service';
@@ -33,10 +32,10 @@ export class MyRandomizerGroupService {
         this.database.randomizerGroupList$,
         this.myGrpId$,
         (list, id) => list.find( e => e.databaseKey === id ) || new RandomizerGroup() )
-      .distinctUntilChanged( this.cmpObj );
+      .pipe( distinctUntilChanged( this.eqObj ) );
 
 
-  name$ = this.myGrp$.map( e => e.name ).distinctUntilChanged();
+  name$ = this.myGrp$.pipe( map( e => e.name ), distinctUntilChanged() );
 
 
   /**
@@ -45,29 +44,36 @@ export class MyRandomizerGroupService {
    */
   isSelectedExpansions$: Observable<boolean[]>
     = combineLatest(
-        this.database.expansionNameList$.map( list => list.map( _ => false ) ),
-        this.myGrp$.map( e => e.isSelectedExpansions ).distinctUntilChanged( this.cmpObj ),
+        this.database.expansionNameList$.pipe( map( list => list.map( _ => false ) ) ),
+        this.myGrp$.pipe(
+            map( e => e.isSelectedExpansions ),
+            distinctUntilChanged( this.eqObj ) ),
         (initArray, isSelectedExpansions) =>
           initArray.map( (_, i) => !!isSelectedExpansions[i] ) );
 
 
   selectedCardsCheckbox$: Observable<SelectedCardsCheckbox>
-    = this.myGrp$.map( e => e.selectedCardsCheckbox )
-        .distinctUntilChanged( this.cmpObj );
+    = this.myGrp$.pipe(
+        map( e => e.selectedCardsCheckbox ),
+        distinctUntilChanged( this.eqObj ) );
 
   BlackMarketPileShuffled$: Observable<BlackMarketPileCard[]>
-    = this.myGrp$.map( e => e.BlackMarketPileShuffled )
-        .distinctUntilChanged( this.cmpObj );
+    = this.myGrp$.pipe(
+        map( e => e.BlackMarketPileShuffled ),
+        distinctUntilChanged( this.eqObj ) );
   BlackMarketPhase$: Observable<BlackMarketPhase>
-    = this.myGrp$.map( e => e.BlackMarketPhase )
-        .distinctUntilChanged();
+    = this.myGrp$.pipe(
+        map( e => e.BlackMarketPhase ),
+        distinctUntilChanged() );
 
   selectedCardsHistory$: Observable<SelectedCards[]>
-    = this.myGrp$.map( e => e.selectedCardsHistory )
-        .distinctUntilChanged( this.cmpObj );
+    = this.myGrp$.pipe(
+        map( e => e.selectedCardsHistory ),
+        distinctUntilChanged( this.eqObj ) );
   selectedIndexInHistory$: Observable<number>
-    = this.myGrp$.map( e => e.selectedIndexInHistory )
-        .distinctUntilChanged( this.cmpObj );
+    = this.myGrp$.pipe(
+        map( e => e.selectedIndexInHistory ),
+        distinctUntilChanged( this.eqObj ) );
 
   selectedCards$: Observable<SelectedCards>
    = combineLatest(
@@ -82,25 +88,31 @@ export class MyRandomizerGroupService {
     lastTurnPlayerName$: Observable<string>,
   } = {
     players$ :
-      this.myGrp$.map( e => e.newGameResult.players )
-        .distinctUntilChanged( this.cmpObj ),
+      this.myGrp$.pipe(
+          map( e => e.newGameResult.players ),
+        distinctUntilChanged( this.eqObj ) ),
     place$ :
-      this.myGrp$.map( e => e.newGameResult.place )
-        .distinctUntilChanged(),
+      this.myGrp$.pipe(
+          map( e => e.newGameResult.place ),
+        distinctUntilChanged() ),
     memo$ :
-      this.myGrp$.map( e => e.newGameResult.memo )
-        .distinctUntilChanged(),
+      this.myGrp$.pipe(
+          map( e => e.newGameResult.memo ),
+        distinctUntilChanged() ),
     lastTurnPlayerName$ :
-      this.myGrp$.map( e => e.newGameResult.lastTurnPlayerName )
-        .distinctUntilChanged(),
+      this.myGrp$.pipe(
+          map( e => e.newGameResult.lastTurnPlayerName ),
+        distinctUntilChanged() ),
   };
 
   newGameResultDialogOpened$: Observable<boolean>
-    = this.myGrp$.map( e => e.newGameResultDialogOpened )
-        .distinctUntilChanged();
+    = this.myGrp$.pipe(
+        map( e => e.newGameResultDialogOpened ),
+        distinctUntilChanged() );
   resetVPCalculator$: Observable<number>
-    = this.myGrp$.map( e => e.resetVPCalculator )
-        .distinctUntilChanged();
+    = this.myGrp$.pipe(
+        map( e => e.resetVPCalculator ),
+        distinctUntilChanged() );
 
 
 
@@ -117,7 +129,7 @@ export class MyRandomizerGroupService {
   }
 
 
-  private cmpObj(x, y) {
+  private eqObj(x: any, y: any) {
     return JSON.stringify(x) === JSON.stringify(y);
   }
 

@@ -9,7 +9,7 @@ import { UserService } from './database/user.service';
   selector: 'app-home',
   template: `
     <div class="body-with-padding">
-      <app-list appName="Dominion Apps" [apps$]="apps$" > </app-list>
+      <app-list appName="Dominion Apps" [apps]="apps$ | async" > </app-list>
     </div>
   `,
   styles: [],

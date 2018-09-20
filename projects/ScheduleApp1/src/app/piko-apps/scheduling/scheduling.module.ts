@@ -6,7 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClipboardModule } from 'ngx-clipboard';
 
 import { MyOwnCustomMaterialModule } from '../../my-own-custom-material.module';
-import { MyLibModule } from '../../mylib/mylib';
+import { MyLibModule } from '../../mylib/mylib.module';
 
 import { SchedulingComponent } from './scheduling.component';
 import { SetTimeDialogComponent } from './sub-components/select-dates/set-time-dialog.component';

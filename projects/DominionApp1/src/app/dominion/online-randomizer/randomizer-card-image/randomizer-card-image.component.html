@@ -3,7 +3,9 @@
       cardList:      cardPropertyList$ | async
     } as data">
   <div class="body-with-padding" >
-    <app-waiting-spinner [done]="!!data.selectedCards && !!data.cardList"></app-waiting-spinner>
+    <app-waiting-spinner
+      [waiting]="!data.selectedCards || !data.cardList">
+    </app-waiting-spinner>
 
     <ng-container *ngIf="!!data.selectedCards && !!data.cardList">
       <div class="CardArea KingdomCards10"

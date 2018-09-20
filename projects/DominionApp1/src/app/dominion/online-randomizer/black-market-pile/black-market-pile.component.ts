@@ -12,6 +12,7 @@ import { MyRandomizerGroupService } from '../my-randomizer-group.service';
 import { CardProperty        } from '../../../classes/card-property';
 import { BlackMarketPileCard } from '../../../classes/black-market-pile-card';
 import { BlackMarketPhase as BMPhase, BlackMarketPhase } from '../../../classes/online-randomizer/black-market-phase.enum';
+import { startWith, map } from 'rxjs/operators';
 
 
 @Component({
@@ -32,15 +33,15 @@ export class BlackMarketPileComponent implements OnInit {
     = this.myRandomizerGroup.BlackMarketPileShuffled$;
 
   currentPhase$: Observable<BlackMarketPhase>
-    = this.myRandomizerGroup.BlackMarketPhase$.startWith( BMPhase.init );
+    = this.myRandomizerGroup.BlackMarketPhase$.pipe( startWith( BMPhase.init ) );
 
   putOnTheBottomDone$: Observable<boolean>
-    = this.BlackMarketPileShuffled$.map(
+    = this.BlackMarketPileShuffled$.pipe( map(
         pile => {
           const numberOfFaceDownCards = pile.filter( e => !e.faceUp ).length;
           const firstIndexOfFaceUpCard = pile.findIndex( e => e.faceUp );
           return numberOfFaceDownCards === firstIndexOfFaceUpCard;
-        });
+        }) );
 
 
   private promiseResolver = {};
@@ -67,7 +68,7 @@ export class BlackMarketPileComponent implements OnInit {
     switch ( operation ) {  // check operation string
       case 'buy' :
       case 'putOnTheBottom' :
-        this.promiseResolver[operation]( value );
+        (this.promiseResolver as any)[operation]( value );
         break;
       default :
         console.error( `'promiseResolver' does not have operation '${operation}'.` );
@@ -90,7 +91,7 @@ export class BlackMarketPileComponent implements OnInit {
 
       while (true) {
         const clickedElementValue
-          = await new Promise<number>( resolve => this.promiseResolver['buy'] = resolve );
+          = await new Promise<number>( resolve => (this.promiseResolver as any)['buy'] = resolve );
 
         if ( clickedElementValue === -1 ) break;  // don't buy
 
@@ -114,11 +115,11 @@ export class BlackMarketPileComponent implements OnInit {
       while (true) {
         const clickedElementValue
           = await new Promise<number>( resolve =>
-              this.promiseResolver['putOnTheBottom'] = resolve );
+              (this.promiseResolver as any)['putOnTheBottom'] = resolve );
         if ( clickedElementValue === -1 ) break;
 
         const selectedElement = utils.array.removeAt( BlackMarketPileShuffled, clickedElementValue );
-        BlackMarketPileShuffled.push( selectedElement );
+        if ( !!selectedElement ) BlackMarketPileShuffled.push( selectedElement );
         this.myRandomizerGroup.setBMPileShuffled( BlackMarketPileShuffled );
       }
     }

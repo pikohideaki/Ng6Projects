@@ -8,7 +8,7 @@ import { ITableSettings } from './types/table-settings';
   template: `
     <div class="margined-element">
       <app-data-table
-        [table$]="table$"
+        [table]="table"
         [settings]="settings"
         (cellclicked)="cellOnClick( $event )"
         (tableFilteredChange)="tableFilteredOnChange( $event )"
@@ -19,7 +19,7 @@ import { ITableSettings } from './types/table-settings';
 })
 
 export class DataTableDemoComponent implements OnInit {
-  table$!: Observable<TCell[][]>;
+  table!: TCell[][];
   settings!: ITableSettings;
 
   constructor() {
@@ -28,8 +28,45 @@ export class DataTableDemoComponent implements OnInit {
       displayNo: true,
       itemsPerPageInit: 50,
       itemsPerPageOptions: [25, 50, 100, 200],
-      headerSettings: [],
+      headerSettings: [
+        {
+          displayName : 'No.',
+          filterType  : 'none',
+          align       : 'r',
+          isButton    : false,
+          isLink      : false,
+          enableSort  : false,
+          compareFn   : (x, y) => 0,
+          transform   : (val, pos) => val.toString(),
+        },
+        {
+          displayName : 'name',
+          filterType  : 'input',
+          align       : 'l',
+          isButton    : false,
+          isLink      : false,
+          enableSort  : false,
+          compareFn   : (x, y) => 0,
+          transform   : (val, pos) => val.toString(),
+        },
+        {
+          displayName : 'password',
+          filterType  : 'input',
+          align       : 'l',
+          isButton    : false,
+          isLink      : false,
+          enableSort  : false,
+          compareFn   : (x, y) => 0,
+          transform   : (val, pos) => val.toString(),
+        },
+      ],
     };
+
+    this.table = [
+      [1, 'aaa', 123],
+      [2, 'bbb', 234],
+      [3, 'ccc', 345],
+    ];
   }
 
   ngOnInit() { }

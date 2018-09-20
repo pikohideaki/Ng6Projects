@@ -15,8 +15,8 @@ import { CardProperty } from '../../../../../classes/card-property';
 })
 export class OnlineGameResultDialogComponent implements OnInit {
 
-  gameResult$: Observable<GameResult>;  // input
-  cardPropertyList$: Observable<CardProperty[]>;
+  gameResult$!: Observable<GameResult>;  // input
+  cardPropertyList$!: Observable<CardProperty[]>;
 
 
   constructor() {}

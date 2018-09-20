@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { UserService } from '../../../../../database/user.service';
 import { PlayerCards } from '../../../../../classes/online-game/player-cards';
 import { DCard } from '../../../../../classes/online-game/dcard';
+import { filter, map } from 'rxjs/operators';
 
 
 @Component({
@@ -12,8 +13,8 @@ import { DCard } from '../../../../../classes/online-game/dcard';
 })
 export class OnlineGamePlayerCardsDialogComponent implements OnInit {
 
-  allPlayersCards$: Observable<PlayerCards[]>;  // input
-  playersNameList$: Observable<string[]>;  // input
+  allPlayersCards$!: Observable<PlayerCards[]>;  // input
+  playersNameList$!: Observable<string[]>;  // input
 
 
   constructor( ) { }
@@ -49,13 +50,13 @@ export class OnlineGamePlayerCardsDialogComponent implements OnInit {
 })
 export class EachPlayerCardsComponent implements OnInit {
 
-  @Input() name: string;  // input
-  @Input() playerIndex: number; // input
-  @Input() allPlayersCards$: Observable<PlayerCards[]>;  // input
+  @Input() name!: string;  // input
+  @Input() playerIndex!: number; // input
+  @Input() allPlayersCards$!: Observable<PlayerCards[]>;  // input
 
   cardSizeRatio$ = this.user.onlineGame.cardSizeRatio$;
 
-  playerCardsForView$: Observable<DCard[]>;
+  playerCardsForView$!: Observable<DCard[]>;
 
 
   constructor(
@@ -64,9 +65,9 @@ export class EachPlayerCardsComponent implements OnInit {
 
   ngOnInit() {
     this.playerCardsForView$
-      = this.allPlayersCards$
-          .filter( e => e.length > this.playerIndex )
-          .map( allPlayersCards =>
-                allPlayersCards[ this.playerIndex ].getDCards( null, true ) );
+      = this.allPlayersCards$.pipe(
+          filter( e => e.length > this.playerIndex ),
+          map( allPlayersCards =>
+                allPlayersCards[ this.playerIndex ].getDCards( undefined, true ) ) );
   }
 }

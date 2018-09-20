@@ -77,10 +77,10 @@ export class GameState {
   setNumberOfPlayers( numberOfPlayers: number ) {
     this.numberOfPlayers = numberOfPlayers;
     if ( this.allPlayersData.length === 0 ) {
-      this.allPlayersData = utils.number.seq0( numberOfPlayers ).map( _ => new PlayerData() );
+      this.allPlayersData = utils.number.seq0( numberOfPlayers ).map( () => new PlayerData() );
     }
     if ( this.DCards.allPlayersCards.length === 0 ) {
-      this.DCards.allPlayersCards = utils.number.seq0( numberOfPlayers ).map( _ => new PlayerCards() );
+      this.DCards.allPlayersCards = utils.number.seq0( numberOfPlayers ).map( () => new PlayerCards() );
     }
   }
 
@@ -102,17 +102,17 @@ export class GameState {
 
 
   getDirectory( cardId: number ): DCardPath[] {
-    let result: DCardPath[];
+    let result: DCardPath[] = [];
     this.DCards.allPlayersCards.forEach( (playerCards, playerIndex) =>
-      utils.object.forEach( playerCards, (pile, key: PlayerCardDirectory ) => {
+      utils.object.forEach( playerCards, (pile: DCard[], key) => {
         if ( pile.map( c => c.id ).includes( cardId ) ) {
-          result = ['allPlayersCards', playerIndex, key];
+          result = ['allPlayersCards', playerIndex, key] as DCardPath[];
         }
       }) );
 
-    utils.object.forEach( this.DCards.BasicCards, (pile, key: BasicCardsDirectory) => {
+    utils.object.forEach( this.DCards.BasicCards, (pile: DCard[], key) => {
       if ( pile.map( c => c.id ).includes( cardId ) ) {
-        result = ['BasicCards', key];
+        result = ['BasicCards', key] as DCardPath[];
       }
     });
 
@@ -135,12 +135,12 @@ export class GameState {
 
 
   getAllPlayersCards() {
-    return [].concat(
+    return ([] as DCard[]).concat(
       ...this.DCards.allPlayersCards.map( pl => pl.getDCards() ) );
   }
 
   getAllDCards(): DCard[] {
-    return [].concat(
+    return ([] as DCard[]).concat(
         this.getAllPlayersCards(),
         this.DCards.BasicCards.getDCards(),
         this.DCards.KingdomCards.getDCards(),
@@ -172,7 +172,7 @@ export class GameState {
   }
 
   emptyPiles(): number {
-    const Supplies = [].concat(
+    const Supplies = ([] as DCard[][]).concat(
         utils.object.entries( this.DCards.BasicCards ),
         this.DCards.KingdomCards );
     return Supplies.filter( e => e.length <= 0 ).length

@@ -20,6 +20,7 @@ import { GameRoom              } from '../classes/online-game/game-room';
 import { ChatMessage           } from '../classes/online-game/chat-message';
 import { GameCommunication     } from '../classes/online-game/game-room-communication';
 import { UserInput             } from '../classes/online-game/user-input';
+import { map, first } from 'rxjs/operators';
 
 
 @Injectable()
@@ -144,17 +145,20 @@ export class FireDatabaseService {
   ) {
     this.expansionNameList$
       = afdb.list<string>( this.fdPath.expansionNameList ).valueChanges()
-              .map( list => list.map( e => e.toString() ) )
-              .first();
+          .pipe(
+            map( list => list.map( e => e.toString() ) ),
+            first() );
 
     this.cardPropertyList$
       = afdb.list<CardProperty>( this.fdPath.cardPropertyList ).valueChanges()
-              .map( list => list.map( (e: any, i) => new CardProperty(i, e) ) )
-              .first();
+          .pipe(
+            map( list => list.map( (e: any, i) => new CardProperty(i, e) ) ),
+            first() );
 
     this.users$
       = this.afdb.list( this.fdPath.users, ref => ref.orderByChild('nameYomi') ).snapshotChanges()
-          .map( actions => actions.map( action => new User( action.key, action.payload.val() ) ) );
+          .pipe(
+            map( actions => actions.map( action => new User( action.key || '', action.payload.val() as any ) ) ) );
 
     this.scoringTable$
       = afdb.list<number[]>( this.fdPath.scoringTable ).valueChanges();
@@ -164,7 +168,7 @@ export class FireDatabaseService {
           this.scoringTable$,
           this.afdb.list<GameResult>( this.fdPath.gameResultList ).snapshotChanges(),
           (scoringTable: number[][], actions) => {
-              const gameResultList = actions.map( action => new GameResult( action.key, action.payload.val() ) );
+              const gameResultList = actions.map( action => new GameResult( action.key || '', action.payload.val() as any ) );
               gameResultList.forEach( (gr, index) => {
                 gr.setScores( scoringTable );
                 gr.no = index + 1;
@@ -175,15 +179,18 @@ export class FireDatabaseService {
 
     this.randomizerGroupList$
       = this.afdb.list( this.fdPath.randomizerGroupList ).snapshotChanges()
-          .map( actions => actions.map( action => new RandomizerGroup( action.key, action.payload.val() ) ) );
+          .pipe( map( actions => actions.map( action =>
+              new RandomizerGroup( action.key || '', action.payload.val() as any ) ) ) );
 
     this.onlineGameRooms$
       = this.afdb.list( this.fdPath.onlineGameRoomsList ).snapshotChanges()
-          .map( actions => actions.map( action => new GameRoom( action.key, action.payload.val() ) ) );
+          .pipe( map( actions => actions.map( action =>
+            new GameRoom( action.key || '', action.payload.val() as any ) ) ) );
 
     this.onlineGameCommunicationList$
       = this.afdb.list( this.fdPath.onlineGameCommunicationList ).snapshotChanges()
-          .map( actions => actions.map( action => new GameCommunication( action.key, action.payload.val() ) ) );
+          .pipe( map( actions => actions.map( action =>
+            new GameCommunication( action.key || '', action.payload.val() as any ) ) ) );
 
 
     /*** methods ***/
@@ -249,8 +256,8 @@ export class FireDatabaseService {
         const copy = utils.object.copy( gameResult );
         delete copy.no;
         delete copy.date;
-        copy.timeStamp = gameResult.date.valueOf();
-        copy.players.forEach( pl => {
+        copy.timeStamp = gameResult.date.getTime();
+        copy.players.forEach( (pl: any) => {
           // delete pl.rank;
           delete pl.score;
         });

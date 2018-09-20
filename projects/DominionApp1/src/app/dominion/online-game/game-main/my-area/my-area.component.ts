@@ -16,16 +16,16 @@ import { DCard } from '../../../../classes/online-game/dcard';
 })
 export class MyAreaComponent implements OnInit {
 
-  @Input() isMyTurn$:                Observable<boolean>;
-  @Input() isBuyPlayPhase$:          Observable<boolean>;
-  @Input() gameMessageList$:         Observable<string[]>;
-  @Input() gameMessageListSliced$:   Observable<string[]>;
-  @Input() gameMessageIndexDelayed$: Observable<number>;
-  @Input() myIndex$:                 Observable<number>;
-  @Input() autoSort$:                Observable<boolean>;
-  @Input() showCardProperty$:        Observable<boolean>;
-  @Input() gameIsOver$:              Observable<boolean>;
-  @Input() myThinkingState$:         Observable<boolean>;
+  @Input() isMyTurn$!:                Observable<boolean>;
+  @Input() isBuyPlayPhase$!:          Observable<boolean>;
+  @Input() gameMessageList$!:         Observable<string[]>;
+  @Input() gameMessageListSliced$!:   Observable<string[]>;
+  @Input() gameMessageIndexDelayed$!: Observable<number>;
+  @Input() myIndex$!:                 Observable<number>;
+  @Input() autoSort$!:                Observable<boolean>;
+  @Input() showCardProperty$!:        Observable<boolean>;
+  @Input() gameIsOver$!:              Observable<boolean>;
+  @Input() myThinkingState$!:         Observable<boolean>;
 
   @Output() cardClicked  = new EventEmitter<DCard>();
   @Output() vcoinClicked = new EventEmitter<void>();

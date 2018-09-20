@@ -1,8 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
+
 import { NgForm } from '@angular/forms';
+import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material';
 
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import { utils } from '../../../mylib/utilities';
 import { FireDatabaseService } from '../../../database/database.service';
@@ -15,6 +17,7 @@ import { RandomizerGroup       } from '../../../classes/online-randomizer/random
 import { User                  } from '../../../classes/user';
 import { SelectedCardsCheckbox } from '../../../classes/selected-cards-checkbox-values';
 import { BlackMarketPhase      } from '../../../classes/online-randomizer/black-market-phase.enum';
+import { first } from 'rxjs/operators';
 
 
 @Component({
@@ -24,7 +27,7 @@ import { BlackMarketPhase      } from '../../../classes/online-randomizer/black-
 })
 export class RandomizerGroupListComponent implements OnInit {
 
-  @Input() private sidenav;
+  @Input() private sidenav!: MatSidenav;
 
   uid$:        Observable<string> = this.user.uid$;
   myName$:     Observable<string> = this.user.name$;
@@ -41,9 +44,9 @@ export class RandomizerGroupListComponent implements OnInit {
                           .map( user => user.name ),
             })) );
 
-  newGroupName:     string;
-  newGroupPassword: string;
-  signInPassword:   string;
+  newGroupName!:     string;
+  newGroupPassword!: string;
+  signInPassword!:   string;
   showWrongPasswordAlert = false;
   selectedGroupId = '';
 
@@ -74,11 +77,11 @@ export class RandomizerGroupListComponent implements OnInit {
 
 
   /* 新規グループ */
-  newGroupNameOnChange( value ) {
+  newGroupNameOnChange( value: string ) {
     this.newGroupName = value;
   }
 
-  newGroupPasswordOnChange( value ) {
+  newGroupPasswordOnChange( value: string ) {
     this.newGroupPassword = value;
   }
 
@@ -89,10 +92,10 @@ export class RandomizerGroupListComponent implements OnInit {
     groupListWithUsers: { group: RandomizerGroup, users: string[] }[]
   ) {
     const expansionNameList
-      = await this.database.expansionNameList$.first().toPromise();
+      = await this.database.expansionNameList$.pipe( first() ).toPromise();
     const isSelectedExpansionsInit = expansionNameList.map( _ => true );
 
-    const newRandomizerGroup = new RandomizerGroup( null, {
+    const newRandomizerGroup = new RandomizerGroup( undefined, {
         name:                    this.newGroupName,
         password:                this.newGroupPassword,
         timeStamp:               Date.now(),
@@ -126,7 +129,7 @@ export class RandomizerGroupListComponent implements OnInit {
 
 
   /* グループ選択 */
-  groupClicked( $event, groupId: string ) {
+  groupClicked( $event: any, groupId: string ) {
     this.resetSignInForm();
     this.selectedGroupId = groupId;
     $event.stopPropagation();
@@ -136,7 +139,7 @@ export class RandomizerGroupListComponent implements OnInit {
     return utils.date.toYMDHMS( date );
   }
 
-  signInPasswordOnChange( value ) {
+  signInPasswordOnChange( value: string ) {
     this.signInPassword = value;
   }
 
@@ -185,7 +188,8 @@ export class RandomizerGroupListComponent implements OnInit {
     groupId:            string,
     groupListWithUsers: { group: RandomizerGroup, users: string[] }[]
   ): boolean {
-    const group = groupListWithUsers.find( g => g.group.databaseKey === groupId ).group;
+    const group = (groupListWithUsers.find( g => g.group.databaseKey === groupId )
+                    || { group: new RandomizerGroup() }).group;
     const isValid = ( !group.password ) || ( this.signInPassword === group.password );
     this.showWrongPasswordAlert = !isValid;
     return isValid;
@@ -203,12 +207,12 @@ export class RandomizerGroupListComponent implements OnInit {
   // }
 
   private resetAddGroupForm() {
-    this.newGroupName = undefined;
-    this.newGroupPassword = undefined;
+    this.newGroupName = '';
+    this.newGroupPassword = '';
   }
 
   private resetSignInForm() {
-    this.signInPassword = undefined;
+    this.signInPassword = '';
   }
 
   private openSnackBar( message: string ) {

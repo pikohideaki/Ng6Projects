@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { MyGameRoomService } from '../my-game-room.service';
 import { GameRoomCommunicationService } from '../game-room-communication.service';
@@ -8,6 +8,7 @@ import { PlayerCards } from '../../../../../classes/online-game/player-cards';
 import { GameState   } from '../../../../../classes/online-game/game-state';
 import { TurnInfo    } from '../../../../../classes/online-game/turn-info';
 import { PlayerData  } from '../../../../../classes/online-game/players-data';
+import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
 
 
 @Injectable()
@@ -16,25 +17,25 @@ export class GameStateService {
   private gameStateSource = new BehaviorSubject<GameState>( new GameState() );
   gameState$: Observable<GameState> = this.gameStateSource.asObservable();
 
-  private turnInfo$: Observable<TurnInfo> = this.gameState$.map( e => e.turnInfo );
-  action$       = this.turnInfo$.map( e => e.action ).distinctUntilChanged();
-  buy$          = this.turnInfo$.map( e => e.buy    ).distinctUntilChanged();
-  coin$         = this.turnInfo$.map( e => e.coin   ).distinctUntilChanged();
-  potion$       = this.turnInfo$.map( e => e.potion ).distinctUntilChanged();
-  phase$        = this.turnInfo$.map( e => e.phase  ).distinctUntilChanged();
-  runningCards$ = this.turnInfo$.map( e => e.runningCards );
+  private turnInfo$: Observable<TurnInfo> = this.gameState$.pipe( map( e => e.turnInfo ) );
+  action$       = this.turnInfo$.pipe( map( e => e.action ), distinctUntilChanged() );
+  buy$          = this.turnInfo$.pipe( map( e => e.buy    ), distinctUntilChanged() );
+  coin$         = this.turnInfo$.pipe( map( e => e.coin   ), distinctUntilChanged() );
+  potion$       = this.turnInfo$.pipe( map( e => e.potion ), distinctUntilChanged() );
+  phase$        = this.turnInfo$.pipe( map( e => e.phase  ), distinctUntilChanged() );
+  runningCards$ = this.turnInfo$.pipe( map( e => e.runningCards ) );
 
-  allPlayersData$  = this.gameState$.map( e => e.allPlayersData         );
-  allPlayersCards$ = this.gameState$.map( e => e.DCards.allPlayersCards );
-  BasicCards$      = this.gameState$.map( e => e.DCards.BasicCards      );
-  KingdomCards$    = this.gameState$.map( e => e.DCards.KingdomCards    );
-  trashPile$       = this.gameState$.map( e => e.DCards.trashPile       );
-  BlackMarketPile$ = this.gameState$.map( e => e.DCards.BlackMarketPile );
+  allPlayersData$  = this.gameState$.pipe( map( e => e.allPlayersData         ) );
+  allPlayersCards$ = this.gameState$.pipe( map( e => e.DCards.allPlayersCards ) );
+  BasicCards$      = this.gameState$.pipe( map( e => e.DCards.BasicCards      ) );
+  KingdomCards$    = this.gameState$.pipe( map( e => e.DCards.KingdomCards    ) );
+  trashPile$       = this.gameState$.pipe( map( e => e.DCards.trashPile       ) );
+  BlackMarketPile$ = this.gameState$.pipe( map( e => e.DCards.BlackMarketPile ) );
 
   turnPlayerIndex$: Observable<number>
-    = this.gameState$.map( e => e.turnPlayerIndex() ).distinctUntilChanged();
+    = this.gameState$.pipe( map( e => e.turnPlayerIndex() ), distinctUntilChanged() );
   nextTurnPlayerIndex$: Observable<number>
-    = this.gameState$.map( e => e.nextTurnPlayerIndex() ).distinctUntilChanged();
+    = this.gameState$.pipe( map( e => e.nextTurnPlayerIndex() ), distinctUntilChanged() );
 
   turnPlayersName$: Observable<string>
     = combineLatest(
@@ -65,8 +66,9 @@ export class GameStateService {
         this.turnPlayerIndex$,
         this.myGameRoomService.myIndex$,
         (turnPlayerIndex, myIndex) => (turnPlayerIndex === myIndex) )
-      .distinctUntilChanged()
-      .startWith( false );
+      .pipe(
+        distinctUntilChanged(),
+        startWith( false ) );
 
   gameIsOver$: Observable<boolean>
     = combineLatest(
@@ -74,7 +76,7 @@ export class GameStateService {
           this.gameRoomCommunication.isTerminated$,
           (gameState, isTerminated) =>
             gameState.gameIsOver() || isTerminated )
-        .distinctUntilChanged();
+        .pipe( distinctUntilChanged() );
 
 
   constructor(

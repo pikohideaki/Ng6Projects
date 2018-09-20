@@ -15,11 +15,11 @@ export class LoginComponent implements OnInit {
 
   waitingForResponse: boolean = false;
 
-  email: string;
-  password: string;
+  email!: string;
+  password!: string;
 
-  errorMessageForEmail: string;
-  errorMessageForPassword: string;
+  errorMessageForEmail!: string;
+  errorMessageForPassword!: string;
 
 
   constructor(
@@ -32,12 +32,12 @@ export class LoginComponent implements OnInit {
   }
 
 
-  emailOnChange( value ) {
-    this.email = value;
+  emailOnChange( email: string ) {
+    this.email = email;
   }
 
-  passwordOnChange( value ) {
-    this.password = value;
+  passwordOnChange( password: string ) {
+    this.password = password;
   }
 
   login() {

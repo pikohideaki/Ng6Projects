@@ -45,7 +45,8 @@
 
     <!-- プレイヤー選択 -->
     <div class="margined-element">
-      <app-waiting-spinner [done]="data.playerResults.length > 0">
+      <app-waiting-spinner
+        [waiting]="!data.playerResults || data.playerResults.length === 0">
       </app-waiting-spinner>
 
       <div *ngIf="data.playerResults.length > 0n">

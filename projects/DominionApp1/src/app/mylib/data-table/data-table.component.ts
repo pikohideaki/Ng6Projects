@@ -1,274 +1,299 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable, BehaviorSubject, combineLatest, ReplaySubject } from 'rxjs';
-import { debounceTime, takeWhile, withLatestFrom, map } from 'rxjs/operators';
+import { Observable, BehaviorSubject, combineLatest, merge, ReplaySubject } from 'rxjs';
+import { map, withLatestFrom, debounceTime, startWith, skip } from 'rxjs/operators';
 
-import { getDataAtPage } from './pagenation/pagenation.component';
-import { utils } from '../utilities';
-
-
-
-export class ColumnSetting {
-  name:            string  = '';
-  headerTitle:     string  = '';
-  align?:          'l'|'c'|'r'  = 'c';
-  isButton?:       boolean = false;
-  manip?:          ''|'input'|'select'|'multiSelect-and'|'multiSelect-or' = '';
-  selectOptions$?: Observable<{ value: any, viewValue: string }[]>;  // select, multiSelect-and
-  selectOptions?:  { value: any, viewValue: string }[] = [];  // select, multiSelect-and
-  manipState?:     any;
-}
-
-
+import { filterFunction } from './functions/filter-function';
+import { indexOnRawData } from './functions/index-on-raw-data';
+import { slice } from './functions/slice';
+import { makeSelectOptions } from './functions/make-select-options';
+import { SelectorOption } from './types/selector-option';
+import { TCell } from './types/table-cell';
+import { CellPosition } from './types/cell-position';
+import { ITableSettings } from './types/table-settings';
+import { isValidSetting } from './functions/is-valid-setting';
+import { Sort } from '@angular/material';
 
 
 @Component({
   selector: 'app-data-table',
   templateUrl: './data-table.component.html',
-  styleUrls: [ './data-table.component.css' ]
+  styleUrls: ['./data-table.component.css']
 })
-export class DataTableComponent implements OnInit, OnDestroy {
-  private alive: boolean = true;
+export class DataTableComponent implements OnInit {
 
-  @Input() readonly usePagenation: boolean = true;
+  /**
+   * sypported cell types:
+   *   * number
+   *   * string
+   *   * boolean,
+   *   * Array<number>
+   *   * Array<string>
+   *   * Array<boolean>
+   */
 
-  private dataSource = new ReplaySubject<any[]>(1);
-  @Input() set data( value: any[] ) {
-    this.dataSource.next( value );
-  }
-  data$: Observable<any[]> = this.dataSource.asObservable();
-
-  private filteredData$!: Observable<any[]>;
-  private filteredIndice$!: Observable<number[]>;
-  filteredDataLength$!: Observable<number>;
-  @Output() filteredDataOnChange = new EventEmitter<any[]>();
-  @Output() filteredIndiceOnChange = new EventEmitter<number[]>();
-
-  private columnSettingsSource = new BehaviorSubject<ColumnSetting[]>([]);
-  columnSettings$ = this.columnSettingsSource.asObservable()
-                      .pipe( debounceTime( 300 /* ms */ ) );
-  @Input() set columnSettings( value: ColumnSetting[] ) {
-    this.columnSettingsSource.next( value );
+  private tableSource = new ReplaySubject<TCell[][]>(1);
+  table$: Observable<TCell[][]> = this.tableSource.asObservable();
+  @Input() set table( value: TCell[][] ) {
+    // console.log( 'table', value );
+    if ( !value || !Array.isArray( value ) || !Array.isArray( value[0] ) ) return;
+    this.tableSource.next( value );
   }
 
 
-  // pagenation
-  @Input() readonly itemsPerPageOptions: number[] = [];
-
-  private itemsPerPageSource = new BehaviorSubject<number>( 100 );
-  itemsPerPage$ = this.itemsPerPageSource.asObservable();
-  @Input() set itemsPerPageInit( value: number ) {
-    this.itemsPerPageSource.next( value );
+  private settingsSource = new ReplaySubject<ITableSettings>(1);
+  private _settings!: ITableSettings;
+  @Input() set settings( value: ITableSettings ) {
+    if ( !value ) return;
+    this.settingsSource.next( value );
+    this._settings = value;
   }
-
-  private selectedPageIndexSource = new BehaviorSubject<number>(0);
-  selectedPageIndex$ = this.selectedPageIndexSource.asObservable();
-
-  private pagenatedData$!: Observable<any[]>;
-
-  @Input() readonly transform = ((columnName: string, value: any) => value);  // transform cell data at printing
-  transformedPagenatedData$!: Observable<any[]>;
-
-  @Output() clicked = new EventEmitter<{
-      rowIndex: number,
-      rowIndexOnFiltered: number,
-      columnName: string
-    }>();
+  settings$ = this.settingsSource.asObservable();
+  usePagenation$: Observable<boolean>
+    = this.settings$.pipe( map( e => !!e.usepagination ) );
+  displayNo$: Observable<boolean>
+    = this.settings$.pipe( map( e => !!e.displayNo ) );
 
 
+  @Output() cellClicked = new EventEmitter<CellPosition>();
+
+  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
+  @Output() indiceFilteredChange = new EventEmitter<number[]>();
+
+  private headerValuesAllSource = new BehaviorSubject<(TCell|undefined)[]>([]);
+  headerValuesAll$!: Observable<(TCell|undefined)[]>;
+
+  selectorOptionsAll$!: Observable<SelectorOption[][]>;
+
+  private pageNumberSource = new BehaviorSubject<number>(1);
+  private itemsPerPageSource = new BehaviorSubject<number>(100);
+
+  private sortBySource = new BehaviorSubject<Sort>({ active: 'NoColumn', direction: '' });
+  private sortBy$!: Observable<Sort>;
+
+  itemsPerPage$!: Observable<number>;
+  pageLength$!: Observable<number>;
+  pageNumber$!: Observable<number>;
+
+  private tableWithDefault$!: Observable<TCell[][]>;
+  private tableFiltered$!: Observable<TCell[][]>;
+  private indiceFiltered$!: Observable<number[]>;
+  tableFilteredRowSize$!: Observable<number>;
+
+  private indiceFilteredSorted$!: Observable<number[]>;
+
+  private indiceSliced$!: Observable<number[]>;
+  private tableSliced$!: Observable<TCell[][]>;
+  tableSlicedTransformed$!: Observable<string[][]>;
+
+  private resetAllClickedSource = new BehaviorSubject<void>( undefined );
+  resetAllClicked$ = this.resetAllClickedSource.asObservable().pipe( skip(1) );
 
 
-  constructor() {}
+
+  constructor() { }
 
   ngOnInit() {
+    this.itemsPerPageSource.next( this._settings.itemsPerPageInit );
 
-    this.filteredIndice$
+    /* observables */
+
+    this.sortBy$ = merge(
+      this.sortBySource.asObservable(),
+      this.resetAllClicked$.pipe( map( () => <Sort>({ active: '', direction: '' }) )) );
+
+    this.tableWithDefault$
+      = this.table$
+          .pipe( map( table => isValidSetting( this._settings ) ? table : [] ) );
+
+    this.headerValuesAll$
+      = this.headerValuesAllSource.asObservable()
+              .pipe( debounceTime(300) );
+
+    this.indiceFiltered$
       = combineLatest(
-            this.data$,
-            this.columnSettings$,
-            (data, columnSettings) =>
-              data.map( (e, i) => ({ val: e, idx: i }) )
-                  .filter( e => this.filterFn( e.val, columnSettings ) )
-                  .map( e => e.idx ) );
+          this.tableWithDefault$,
+          this.headerValuesAll$,
+          (table, headerValuesAll) =>
+            table.map( (e, i) => ({ val: e, idx: i }) )
+              .filter( e => filterFunction(
+                              e.val,
+                              this._settings.headerSettings,
+                              headerValuesAll ) )
+              .map( e => e.idx ) );
 
-    this.filteredData$
-      = this.filteredIndice$.pipe(
-            withLatestFrom( this.data$ ),
-            map( ([indice, data]) => indice.map( idx => data[idx] ) ) );
+    this.tableFiltered$
+      = this.indiceFiltered$.pipe(
+          withLatestFrom( this.tableWithDefault$ ),
+          map( ([indice, table]) => indice.map( idx => table[idx] ) )
+        );
 
-    this.filteredDataLength$ = this.filteredData$.pipe( map( e => e.length ) );
+    this.selectorOptionsAll$
+      = this.tableFiltered$.pipe(
+          withLatestFrom( this.tableWithDefault$ ),
+          map( ([tableFiltered, table]) =>
+                  makeSelectOptions(
+                    table,
+                    tableFiltered,
+                    this._settings.headerSettings, ) )
+        );
 
-    this.pagenatedData$
+    this.tableFilteredRowSize$
+      = this.tableFiltered$.pipe( map( e => e.length ) );
+
+    this.itemsPerPage$
+      = this.itemsPerPageSource.asObservable().pipe( skip(1) )
+          .pipe( startWith( this._settings.itemsPerPageInit || 100 ) );
+
+    this.pageLength$
       = combineLatest(
-            this.filteredData$,
-            this.itemsPerPage$,
-            this.selectedPageIndex$,
-            (filteredData, itemsPerPage, selectedPageIndex) =>
-              getDataAtPage(
-                  filteredData,
-                  itemsPerPage,
-                  selectedPageIndex ) );
+          this.tableFilteredRowSize$,
+          this.itemsPerPage$,
+          (length, itemsPerPage) =>
+            Math.ceil( length / itemsPerPage ) );
 
-    this.transformedPagenatedData$
-      = this.pagenatedData$.pipe( map( data => data.map( line => {
-          const transformed: any = {};
-          Object.keys( line ).forEach( key => {
-            if ( Array.isArray( line[key] ) ) {
-              transformed[key] = line[key].map( (e: any) => this.transform( key, e ) ).join(', ');
+    this.pageNumber$
+      = merge(
+          this.pageNumberSource.asObservable(),
+          this.pageLength$.pipe( map( _ => 1 ) ) );
+
+    this.indiceFilteredSorted$
+      = combineLatest(
+          this.indiceFiltered$,
+          this.sortBy$,
+        ).pipe(
+          withLatestFrom( this.tableFiltered$ ),
+          map( ([[indiceFiltered, sortBy], tableFiltered]) => {
+            // console.log( indiceFiltered, sortBy, tableFiltered);
+
+            if ( sortBy.direction === '' ) return indiceFiltered;
+
+            let sorted = indiceFiltered.slice();
+
+            if ( sortBy.active === 'NoColumn') {
+              if ( sortBy.direction === 'desc') sorted.reverse();
+              return sorted;
             } else {
-              transformed[key] = this.transform( key, line[key] );
+              const colIndex = Number( sortBy.active );
+              const cmp = this._settings.headerSettings[colIndex].compareFn;
+              if ( Array.isArray( tableFiltered[0][colIndex] ) ) {
+                throw new Error('要素が配列型の列のソートは非対応です。');
+              }
+              sorted = indiceFiltered.sort( (x, y) => cmp(
+                                      tableFiltered[x][colIndex],
+                                      tableFiltered[y][colIndex] ) );
+              if ( sortBy.direction === 'desc') sorted.reverse();
+              return sorted;
             }
-          });
-          return transformed;
-        }) ) );
+          })
+        );
+
+    this.indiceSliced$
+      = combineLatest(
+          this.itemsPerPage$,
+          this.pageNumber$,
+          this.usePagenation$,
+          this.indiceFilteredSorted$,
+          (itemsPerPage, pageNumber, usePagenation, indiceFiltered) =>
+            ( usePagenation ? slice( indiceFiltered, itemsPerPage, pageNumber )
+                            : indiceFiltered ) );
 
 
-    /* subscriptions */
-    this.filteredIndice$
-      .pipe( takeWhile( () => this.alive ) )
-      .subscribe( val => {
-        this.selectedPageIndexSource.next(0);
-        this.filteredIndiceOnChange.emit( val );
-      });
+    this.tableSliced$
+      = this.indiceSliced$.pipe(
+          withLatestFrom( this.tableWithDefault$ ),
+          map( ([indice, table]) => indice.map( idx => table[idx] ) )
+        );
 
-    this.filteredData$
-      .pipe( takeWhile( () => this.alive ) )
-      .subscribe( val => this.filteredDataOnChange.emit( val ) );
+    this.tableSlicedTransformed$
+      = this.tableSliced$.pipe(
+          map( table => table.map( line =>
+            line.map( (elm, idx) =>
+              this._settings.headerSettings[idx].transform( elm ) ) )) );
+            // ( Array.isArray( elm )
+            //         ? elm.map( e => this.transform( key, e ) ).join(', ')
+            //         : this.transform( key, elm ) );
 
-    this.filteredData$
-      .pipe( withLatestFrom( this.data$ ),
-             takeWhile( () => this.alive ) )
-      .subscribe( ([filteredData, data]) => {
-        const columnSettings = this.columnSettingsSource.getValue();
-        columnSettings.forEach( column => {
-          const dataOfColumn         = data        .map( line => line[ column.name ] );
-          const dataOfColumnFiltered = filteredData.map( line => line[ column.name ] );
-          switch ( column.manip ) {
-            case 'select' : {
-              const options = utils.array.uniq( dataOfColumn ).sort();
-              column.selectOptions
-                = options.map( e => ({
-                      value: e,
-                      viewValue: this.transform( column.name, e )
-                          + `(${dataOfColumnFiltered.filter( cell => cell === e ).length})`,
-                    }) );
-            } break;
-            case 'multiSelect-or' :
-            case 'multiSelect-and' : {
-              const options = utils.array.uniq( [].concat( ...dataOfColumn ) ).sort();
-              column.selectOptions
-                = options.map( e => ({
-                      value: e,
-                      viewValue: this.transform( column.name, e )
-                          + `(${dataOfColumnFiltered.filter( cell => cell.includes(e) ).length})`,
-                    }) );
-            } break;
-            default: break;
-          }
-        });
-        this.columnSettingsSource.next( columnSettings );
-      });
-  }
 
-  ngOnDestroy() {
-    this.alive = false;
+
+    // this.headerValuesAll$
+    //   .subscribe( val => console.log( 'headerValuesAll', val ) );
+    // this.sortBy$
+    //   .subscribe( val => console.log( 'sortBy', val ) );
+    this.indiceFiltered$
+      .subscribe( val => console.log( 'indiceFiltered', val ) );
+
+    this.indiceFilteredSorted$
+      .subscribe( val => console.log( 'indiceFilteredSorted', val ) );
+
+    this.indiceSliced$
+      .subscribe( val => console.log( 'indiceSliced', val ) );
+
+
   }
 
 
 
-  itemsPerPageOnChange( value: number ) {
-    this.itemsPerPageSource.next( value );
-    this.selectedPageIndexSource.next(0);
+  itemsPerPageOnChange( itemsPerPage: number ) {
+    this.itemsPerPageSource.next( itemsPerPage );
   }
 
-  selectedPageIndexOnChange( value: number ) {
-    this.selectedPageIndexSource.next( value );
+  pageNumberOnChange( pageNumber: number ) {
+    this.pageNumberSource.next( pageNumber );
   }
 
-  cellClicked(
-    rawData: any,
-    rowIndexOnThisPage: number,
-    columnName: string,
-    columnSettings: ColumnSetting[]
+  headerValueOnChange(
+    columnIndex: number,
+    value: TCell|undefined,
+    indiceFiltered: number[],
+    tableFiltered: TCell[][],
   ) {
-    const rowIndexOnFilteredData
-       = this.itemsPerPageSource.value * this.selectedPageIndexSource.value + rowIndexOnThisPage;
-    this.clicked.emit({
-      rowIndex: this.indexOnRawData( rawData, rowIndexOnFilteredData, columnSettings ),
-      rowIndexOnFiltered: rowIndexOnFilteredData,
-      columnName: columnName
-    });
+    const headerValues = this.headerValuesAllSource.getValue();
+    headerValues[columnIndex] = value;
+    this.headerValuesAllSource.next( headerValues );
+    this.indiceFilteredChange.emit( indiceFiltered );
+    this.tableFilteredChange.emit( tableFiltered );
   }
 
-
-  changeColumnState( columnName: string, value: any ) {
-    const columnSettings = this.columnSettingsSource.getValue();
-    const column = columnSettings.find( e => e.name === columnName );
-    if ( column === undefined ) return;
-    column.manipState = value;
-    this.columnSettingsSource.next( columnSettings );
-  }
-
-  reset( columnName: string ) {
-    this.changeColumnState( columnName, undefined );
+  reset(
+    columnIndex: number,
+    indiceFiltered: number[],
+    tableFiltered: TCell[][],
+  ) {
+    this.headerValueOnChange( columnIndex, undefined, indiceFiltered, tableFiltered );
   }
 
   resetAll() {
-    const columnSettings = this.columnSettingsSource.getValue();
-    columnSettings.forEach( e => e.manipState = undefined );
-    this.columnSettingsSource.next( columnSettings );
+    const headerValues = this.headerValuesAllSource.getValue();
+    headerValues.fill( undefined );
+    this.headerValuesAllSource.next( headerValues );
+    this.resetAllClickedSource.next( undefined );
+    // this.sortBySource.next({ active: '', direction: '' });
+  }
+
+  cellOnClick(
+    rawData: TCell[][],
+    rowIndexInThisPage: number,
+    columnIndex: number,
+    headerValuesAll: TCell[],
+  ) {
+    const rowIndexInTableFiltered
+       = this.itemsPerPageSource.value * this.pageNumberSource.value
+            + rowIndexInThisPage;
+    this.cellClicked.emit({
+      rowIndex: indexOnRawData(
+                  rawData,
+                  rowIndexInTableFiltered,
+                  this._settings.headerSettings,
+                  headerValuesAll ),
+      rowIndexInTableFiltered: rowIndexInTableFiltered,
+      columnIndex: columnIndex
+    });
+  }
+
+  sortOnClick( sortBy: Sort ) {
+    this.sortBySource.next( sortBy );
   }
 
 
-  private filterFn( lineOfData: any, columnSettings: ColumnSetting[] ): boolean {
-    const validSettings = columnSettings.filter( column => column.manipState !== undefined );
-
-    for ( const column of validSettings ) {
-      /* no mismatches => return true; 1 or more mismatches => return false */
-      switch ( column.manip ) {
-        case 'input' :
-          if ( !utils.string.submatch( lineOfData[ column.name ], column.manipState, true ) ) return false;
-          break;
-
-        case 'select' :
-          if ( lineOfData[ column.name ] !== column.manipState ) return false;
-          break;
-
-        case 'multiSelect-and' :
-          if ( !!column.manipState && column.manipState.length > 0 ) {
-            const cellValue = lineOfData[ column.name ];
-            if ( !utils.array.isSubset( column.manipState, cellValue ) ) return false;
-            /* for any e \in column.manipState, e \in cellValue */
-          }
-          break;
-
-        case 'multiSelect-or' :
-          /* column.manipStateの初期状態はundefinedなのでfilteringされなくなっており，
-             column.manipStateの全選択初期化は不要になっている */
-          if ( !!column.manipState && column.manipState.length > 0 ) {
-            const cellValue = lineOfData[ column.name ];
-            if ( utils.array.setIntersection( column.manipState, cellValue ).length === 0 ) return false;
-            /* for some e \in column.manipState, e \in cellValue */
-          }
-          break;
-
-        default :
-          break;
-      }
-    }
-    return true;
-  }
-
-
-  private indexOnRawData(
-    rawData: any,
-    indexOnFilteredData: number,
-    columnSettings: ColumnSetting[]
-  ): number {
-    for ( let i = 0, filteredDataNum = 0; i < rawData.length; ++i ) {
-      if ( this.filterFn( rawData[i], columnSettings ) ) filteredDataNum++;
-      if ( filteredDataNum > indexOnFilteredData ) return i;
-    }
-    return rawData.length - 1;
-  }
 }

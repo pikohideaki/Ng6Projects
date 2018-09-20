@@ -1,8 +1,9 @@
 import { Component, OnInit, Inject, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { CardProperty } from '../../../classes/card-property';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 
 @Component({
@@ -17,28 +18,28 @@ export class DominionCardImageComponent implements OnInit, OnChanges {
   @Input() description: string = '';
 
   @Input() card:     CardProperty = new CardProperty();
-  @Input() width:    number;
-  @Input() height:   number;
-  @Input() faceUp:   boolean;
-  @Input() isButton: boolean;
-  @Input() empty:    boolean;
+  @Input() width!:    number;
+  @Input() height!:   number;
+  @Input() faceUp!:   boolean;
+  @Input() isButton!: boolean;
+  @Input() empty!:    boolean;
   private cardSource     = new BehaviorSubject<CardProperty>( new CardProperty() );
   private widthSource    = new BehaviorSubject<number>(0);
   private faceUpSource   = new BehaviorSubject<boolean>(true);
   private isButtonSource = new BehaviorSubject<boolean>(false);
   private emptySource    = new BehaviorSubject<boolean>(false);
   card$     = this.cardSource    .asObservable();
-  width$    = this.widthSource   .asObservable().distinctUntilChanged();
-  faceUp$   = this.faceUpSource  .asObservable().distinctUntilChanged();
-  isButton$ = this.isButtonSource.asObservable().distinctUntilChanged();
-  empty$    = this.emptySource   .asObservable().distinctUntilChanged();
+  width$    = this.widthSource   .asObservable().pipe( distinctUntilChanged() );
+  faceUp$   = this.faceUpSource  .asObservable().pipe( distinctUntilChanged() );
+  isButton$ = this.isButtonSource.asObservable().pipe( distinctUntilChanged() );
+  empty$    = this.emptySource   .asObservable().pipe( distinctUntilChanged() );
 
   height$: Observable<number>  // widthから計算
    = combineLatest(
         this.card$, this.width$,
         (card, width) =>
           Math.floor( width * ( card.isWideType() ? (15 / 23) : (23 / 15) ) ) )
-      .distinctUntilChanged();
+      .pipe( distinctUntilChanged() );
 
   borderWidth$:  Observable<number>
     = combineLatest(
@@ -112,7 +113,7 @@ export class DominionCardImageComponent implements OnInit, OnChanges {
   }
 
 
-  private widthFromHeight( height ) {
+  private widthFromHeight( height: number ) {
     const card = this.cardSource.getValue();
     return Math.floor( height * ( card.isWideType() ? (23 / 15) : (15 / 23) ) );
   }

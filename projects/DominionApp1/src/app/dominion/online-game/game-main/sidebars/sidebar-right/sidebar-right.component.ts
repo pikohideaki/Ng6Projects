@@ -22,7 +22,7 @@ import { FireDatabaseService } from '../../../../../database/database.service';
 })
 export class SideBarRightComponent implements OnInit {
 
-  @Input() gameResult$: Observable<GameResult>;
+  @Input() gameResult$!: Observable<GameResult>;
   myIndex$ = this.myGameRoomService.myIndex$;
 
 

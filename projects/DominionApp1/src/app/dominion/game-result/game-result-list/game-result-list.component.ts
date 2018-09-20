@@ -4,11 +4,12 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { MatDialog } from '@angular/material';
 
-import { getDataAtPage } from '../../../mylib/data-table/pagenation/pagenation.component';
+import { slice } from '../../../mylib/data-table/functions/slice';
 import { FireDatabaseService } from '../../../database/database.service';
 import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.component';
 import { GameResultDetailDialogComponent    } from './game-result-detail-dialog/game-result-detail-dialog.component';
 import { GameResult } from '../../../classes/game-result';
+import { takeWhile, map } from 'rxjs/operators';
 
 
 @Component({
@@ -19,8 +20,8 @@ import { GameResult } from '../../../classes/game-result';
 export class GameResultListComponent implements OnInit, OnDestroy {
   private alive = true;
 
-  @Input() private gameResultListFiltered$: Observable<GameResult[]>;
-  filteredDataLength$: Observable<number>;
+  @Input() private gameResultListFiltered$!: Observable<GameResult[]>;
+  filteredDataLength$!: Observable<number>;
 
   // pagenation
   private selectedPageIndexSource = new BehaviorSubject<number>(0);
@@ -29,7 +30,7 @@ export class GameResultListComponent implements OnInit, OnDestroy {
   private itemsPerPageSource = new BehaviorSubject<number>(50);
   itemsPerPage$ = this.itemsPerPageSource.asObservable();
 
-  currentPageData$: Observable<GameResult[]>;
+  currentPageData$!: Observable<GameResult[]>;
 
 
   constructor(
@@ -45,15 +46,15 @@ export class GameResultListComponent implements OnInit, OnDestroy {
           this.itemsPerPage$,
           this.selectedPageIndex$,
           (gameResultListFiltered, itemsPerPage, selectedPageIndex) =>
-              getDataAtPage(
+              slice(
                   Array.from( gameResultListFiltered ).reverse(),
                   itemsPerPage,
                   selectedPageIndex ) );
 
-    this.filteredDataLength$ = this.gameResultListFiltered$.map( e => e.length );
+    this.filteredDataLength$ = this.gameResultListFiltered$.pipe( map( e => e.length ) );
 
     this.gameResultListFiltered$
-      .takeWhile( () => this.alive )
+      .pipe( takeWhile( () => this.alive ) )
       .subscribe( _ => this.changeSelectedPageIndex(0) );
   }
 

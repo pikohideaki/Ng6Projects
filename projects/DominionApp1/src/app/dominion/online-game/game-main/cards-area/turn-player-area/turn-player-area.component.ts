@@ -8,6 +8,7 @@ import { GameStateService } from '../../services/game-state-services/game-state.
 import { GameConfigService } from '../../services/game-config.service';
 import { DCard } from '../../../../../classes/online-game/dcard';
 import { PlayerCards } from '../../../../../classes/online-game/player-cards';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -19,19 +20,19 @@ export class TurnPlayerAreaComponent implements OnInit {
 
   @Output() cardClicked = new EventEmitter<DCard>();
 
-  width$ = this.config.cardSizeRatio$.map( ratio => ratio * 50 );
+  width$ = this.config.cardSizeRatio$.pipe( map( ratio => ratio * 50 ) );
   myIndex$ = this.gameRoomService.myIndex$;
 
   private turnPlayerCards$: Observable<PlayerCards>
     = this.gameStateService.turnPlayerCards$;
 
   turnPlayerCards = {
-    Aside$     : this.turnPlayerCards$.map( e => e.Aside     ),
-    Deck$      : this.turnPlayerCards$.map( e => e.Deck      ),
-    HandCards$ : this.turnPlayerCards$.map( e => e.HandCards ),
-    Open$      : this.turnPlayerCards$.map( e => e.Open      ),
-    PlayArea$  : this.turnPlayerCards$.map( e => e.PlayArea  ),
-    DiscardPileReveresed$ : this.turnPlayerCards$.map( e => utils.array.getReversed( e.DiscardPile ) ),
+    Aside$     : this.turnPlayerCards$.pipe( map( e => e.Aside     ) ),
+    Deck$      : this.turnPlayerCards$.pipe( map( e => e.Deck      ) ),
+    HandCards$ : this.turnPlayerCards$.pipe( map( e => e.HandCards ) ),
+    Open$      : this.turnPlayerCards$.pipe( map( e => e.Open      ) ),
+    PlayArea$  : this.turnPlayerCards$.pipe( map( e => e.PlayArea  ) ),
+    DiscardPileReveresed$ : this.turnPlayerCards$.pipe( map( e => utils.array.getReversed( e.DiscardPile ) ) ),
   };
 
   turnPlayersName$ = this.gameStateService.turnPlayersName$;

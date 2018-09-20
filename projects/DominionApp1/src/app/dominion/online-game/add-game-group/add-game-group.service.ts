@@ -75,8 +75,9 @@ export class AddGameGroupService {
                                       playerId: 0,
                                       autoSort: true,
                                       shuffleBy: utils.number.random.permutation(10),
+                                      clickedCardId: 0,
                                     }
-                                  }, null ) );
+                                  }, undefined ) );
       const result = await this.database.onlineGameCommunication.add( newComm );
       newRoom.gameRoomCommunicationId = result.key;
     }

@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { ChatMessage } from '../../../../classes/online-game/chat-message';
 import { UserService } from '../../../../database/user.service';
 import { GameRoomCommunicationService } from '../services/game-room-communication.service';
+import { MatSidenav } from '@angular/material';
 
 
 @Component({
@@ -14,7 +15,7 @@ import { GameRoomCommunicationService } from '../services/game-room-communicatio
 })
 export class ChatComponent implements OnInit, AfterViewInit {
 
-  @Input() sidenav;
+  @Input() sidenav!: MatSidenav;
   @Input() autoScroll: boolean = true;
 
   chatList$: Observable<ChatMessage[]> = this.gameCommunication.chatList$;
@@ -42,7 +43,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
       const $lastElement = $chatListElements[ $chatListElements.length - 1 ];
       $lastElement.scrollIntoView(true);
     });
-    observer.observe( target, { childList: true } );
+    observer.observe( target as Node, { childList: true } );
   }
 
   async submitMessage() {

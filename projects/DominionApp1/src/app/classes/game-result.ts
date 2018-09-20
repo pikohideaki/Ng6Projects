@@ -22,7 +22,7 @@ export class GameResult {
     selectedCardsId:           SelectedCardsId,
     lastTurnPlayerName:        string,
   }) {
-    this.databaseKey        = databaseKey;
+    this.databaseKey = (databaseKey || '');
 
     if ( !initObj ) return;
     this.no      = 0;

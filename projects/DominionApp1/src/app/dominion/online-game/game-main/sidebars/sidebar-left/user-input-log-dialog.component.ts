@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { UserInput } from '../../../../../classes/online-game/user-input';
 import { GameState } from '../../../../../classes/online-game/game-state';
 
@@ -31,11 +31,11 @@ import { GameState } from '../../../../../classes/online-game/game-state';
   styles: [` .center { justify-content: center; } `]
 })
 export class UserInputLogDialogComponent implements OnInit {
-  userInputList$: Observable<UserInput[]>;
-  playersNameShuffled$: Observable<string[]>;
-  gameState$: Observable<GameState>;
+  userInputList$!: Observable<UserInput[]>;
+  playersNameShuffled$!: Observable<string[]>;
+  gameState$!: Observable<GameState>;
 
-  userInputLog$;
+  userInputLog$!: Observable<any>;
 
   constructor(
   ) { }

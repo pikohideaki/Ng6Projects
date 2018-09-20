@@ -8,6 +8,7 @@ import { GameStateService  } from '../../../services/game-state-services/game-st
 import { GameConfigService } from '../../../services/game-config.service';
 import { DCard } from '../../../../../../classes/online-game/dcard';
 import { PlayerData } from '../../../../../../classes/online-game/players-data';
+import { map, filter } from 'rxjs/operators';
 
 
 @Component({
@@ -19,18 +20,18 @@ export class SmallPlayerAreaComponent implements OnInit {
 
   @Output() cardClicked = new EventEmitter<DCard>();
 
-  width$ = this.config.cardSizeRatio$.map( ratio => ratio * 40 );
+  width$ = this.config.cardSizeRatio$.pipe( map( ratio => ratio * 40 ) );
   myIndex$ = this.gameRoomService.myIndex$;
   turnPlayerIndex$ = this.gameStateService.turnPlayerIndex$;
 
-  @Input() playerName: string;
-  @Input() playerIndex: number;
+  @Input() playerName!: string;
+  @Input() playerIndex!: number;
   @Input() thinkingState: boolean = false;
 
-  playerCards;
-  VPtoken$: Observable<number>;
-  vcoin$:   Observable<number>;
-  debt$:    Observable<number>;
+  playerCards: any;
+  VPtoken$!: Observable<number>;
+  vcoin$!:   Observable<number>;
+  debt$!:    Observable<number>;
 
 
   constructor(
@@ -42,25 +43,25 @@ export class SmallPlayerAreaComponent implements OnInit {
 
   ngOnInit() {
     const playerCards$
-      = this.gameStateService.allPlayersCards$
-          .filter( e => e.length > this.playerIndex )
-          .map( e => e[ this.playerIndex ] );
+      = this.gameStateService.allPlayersCards$.pipe(
+          filter( e => e.length > this.playerIndex ),
+          map( e => e[ this.playerIndex ] ) );
 
     this.playerCards = {
-      Aside$     : playerCards$.map( e => e.Aside     ),
-      Deck$      : playerCards$.map( e => e.Deck      ),
-      HandCards$ : playerCards$.map( e => e.HandCards ),
-      Open$      : playerCards$.map( e => e.Open      ),
-      PlayArea$  : playerCards$.map( e => e.PlayArea  ),
-      DiscardPileReveresed$ : playerCards$.map( e => utils.array.getReversed( e.DiscardPile ) ),
+      Aside$     : playerCards$.pipe( map( e => e.Aside     ) ),
+      Deck$      : playerCards$.pipe( map( e => e.Deck      ) ),
+      HandCards$ : playerCards$.pipe( map( e => e.HandCards ) ),
+      Open$      : playerCards$.pipe( map( e => e.Open      ) ),
+      PlayArea$  : playerCards$.pipe( map( e => e.PlayArea  ) ),
+      DiscardPileReveresed$ : playerCards$.pipe( map( e => utils.array.getReversed( e.DiscardPile ) ) ),
     };
 
     const playerData$: Observable<PlayerData>
-      = this.gameStateService.allPlayersData$.map( e => e[ this.playerIndex ] );
+      = this.gameStateService.allPlayersData$.pipe( map( e => e[ this.playerIndex ] ) );
 
-    this.VPtoken$ = playerData$.map( e => e.VPtoken );
-    this.vcoin$   = playerData$.map( e => e.vcoin   );
-    this.debt$    = playerData$.map( e => e.debt    );
+    this.VPtoken$ = playerData$.pipe( map( e => e.VPtoken ) );
+    this.vcoin$   = playerData$.pipe( map( e => e.vcoin   ) );
+    this.debt$    = playerData$.pipe( map( e => e.debt    ) );
   }
 
   onClick( dcard: DCard ) {

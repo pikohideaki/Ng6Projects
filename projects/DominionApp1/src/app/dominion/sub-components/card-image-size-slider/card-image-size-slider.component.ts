@@ -22,7 +22,7 @@ export class CardImageSizeSliderComponent implements OnInit {
     }
   }
 
-  changeCardSize( newValue ) {
+  changeCardSize( newValue: number ) {
     this.value = newValue;
     this.valueChange.emit( newValue );
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { skip, takeWhile, withLatestFrom } from 'rxjs/operators';
+import { skip, takeWhile, withLatestFrom, map } from 'rxjs/operators';
 
 
 import { FireDatabaseService } from '../../../database/database.service';
@@ -20,21 +20,21 @@ import { utils } from '../../../mylib/utilities';
 export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
   private alive: boolean = true;
 
-  @Input() selectedCards$: Observable<SelectedCards>;  // selectedCardsに存在するもののみ表示
-  @Input() resetVPCalculator$: Observable<number>;
+  @Input() selectedCards$!: Observable<SelectedCards>;  // selectedCardsに存在するもののみ表示
+  @Input() resetVPCalculator$!: Observable<number>;
 
-  @Input()  numberOfVictoryCards$: Observable<NumberOfVictoryCards>;
+  @Input()  numberOfVictoryCards$!: Observable<NumberOfVictoryCards>;
   @Output() numberOfVictoryCardsChange = new EventEmitter<NumberOfVictoryCards>();
   @Output() VPtotalChange = new EventEmitter<number>();
-  VPtotal$: Observable<number>;
+  VPtotal$!: Observable<number>;
 
   cardLongSideLength = 180;
 
   cardPropertyList$ = this.database.cardPropertyList$;
 
 
-  VictoryCardsFiltered$;
-  otherSettingsFiltered$;
+  VictoryCardsFiltered$!: Observable<any[]>;
+  otherSettingsFiltered$!: Observable<any[]>;
 
   otherVictoryPoints = [
     { id: 'VPtoken'    , maxNumber: 999, title: '勝利点トークン' },
@@ -99,7 +99,7 @@ export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.VPtotal$ = this.numberOfVictoryCards$.map( e => e.VPtotal() );
+    this.VPtotal$ = this.numberOfVictoryCards$.pipe( map( e => e.VPtotal() ) );
 
     this.VictoryCardsFiltered$
       = combineLatest(
@@ -107,7 +107,7 @@ export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
           this.cardPropertyList$,
           (selectedCards, cardPropertyList) => {
             const selectedCardsAll = selectedCards.concatAllCards();
-            const isInSupply = cardId =>
+            const isInSupply = (cardId: string) =>
               selectedCardsAll.map( e => cardPropertyList[e].cardId ).includes( cardId );
 
             return this.VictoryCards.filter( e => { switch ( e.displayWhen ) {
@@ -173,11 +173,11 @@ export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
     VictoryCardId: string,
     by: number = 1
   ) {
-    if ( numberOfVictoryCards[ VictoryCardId ] <= 0 ) return;
-    numberOfVictoryCards[ VictoryCardId ] -= by;
+    if ( (numberOfVictoryCards as any)[ VictoryCardId ] <= 0 ) return;
+    (numberOfVictoryCards as any)[ VictoryCardId ] -= by;
 
-    numberOfVictoryCards[ VictoryCardId ]
-     = Math.max( 0, numberOfVictoryCards[ VictoryCardId ] );
+    (numberOfVictoryCards as any)[ VictoryCardId ]
+     = Math.max( 0, (numberOfVictoryCards as any)[ VictoryCardId ] );
 
     if ( VictoryCardId === 'Distant_Lands' ) {
       numberOfVictoryCards.Distant_Lands_on_TavernMat
@@ -192,17 +192,17 @@ export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
     VictoryCardId: string,
     by: number = 1
   ) {
-    numberOfVictoryCards[ VictoryCardId ] += by;
+    (numberOfVictoryCards as any)[ VictoryCardId ] += by;
 
     const VictoryCardId__ = ( VictoryCardId === 'Distant_Lands_on_TavernMat'
                                 ? 'Distant_Lands'
                                 : VictoryCardId );
-    const max = [].concat( this.VictoryCards,
+    const max = ([] as any).concat( this.VictoryCards,
                            this.otherVictoryPoints,
                            this.otherSettings )
-                  .find( e => e.id === VictoryCardId__ ).maxNumber;
-    numberOfVictoryCards[ VictoryCardId ]
-     = Math.min( max, numberOfVictoryCards[ VictoryCardId ] );
+                  .find( (e: any) => e.id === VictoryCardId__ ).maxNumber;
+    (numberOfVictoryCards as any)[ VictoryCardId ]
+     = Math.min( max, (numberOfVictoryCards as any)[ VictoryCardId ] );
     if ( VictoryCardId === 'Distant_Lands_on_TavernMat' ) {
       numberOfVictoryCards.Distant_Lands
         = Math.max( numberOfVictoryCards.Distant_Lands,
@@ -216,14 +216,14 @@ export class VictoryPointsCalculatorComponent implements OnInit, OnDestroy {
     VictoryCardId:        string,
     value:                number,
   ) {
-    numberOfVictoryCards[ VictoryCardId ] = value;
+    (numberOfVictoryCards as any)[ VictoryCardId ] = value;
     this.updateVPtotal( numberOfVictoryCards );
   }
 
   resetNumbers( numberOfVictoryCards: NumberOfVictoryCards ) {
     utils.object.forEach(
         numberOfVictoryCards,
-        (_, key) => numberOfVictoryCards[key] = 0 );
+        (_, key) => (numberOfVictoryCards as any)[key || ''] = 0 );
     this.updateVPtotal( numberOfVictoryCards );
   }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import { GameResult           } from '../../../../classes/game-result';
 import { NumberOfVictoryCards } from '../../../../classes/number-of-victory-cards';
@@ -25,11 +25,11 @@ export class SubmitGameResultService {
           const selectedExpansionNameList
             = expansionNameList.filter( (name, i) => gameRoom.isSelectedExpansions[i] );
           const selectedCards = gameRoom.selectedCards;
-          const indexToId = cardIndex => cardPropertyList[cardIndex].cardId;
+          const indexToId = (cardIndex: number) => cardPropertyList[cardIndex].cardId;
           const playersName = gameRoom.playersNameShuffled();
           const lastTurnPlayerName = playersName[ gameState.turnPlayerIndex() ];
 
-          const gameResult = new GameResult( null, {
+          const gameResult = new GameResult( undefined, {
             timeStamp  : Date.now(),
             place      : 'Online',
             memo       : '',
@@ -85,7 +85,7 @@ export class SubmitGameResultService {
     allCards
       .filter( dcard => dcard.cardProperty.cardTypes.includes('Victory') )
       .forEach( dcard => {
-        nofVictoryCards[ dcard.cardProperty.cardId ]++;
+        (nofVictoryCards as any)[ dcard.cardProperty.cardId ]++;
       });
     nofVictoryCards.DeckSize
       = allCards.length;

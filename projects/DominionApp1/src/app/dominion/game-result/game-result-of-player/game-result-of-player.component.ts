@@ -5,6 +5,7 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { utils } from '../../../mylib/utilities';
 
 import { GameResult } from '../../../classes/game-result';
+import { map, startWith } from 'rxjs/operators';
 
 
 @Component({
@@ -14,14 +15,14 @@ import { GameResult } from '../../../classes/game-result';
 })
 export class GameResultOfPlayerComponent implements OnInit {
 
-  @Input() private gameResultListFiltered$: Observable<GameResult[]>;
-  gameResultOfEachPlayerForView$;
+  @Input() private gameResultListFiltered$!: Observable<GameResult[]>;
+  gameResultOfEachPlayerForView$!: Observable<any>;
 
   private sortKeySource = new BehaviorSubject<string>('scoreAverage');
   private sortKey$ = this.sortKeySource.asObservable();
 
-  rankOptions$: Observable<boolean[]>;
-  headerSettings$;
+  rankOptions$!: Observable<boolean[]>;
+  headerSettings$!: Observable<any>;
 
 
   constructor( ) { }
@@ -37,14 +38,14 @@ export class GameResultOfPlayerComponent implements OnInit {
 
     this.rankOptions$
       = this.gameResultListFiltered$
-          .map( list => {
+          .pipe( map( list => {
             const maxNumberOfPlayers
               = utils.array.maxValue( list.map( e => e.players.length ) );
             return utils.number.seq0(7).map( (_, i) => i < maxNumberOfPlayers + 1 );
-          })
-          .startWith( [true, true, true, true, true, false, false] );
+          }),
+          startWith( [true, true, true, true, true, false, false] ) );
 
-    this.headerSettings$ = this.rankOptions$.map( rankOptions => [
+    this.headerSettings$ = this.rankOptions$.pipe( map( rankOptions => [
       { key: 'rank',         show: true,           isButton: false, title: '順位' },
       { key: 'name',         show: true,           isButton: false, title: '名前' },
       { key: 'scoreAverage', show: true,           isButton: true,  title: '平均得点' },
@@ -56,7 +57,7 @@ export class GameResultOfPlayerComponent implements OnInit {
       { key: 'countRank4',   show: rankOptions[4], isButton: true,  title: '4位回数' },
       { key: 'countRank5',   show: rankOptions[5], isButton: true,  title: '5位回数' },
       { key: 'countRank6',   show: rankOptions[6], isButton: true,  title: '6位回数' },
-    ] );
+    ] ) );
   }
 
   setSortKey( sortKey: string ) {
@@ -72,7 +73,7 @@ export class GameResultOfPlayerComponent implements OnInit {
     }));
 
     // initialize
-    const gameResultOfEachPlayer = [];
+    const gameResultOfEachPlayer: any = {};
     userNamesFiltered.forEach( name => {
       gameResultOfEachPlayer[name] = {
         count        : 0,
@@ -90,7 +91,7 @@ export class GameResultOfPlayerComponent implements OnInit {
 
     // calculate countRank and score average
     utils.object.forEach( gameResultOfEachPlayer, playerResult => {
-      playerResult.countRank.forEach( e => playerResult.count += e );  // sum of countRank
+      playerResult.countRank.forEach( (e: any) => playerResult.count += e );  // sum of countRank
       playerResult.scoreAverage = playerResult.scoreSum / playerResult.count;
     });
 
@@ -99,9 +100,9 @@ export class GameResultOfPlayerComponent implements OnInit {
 
 
 
-  toGameResultOfEachPlayerForView( gameResultOfEachPlayer, sortKey ) {
+  toGameResultOfEachPlayerForView( gameResultOfEachPlayer: any, sortKey: string ) {
     // round and sort
-    const gameResultOfEachPlayerForView = [];  // reset
+    const gameResultOfEachPlayerForView: any[] = [];  // reset
     utils.object.forEach( gameResultOfEachPlayer, (playerResult, playerName) => {
       gameResultOfEachPlayerForView.push( {
         name         : playerName,

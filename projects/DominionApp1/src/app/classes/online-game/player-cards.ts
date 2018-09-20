@@ -1,4 +1,4 @@
-import { DCard } from './dcard';
+import { DCard, initDCardArray, getFiltered } from './dcard';
 import { CardType } from '../card-property';
 import { utils } from '../../mylib/utilities';
 import { getDCardsByIdArray } from './get-dcards-by-id-array';
@@ -21,9 +21,12 @@ export class PlayerCards {
     Open:        DCard[],
   } ) {
     if ( !dataObj ) return;
-    utils.object.forEach( dataObj, (_, key) => {
-      this[key] = ( dataObj[key] || [] ).map( e => new DCard(e) );
-    });
+    this.Deck        = initDCardArray( dataObj.Deck        );
+    this.DiscardPile = initDCardArray( dataObj.DiscardPile );
+    this.HandCards   = initDCardArray( dataObj.HandCards   );
+    this.PlayArea    = initDCardArray( dataObj.PlayArea    );
+    this.Aside       = initDCardArray( dataObj.Aside       );
+    this.Open        = initDCardArray( dataObj.Open        );
   }
 
 
@@ -34,7 +37,7 @@ export class PlayerCards {
     [Actions,   sorted] = utils.array.filterRemove( sorted, f('Action')   );
     [Treasures, sorted] = utils.array.filterRemove( sorted, f('Treasure') );
     [Victories, sorted] = utils.array.filterRemove( sorted, f('Victory')  );
-    return [].concat( Actions, Treasures, Victories, sorted );
+    return ([] as DCard[]).concat( Actions, Treasures, Victories, sorted );
   }
 
   sortHandCards() {
@@ -49,8 +52,12 @@ export class PlayerCards {
   }
 
   removeDCards( cardIdArray: number[] ) {
-    utils.object.forEach( this, (pile, key, obj) =>
-      obj[key] = pile.filter( c => !cardIdArray.includes(c.id) ) );
+    this.Deck        = getFiltered( cardIdArray, this.Deck        );
+    this.DiscardPile = getFiltered( cardIdArray, this.DiscardPile );
+    this.HandCards   = getFiltered( cardIdArray, this.HandCards   );
+    this.PlayArea    = getFiltered( cardIdArray, this.PlayArea    );
+    this.Aside       = getFiltered( cardIdArray, this.Aside       );
+    this.Open        = getFiltered( cardIdArray, this.Open        );
   }
 
 }

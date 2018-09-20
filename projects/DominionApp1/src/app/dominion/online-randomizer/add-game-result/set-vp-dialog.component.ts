@@ -31,7 +31,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SetVpDialogComponent implements OnInit {
 
-  VP: number;  // input
+  VP!: number;  // input
   newVP: number = 0;
 
   constructor() { }
@@ -40,7 +40,7 @@ export class SetVpDialogComponent implements OnInit {
     this.newVP = this.VP;
   }
 
-  changeVP( value ) {
+  changeVP( value: number ) {
     this.newVP = value;
   }
 }

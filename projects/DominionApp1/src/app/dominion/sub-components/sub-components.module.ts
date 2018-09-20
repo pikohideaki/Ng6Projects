@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 /* modules */
 import { MyOwnCustomMaterialModule } from '../../my-own-custom-material.module';
-import { MyLibModule } from '../../mylib/mylib';
+import { MyLibModule } from '../../mylib/mylib.module';
 
 /* components */
 import { ExpansionsToggleComponent        } from './expansions-toggle.component';

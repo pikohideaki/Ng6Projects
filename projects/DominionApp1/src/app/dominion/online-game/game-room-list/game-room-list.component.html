@@ -15,7 +15,7 @@
   <div *ngFor="let room of data.gameRoomList | reverse">
     <mat-card class="roomListItem"
         [class.notWaitingForPlayers]="!room.waitingForNewPlayers()"
-        (click)="roomClicked( room.databaseKey )">
+        (click)="roomClicked( $event, room.databaseKey )">
 
       <mat-card-header>
         <mat-icon mat-card-avatar>group</mat-icon>

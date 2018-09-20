@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
 
-import { Observable } from 'rxjs';
-import { first, startWith } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { first, startWith, switchMap, distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 
 import { ChatMessage, ChatCommand } from '../../../../classes/online-game/chat-message';
@@ -20,9 +20,9 @@ import { MyGameRoomService } from './my-game-room.service';
 export class GameRoomCommunicationService {
 
   private myName$: Observable<string>
-    = this.user.name$.first();
+    = this.user.name$.pipe( first() );
   private communicationId$: Observable<string>
-    = this.user.onlineGame.communicationId$.first();
+    = this.user.onlineGame.communicationId$.pipe( first() );
 
   chatList$:          Observable<ChatMessage[]>;
   userInputList$:     Observable<UserInput[]>;
@@ -32,7 +32,7 @@ export class GameRoomCommunicationService {
   isTerminated$:      Observable<boolean>;
   resultIsSubmitted$: Observable<boolean>;
 
-  private shuffleByLength;
+  private nofAllDCards!: number;
 
 
   constructor(
@@ -48,68 +48,70 @@ export class GameRoomCommunicationService {
           (list, id) => list.find( e => e.databaseKey === id ) || new GameCommunication() );
 
     this.chatList$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.list<ChatMessage>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/chatList` )
-            .valueChanges(['child_added']) )
-          .distinctUntilChanged( (a, b) => a === b, x => x.length );
+            .valueChanges(['child_added']) ),
+          distinctUntilChanged( (a, b) => a === b, x => x.length ) );
 
     this.userInputList$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.list<UserInput>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/userInputList` )
-            .valueChanges(['child_added'])
-            .map( list => list.map( (e, i) => new UserInput(e, i)))
-             )
-          .distinctUntilChanged( (a, b) => a === b, x => x.length );
+            .valueChanges(['child_added']) ),
+          map( list => list.map( (e, i) => new UserInput(e, i))),
+          distinctUntilChanged( (a, b) => a === b, x => x.length ) );
 
     this.resetGameClicked$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.object<number>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/resetGameClicked` )
-            .valueChanges() )
-          .distinctUntilChanged();
+            .valueChanges() ),
+          map( e => e || 0 ),  // null to false
+          distinctUntilChanged() );
 
     this.thinkingState$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.list<boolean>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/thinkingState` )
-            .valueChanges() )
-          .filter( list => list !== undefined && list.length > 0 )
-          .distinctUntilChanged();
+            .valueChanges() ),
+          filter( list => list !== undefined && list.length > 0 ),
+          distinctUntilChanged() );
 
     this.presenceState$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.list<boolean>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/presenceState` )
-            .valueChanges() )
-          .filter( list => list !== undefined && list.length > 0 )
-          .distinctUntilChanged();
+            .valueChanges() ),
+          filter( list => list !== undefined && list.length > 0 ),
+          distinctUntilChanged() );
 
     this.isTerminated$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.object<boolean>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/isTerminated` )
-            .valueChanges() )
-          .distinctUntilChanged();
+            .valueChanges() ),
+          map( e => !!e ),  // null to false
+          distinctUntilChanged() );
 
     this.resultIsSubmitted$
-      = this.myGameRoomService.gameRoomCommunicationId$
-          .switchMap( id =>
+      = this.myGameRoomService.gameRoomCommunicationId$.pipe(
+          switchMap( id =>
             this.afdb.object<boolean>(
               `${this.database.fdPath.onlineGameCommunicationList}/${id}/resultIsSubmitted` )
-            .valueChanges() )
-          .distinctUntilChanged();
+            .valueChanges() ),
+          map( e => !!e ),  // null to false
+          distinctUntilChanged() );
 
-    this.myGameRoomService.initialState$.first()
+    this.myGameRoomService.initialState$.pipe( first() )
       .subscribe( initialState =>
-        this.shuffleByLength = initialState.getAllDCards().length );
+        this.nofAllDCards = initialState.getAllDCards().length );
   }
 
 
@@ -131,7 +133,7 @@ export class GameRoomCommunicationService {
     playerId: number,
     autoSort: boolean,
     clickedCardId?: number
- ) {
+  ) {
     const communicationId = await this.communicationId$.toPromise();
     const userInput
       = new UserInput({
@@ -139,10 +141,10 @@ export class GameRoomCommunicationService {
               data: {
                 playerId:      playerId,
                 autoSort:      autoSort,
-                clickedCardId: clickedCardId,
-                shuffleBy:     utils.number.random.permutation( this.shuffleByLength ),
+                clickedCardId: clickedCardId || 0,
+                shuffleBy:     utils.number.random.permutation( this.nofAllDCards ),
               },
-            }, null );
+            }, undefined );
     await this.database.onlineGameCommunication
             .sendUserInput( communicationId, userInput );
   }

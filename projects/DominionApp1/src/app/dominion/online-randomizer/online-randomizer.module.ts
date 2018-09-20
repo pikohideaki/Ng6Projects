@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MyOwnCustomMaterialModule } from '../../my-own-custom-material.module';
-import { MyLibModule        } from '../../mylib/mylib';
+import { MyLibModule        } from '../../mylib/mylib.module';
 import { SubComponentsModule       } from '../sub-components/sub-components.module';
 
 import { MyRandomizerGroupService } from './my-randomizer-group.service';

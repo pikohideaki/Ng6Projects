@@ -1,4 +1,4 @@
-<app-waiting-spinner [done]="!!apps"></app-waiting-spinner>
+<app-waiting-spinner [waiting]="!apps"></app-waiting-spinner>
 
 <ng-container *ngIf="!!appName && !!apps">
   <mat-toolbar color="primary">

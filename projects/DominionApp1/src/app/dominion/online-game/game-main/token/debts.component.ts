@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { utils } from '../../../../mylib/utilities';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-debts',
@@ -12,7 +13,7 @@ import { Observable } from 'rxjs';
       <div class="debts" *ngIf="data.number > 0">
         <ng-container  *ngFor="let _ of data.indice">
           <app-debt class="debt" [diameter]="diameter"
-            [isButton]="isButton" (onClick)="clicked()">
+            [isButton]="isButton" (click)="clicked()">
           </app-debt>
         </ng-container>
       </div>
@@ -34,21 +35,21 @@ import { Observable } from 'rxjs';
 export class DebtsComponent implements OnInit {
 
   @Input() diameter: number = 24;
-  @Input() number$: Observable<number>;
+  @Input() number$!: Observable<number>;
   @Input() isButton: boolean = false;
-  @Output() onClick = new EventEmitter<void>();
+  @Output() click = new EventEmitter<void>();
 
-  indice$: Observable<number[]>;
+  indice$!: Observable<number[]>;
 
 
   constructor(
   ) { }
 
   ngOnInit() {
-    this.indice$ = this.number$.map( n => utils.number.seq0(n) );
+    this.indice$ = this.number$.pipe( map( n => utils.number.seq0(n) ) );
   }
 
   clicked() {
-    if ( this.isButton ) this.onClick.emit();
+    if ( this.isButton ) this.click.emit();
   }
 }

@@ -28,9 +28,9 @@ export class CardsPileComponent implements OnInit {
   @Input() showCardProperty:   boolean = false;
   @Input() hideNonButtonCards: boolean = false;
 
-  @Input() myIndex$:    Observable<number>;
-  @Input() DCardArray$: Observable<DCard[]>;
-  @Input() width$:      Observable<number>;
+  @Input() myIndex$!:    Observable<number>;
+  @Input() DCardArray$!: Observable<DCard[]>;
+  @Input() width$!:      Observable<number>;
 
   @Output() cardClicked = new EventEmitter<DCard>();
 

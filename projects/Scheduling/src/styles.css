@@ -1,12 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
-/* @import '~@angular/material/prebuilt-themes/indigo-pink.css'; */
-@import "@angular/material/prebuilt-themes/indigo-pink.css";
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 * {
   font-family: "Helvetica","Arial",sans-serif;
   box-sizing: border-box;
 }
+
 /* code {
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 } */
@@ -74,6 +74,12 @@ mat-icon {
   flex: 1 1 auto;
 }
 
+.align-center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+}
 
 .center-window {
   background-color: white;
@@ -87,7 +93,6 @@ mat-icon {
 .align-right {
   text-align: right;
 }
-
 
 /*
 .mini-button {

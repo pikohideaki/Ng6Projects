@@ -12,9 +12,12 @@ import { WaitingSpinnerComponent } from './waiting-spinner.component';
 import { AppListComponent        } from './app-list/app-list.component';
 
 // data table
+import { DataTableDemoComponent } from './data-table/data-table-demo.component';
 import { ItemsPerPageComponent } from './data-table/items-per-page.component';
-import { PagenationComponent   } from './data-table/pagenation/pagenation.component';
-import { DataTableComponent   } from './data-table/data-table.component';
+import { PaginationComponent } from './data-table/pagination/pagination.component';
+import { DataTableComponent } from './data-table/data-table.component';
+import { HeaderCellComponent } from './data-table/header-cell.component';
+
 import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-date-picker.component';
 
 
@@ -31,8 +34,10 @@ import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-dat
     WaitingSpinnerComponent,
     AppListComponent,
     DataTableComponent,
+    DataTableDemoComponent,
     ItemsPerPageComponent,
-    PagenationComponent,
+    PaginationComponent,
+    HeaderCellComponent,
     MultipleDatePickerComponent,
   ],
   declarations: [
@@ -42,8 +47,10 @@ import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-dat
     WaitingSpinnerComponent,
     AppListComponent,
     DataTableComponent,
+    DataTableDemoComponent,
     ItemsPerPageComponent,
-    PagenationComponent,
+    PaginationComponent,
+    HeaderCellComponent,
     MultipleDatePickerComponent,
   ],
   providers: [],

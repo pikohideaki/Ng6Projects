@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Observable } from 'rxjs';
-import { combineLatest, filter } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { FireDatabaseService } from '../../database/database.service';
-import { MyRandomizerGroupService      } from './my-randomizer-group.service';
-import { UserService             } from '../../database/user.service';
+import { MyRandomizerGroupService } from './my-randomizer-group.service';
+import { UserService } from '../../database/user.service';
 
 import { SelectedCards } from '../../classes/selected-cards';
 import { NumberOfVictoryCards } from '../../classes/number-of-victory-cards';

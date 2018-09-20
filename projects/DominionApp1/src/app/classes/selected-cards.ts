@@ -38,7 +38,7 @@ export class SelectedCards {
 
 
   concatAllCards(): number[] {
-    return [].concat(
+    return ([] as number[]).concat(
       this.KingdomCards10,
       this.BaneCard,
       this.EventCards,

@@ -18,12 +18,12 @@ export class VcoinComponent implements OnInit {
 
   @Input() diameter: number = 24;
   @Input() isButton: boolean = false;
-  @Output() onClick = new EventEmitter<void>();
+  @Output() click = new EventEmitter<void>();
 
   constructor() {}
   ngOnInit() {}
 
   clicked() {
-    if ( this.isButton ) this.onClick.emit();
+    if ( this.isButton ) this.click.emit();
   }
 }

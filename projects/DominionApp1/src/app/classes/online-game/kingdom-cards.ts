@@ -3,6 +3,7 @@ import { getDCardsByIdArray } from './get-dcards-by-id-array';
 
 
 export class KingdomCards extends Array<DCard[]> {
+  [key: number]: any;
   0: DCard[] = [];
   1: DCard[] = [];
   2: DCard[] = [];
@@ -24,7 +25,7 @@ export class KingdomCards extends Array<DCard[]> {
 
   // Arrayの拡張クラスではこの記法でないとメソッドが追加されない（？）
   getDCards = ( cardIdArray?: number[] ): DCard[] => {
-    const allDCards: DCard[] = [].concat( ...[].concat( this ) );
+    const allDCards: DCard[] = ([] as DCard[]).concat( ...this );
     return getDCardsByIdArray( cardIdArray, allDCards );
   }
 

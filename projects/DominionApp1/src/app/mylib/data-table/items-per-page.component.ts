@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-data-table--items-per-page',
+  selector: 'app-items-per-page',
   template: `
     <mat-form-field class='items-per-page'>
       <mat-select placeholder="items per page" [value]="itemsPerPage">
-        <mat-option *ngFor="let option of itemsPerPageOptions"
+        <mat-option *ngFor="let option of options"
             [value]="option"
             (click)="setItemsPerPage( option )" >
           {{ option }}
@@ -22,15 +22,16 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class ItemsPerPageComponent implements OnInit {
 
-  @Input() readonly itemsPerPageOptions: number[] = [];  // [ 25, 50, 100, 200 ];
-
-  @Input() readonly itemsPerPage: number = 0;
+  @Input() options!: number[];
+  @Input()  itemsPerPage!: number;
   @Output() itemsPerPageChange = new EventEmitter<number>();
 
   constructor() {
   }
 
   ngOnInit() {
+    this.itemsPerPage = ( this.itemsPerPage || 50 );
+    this.options = ( this.options || [ 25, 50, 100, 200 ] );
   }
 
   setItemsPerPage( value: number ) {

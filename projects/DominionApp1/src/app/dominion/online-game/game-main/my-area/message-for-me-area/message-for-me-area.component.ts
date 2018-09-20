@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { Observable } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
 
 
 @Component({
@@ -10,19 +11,19 @@ import { Observable } from 'rxjs';
 })
 export class MessageForMeAreaComponent implements OnInit, AfterViewInit {
 
-  @Input() gameMessageList$: Observable<string[]>;
-  @Input() gameMessageIndexDelayed$: Observable<number>;
+  @Input() gameMessageList$!: Observable<string[]>;
+  @Input() gameMessageIndexDelayed$!: Observable<number>;
 
-  gameMessageList_default1Line$: Observable<string[]>;
+  gameMessageList_default1Line$!: Observable<string[]>;
 
 
   constructor() { }
 
   ngOnInit() {
     this.gameMessageList_default1Line$
-      = this.gameMessageList$
-          .startWith([])
-          .map( list => ( list.length > 0 ? list : [''] ) );
+      = this.gameMessageList$.pipe(
+          startWith([]),
+          map( list => ( list.length > 0 ? list : [''] ) ) );
   }
 
   ngAfterViewInit() {
@@ -34,6 +35,6 @@ export class MessageForMeAreaComponent implements OnInit, AfterViewInit {
       const $lastElement = $chatListElements[ $chatListElements.length - 1 ];
       $lastElement.scrollIntoView(true);
     });
-    observer.observe( target, { childList: true } );
+    observer.observe( target as Node, { childList: true } );
   }
 }

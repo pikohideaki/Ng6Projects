@@ -10,8 +10,7 @@ import { IObjectTableSettings } from './types/object-table-settings';
   selector: 'app-object-data-table',
   template: `
     <app-data-table
-        [table$]="table$"
-      >
+        [table]="table$ | async">
     </app-data-table>
   `,
   styles: []

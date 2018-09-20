@@ -5,10 +5,10 @@ import { utils } from '../../mylib/utilities';
 export class UserInput {
   command: UserInputCommand = '';
   data: {
-    playerId:       number,
-    shuffleBy:      number[],
-    autoSort:       boolean,
-    clickedCardId?: number,
+    playerId:      number,
+    shuffleBy:     number[],
+    autoSort:      boolean,
+    clickedCardId: number,
   } = {
     playerId:      0,
     shuffleBy:     [],
@@ -20,21 +20,22 @@ export class UserInput {
   constructor( initObj: {
     command:        UserInputCommand,
     data: {
-      playerId:       number,
-      autoSort:       boolean,
-      clickedCardId?: number,
-      shuffleBy:      number[],
+      playerId:      number,
+      autoSort:      boolean,
+      clickedCardId: number,
+      shuffleBy:     number[],
     }
   }, index?: number ) {
     this.command = (initObj.command || '');
     this.data = {
-        playerId:  initObj.data.playerId,
-        autoSort:  initObj.data.autoSort,
-        shuffleBy: ( initObj.data.shuffleBy || utils.number.random.permutation( 200 ) ),
+        playerId:      initObj.data.playerId,
+        autoSort:      initObj.data.autoSort,
+        clickedCardId: 0,
+        shuffleBy:     ( initObj.data.shuffleBy || utils.number.random.permutation( 200 ) ),
       };
     if ( initObj.data.clickedCardId !== undefined ) {
       this.data.clickedCardId = initObj.data.clickedCardId;
     }
-    this.index = index;
+    this.index = (index || 0);
   }
 }

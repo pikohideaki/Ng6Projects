@@ -12,6 +12,7 @@ import { FireDatabaseService } from '../../../../database/database.service';
 import { ConfirmDialogComponent } from '../../../../mylib/confirm-dialog.component';
 
 import { CardPropertyDialogComponent } from '../../../sub-components/card-property-dialog/card-property-dialog.component';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -26,8 +27,8 @@ export class GameResultDetailDialogComponent implements OnInit {
 
   gameResult: GameResult = new GameResult();  // input
 
-  selectedCards$: Observable<SelectedCards>;
-  selectedExpansionNameList$: Observable<string[]>;
+  selectedCards$!: Observable<SelectedCards>;
+  selectedExpansionNameList$!: Observable<string[]>;
 
   firebasePath = 'https://console.firebase.google.com/u/0/project/dominionapps/database/dominionapps/data/prod/gameResultList/';
 
@@ -45,10 +46,10 @@ export class GameResultDetailDialogComponent implements OnInit {
 
     this.firebasePath += this.gameResult.databaseKey;
 
-    const toIndex = ((id, list) => list.findIndex( e => e.cardId === id ) );
+    const toIndex = ((id: string, list: CardProperty[]) => list.findIndex( e => e.cardId === id ) );
 
     this.selectedCards$
-      = this.database.cardPropertyList$.map( cardList => {
+      = this.database.cardPropertyList$.pipe( map( cardList => {
           const result = new SelectedCards();
           const ids = this.gameResult.selectedCardsId;
           result.Prosperity      = ids.Prosperity;
@@ -60,7 +61,7 @@ export class GameResultDetailDialogComponent implements OnInit {
           result.LandmarkCards   = (ids.LandmarkCards   || []).map( id => toIndex(id, cardList) );
           result.BlackMarketPile = (ids.BlackMarketPile || []).map( id => toIndex(id, cardList) );
           return result;
-        });
+        }) );
   }
 
   cardInfoButtonClicked( cardIndex: number ) {

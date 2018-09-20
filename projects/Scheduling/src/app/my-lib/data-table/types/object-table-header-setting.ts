@@ -1,5 +1,5 @@
-import { HeaderSetting } from './header-setting';
+import { IHeaderSetting } from './header-setting';
 
-export class ObjectTableHeaderSetting extends HeaderSetting {
-  memberName!: string;
+export interface ObjectTableHeaderSetting extends IHeaderSetting {
+  memberName: string;
 }

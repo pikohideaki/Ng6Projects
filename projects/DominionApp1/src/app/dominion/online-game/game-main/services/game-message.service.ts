@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { concatMap, delayWhen } from 'rxjs/operators';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { concatMap, delayWhen, map, skip, delay, scan } from 'rxjs/operators';
 
 import { UserService } from '../../../../database/user.service';
 
@@ -9,14 +9,14 @@ import { UserService } from '../../../../database/user.service';
 export class GameMessageService {
 
   private gameMessageSource = new BehaviorSubject<string>('');
-  private gameMessage$ = this.gameMessageSource.asObservable().skip(1);
+  private gameMessage$ = this.gameMessageSource.asObservable().pipe( skip(1) );
 
   gameMessageList$
     = this.gameMessage$
-        .scan( (acc: string[], val: string, idx: number) => [].concat( acc, [`${idx + 1}. ${val}`] ), [] );
+        .pipe( scan( (acc: string[], val: string, idx: number) => ([] as string[]).concat( acc, [`${idx + 1}. ${val}`] ), [] ) );
 
-  gameMessageIndex$ = this.gameMessage$.map( (value, index) => index );
-  gameMessageIndexDelayed$ = this.gameMessageIndex$.delay( 2000 );
+  gameMessageIndex$ = this.gameMessage$.pipe( map( (value, index) => index ) );
+  gameMessageIndexDelayed$ = this.gameMessageIndex$.pipe( delay( 2000 ) );
 
   gameMessageListSliced$
     = combineLatest(

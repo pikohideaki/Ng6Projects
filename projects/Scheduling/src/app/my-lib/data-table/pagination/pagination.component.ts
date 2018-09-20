@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable, combineLatest, ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { utils } from '../../utilities';
@@ -12,9 +12,27 @@ import { utils } from '../../utilities';
 })
 export class PaginationComponent implements OnInit {
 
-  @Input()  rowSize$!: Observable<number>;
-  @Input()  itemsPerPage$!: Observable<number>;
-  @Input()  pageNumber$!: Observable<number>;
+  private rowSizeSource = new ReplaySubject<number>(1);
+  rowSize$: Observable<number> = this.rowSizeSource.asObservable();
+  @Input() set rowSize( value: number ) {
+    if ( value === undefined || value === null ) return;
+    this.rowSizeSource.next( value );
+  }
+
+  private itemsPerPageSource = new ReplaySubject<number>(1);
+  itemsPerPage$: Observable<number> = this.itemsPerPageSource.asObservable();
+  @Input() set itemsPerPage( value: number ) {
+    if ( value === undefined || value === null ) return;
+    this.itemsPerPageSource.next( value );
+  }
+
+  private pageNumberSource = new ReplaySubject<number>(1);
+  pageNumber$: Observable<number> = this.pageNumberSource.asObservable();
+  @Input() set pageNumber( value: number ) {
+    if ( value === undefined || value === null ) return;
+    this.pageNumberSource.next( value );
+  }
+
   @Output() pageNumberChange = new EventEmitter<number>();
 
   pageLength$!: Observable<number>;

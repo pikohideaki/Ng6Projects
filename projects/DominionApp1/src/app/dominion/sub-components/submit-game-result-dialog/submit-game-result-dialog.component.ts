@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { FireDatabaseService } from '../../../database/database.service';
 import { GameResult } from '../../../classes/game-result';
+import { first } from 'rxjs/operators';
 
 
 @Component({
@@ -13,7 +14,7 @@ import { GameResult } from '../../../classes/game-result';
   ]
 })
 export class SubmitGameResultDialogComponent implements OnInit {
-  newGameResult: GameResult;  // input
+  newGameResult!: GameResult;  // input
 
 
   constructor(
@@ -22,7 +23,7 @@ export class SubmitGameResultDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.database.scoringTable$.first()
+    this.database.scoringTable$.pipe( first() )
     .subscribe( defaultScores => {
       this.newGameResult.rankPlayers();
       this.newGameResult.setScores( defaultScores );

@@ -8,6 +8,7 @@ import { GameStateService } from '../../services/game-state-services/game-state.
 import { GameConfigService } from '../../services/game-config.service';
 import { DCard } from '../../../../../classes/online-game/dcard';
 import { PlayerCards } from '../../../../../classes/online-game/player-cards';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 
 @Component({
@@ -17,30 +18,36 @@ import { PlayerCards } from '../../../../../classes/online-game/player-cards';
 })
 export class MyCardAreaComponent implements OnInit {
 
-  @Input() showCardProperty$: Observable<boolean>;
+  @Input() showCardProperty$!: Observable<boolean>;
   @Input() buttonizeVCoins: boolean = false;
   @Input() buttonizeDebts:  boolean = false;
   @Output() cardClicked = new EventEmitter<DCard>();
   @Output() vcoinClicked = new EventEmitter<void>();
   @Output() debtClicked = new EventEmitter<void>();
 
-  width$    = this.config.cardSizeRatio$.map( ratio => ratio * 70 );
+  width$    = this.config.cardSizeRatio$.pipe( map( ratio => ratio * 70 ) );
   myIndex$  = this.gameRoomService.myIndex$;
   isMyTurn$ = this.gameStateService.isMyTurn$;
-  VPtoken$  = this.gameStateService.myData$.map( e => e.VPtoken ).distinctUntilChanged();
-  vcoin$    = this.gameStateService.myData$.map( e => e.vcoin   ).distinctUntilChanged();
-  debt$     = this.gameStateService.myData$.map( e => e.debt    ).distinctUntilChanged();
+  VPtoken$  = this.gameStateService.myData$.pipe(
+                  map( e => e.VPtoken ),
+                  distinctUntilChanged() );
+  vcoin$    = this.gameStateService.myData$.pipe(
+                  map( e => e.vcoin   ),
+                  distinctUntilChanged() );
+  debt$     = this.gameStateService.myData$.pipe(
+                  map( e => e.debt    ),
+                  distinctUntilChanged() );
 
   private myCards$: Observable<PlayerCards>
     = this.gameStateService.myCards$;
 
   myCards = {
-    Aside$     : this.myCards$.map( e => e.Aside     ),
-    Deck$      : this.myCards$.map( e => e.Deck      ),
-    HandCards$ : this.myCards$.map( e => e.HandCards ),
-    Open$      : this.myCards$.map( e => e.Open      ),
-    PlayArea$  : this.myCards$.map( e => e.PlayArea  ),
-    DiscardPileReveresed$ : this.myCards$.map( e => utils.array.getReversed( e.DiscardPile ) ),
+    Aside$     : this.myCards$.pipe( map( e => e.Aside     ) ),
+    Deck$      : this.myCards$.pipe( map( e => e.Deck      ) ),
+    HandCards$ : this.myCards$.pipe( map( e => e.HandCards ) ),
+    Open$      : this.myCards$.pipe( map( e => e.Open      ) ),
+    PlayArea$  : this.myCards$.pipe( map( e => e.PlayArea  ) ),
+    DiscardPileReveresed$ : this.myCards$.pipe( map( e => utils.array.getReversed( e.DiscardPile ) ) ),
   };
 
 

@@ -23,3 +23,10 @@ export class DCard {  // Dominion card
     this.rotation      = ( dataObj.rotation      || 0  );
   }
 }
+
+
+export const getFiltered = (cardIdArray: number[], pile: DCard[]) =>
+    pile.filter( c => !cardIdArray.includes(c.id) );
+
+export const initDCardArray = (initializer: DCard[]) =>
+    ( initializer || [] ).map( e => new DCard(e) );

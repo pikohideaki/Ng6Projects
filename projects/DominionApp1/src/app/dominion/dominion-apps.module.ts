@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 /* modules */
 import { MyOwnCustomMaterialModule } from '../my-own-custom-material.module';
-import { MyLibModule        } from '../mylib/mylib';
+import { MyLibModule        } from '../mylib/mylib.module';
 import { SubComponentsModule       } from './sub-components/sub-components.module';
 import { OnlineRandomizerModule    } from './online-randomizer/online-randomizer.module';
 import { OnlineGameModule          } from './online-game/online-game.module';

@@ -4,6 +4,7 @@ import { AngularFireDatabase } from 'angularfire2/database';
 import * as firebase from 'firebase/app';
 
 import { utils } from '../mylib/utilities';
+import { first } from 'rxjs/operators';
 
 
 @Injectable()
@@ -12,13 +13,13 @@ export class AutoBackupOnFirebaseService {
   private autoBackupDir = '/autoBackup';
   private latestBackupDatePath = this.autoBackupDir + '/latestBackupDate';
 
-  private fdPath = {
-    users               : '/users',
-    data                : '/data',
-    randomizerGroupList : '/randomizerGroupList',
-    onlineGameStateList : '/onlineGameStateList',
-    onlineGameRoomsList : '/onlineGameRoomsList',
-  };
+  private fdPathList = [
+    '/users',
+    '/data',
+    '/randomizerGroupList',
+    '/onlineGameStateList',
+    '/onlineGameRoomsList',
+  ];
 
   constructor(
     private afdb: AngularFireDatabase
@@ -32,8 +33,8 @@ export class AutoBackupOnFirebaseService {
   }
 
   private async getLatestBackupDate() {
-    const timeStamp = await this.afdb.object<number>( this.latestBackupDatePath ).valueChanges().first().toPromise();
-    return new Date( timeStamp );
+    const timeStamp = await this.afdb.object<number>( this.latestBackupDatePath ).valueChanges().pipe( first() ).toPromise();
+    return new Date( timeStamp || Date.now() );
   }
 
   private createBackup() {
@@ -42,14 +43,13 @@ export class AutoBackupOnFirebaseService {
 
     const dateString = utils.date.toYMD( new Date(), '' );
 
-    Object.keys( this.fdPath ).forEach( key => {
-      const sourcePath = this.fdPath[key];
+    this.fdPathList.forEach( sourcePath => {
       const distPathPrefix = `${this.autoBackupDir}/index/${dateString}`;
-      this.afdb.object( sourcePath ).valueChanges().first().toPromise()
-        .then( val => {
-          if ( !val ) return;
-          this.afdb.object(`${distPathPrefix}${sourcePath}`).set( val );
-        });
+      this.afdb.object( sourcePath ).valueChanges().pipe( first() )
+      .subscribe( val => {
+        if ( !val ) return;
+        this.afdb.object(`${distPathPrefix}${sourcePath}`).set( val );
+      });
     });
   }
 

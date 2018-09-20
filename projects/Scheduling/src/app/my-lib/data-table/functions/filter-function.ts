@@ -1,11 +1,11 @@
 import { utils } from '../../utilities';
-import { HeaderSetting } from '../types/header-setting';
+import { IHeaderSetting } from '../types/header-setting';
 import { TCell, TCellPrimitive } from '../types/table-cell';
 
 
 export const filterFunction = (
   tableLine: TCell[],
-  headerSettings: HeaderSetting[],
+  headerSettings: IHeaderSetting[],
   headerValuesAll: (TCell|undefined)[],
 ): boolean => {
 

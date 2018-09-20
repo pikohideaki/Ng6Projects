@@ -1,8 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSidenav, MatDrawer, MatSidenavContainer, MatSidenavContent, MatDrawerToggleResult } from '@angular/material';
 
-import { Observable, BehaviorSubject } from 'rxjs';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 
 
 import { MessageDialogComponent } from '../../../mylib/message-dialog.component';
@@ -20,6 +19,8 @@ import { TransitStateService          } from './services/game-state-services/tra
 
 import { ValuesForViewService } from './services/values-for-view.service';
 import { DCard } from '../../../classes/online-game/dcard';
+import { withLatestFrom, takeWhile, skip, first, distinctUntilChanged, map } from 'rxjs/operators';
+import { GameState } from '../../../classes/online-game/game-state';
 
 
 
@@ -51,9 +52,9 @@ export class GameMainComponent implements OnInit, OnDestroy {
 
   private initialStateIsReadySource = new BehaviorSubject<boolean>( false );
   initialStateIsReady$
-    = this.initialStateIsReadySource.asObservable().distinctUntilChanged();
+    = this.initialStateIsReadySource.asObservable().pipe( distinctUntilChanged() );
 
-  private userInputSubscription: Subscription;
+  private userInputSubscription!: Subscription;
 
   // view config
   chatOpened$ = this.user.onlineGame.chatOpened$;
@@ -66,14 +67,14 @@ export class GameMainComponent implements OnInit, OnDestroy {
   // left sidebar
   private autoScrollSource = new BehaviorSubject<boolean>(true);
   autoScroll$ = this.autoScrollSource.asObservable();
-  isBuyPlayPhase$ = this.gameStateService.phase$.map( e => e === 'BuyPlay' );
+  isBuyPlayPhase$ = this.gameStateService.phase$.pipe( map( e => e === 'BuyPlay' ) );
   myThinkingState$
     = combineLatest(
           this.gameRoomCommunication.thinkingState$,
           this.myIndex$,
           (list, myIndex) => list[ myIndex ] );
 
-  private logSnapshotSource = new BehaviorSubject<void>(null);  // debug
+  private logSnapshotSource = new BehaviorSubject<void>(undefined);  // debug
 
   loading$ = this.transitStateService.loadingInitialUserInputList$;
 
@@ -94,31 +95,33 @@ export class GameMainComponent implements OnInit, OnDestroy {
     this.startProcessing();
 
     combineLatest(
-          this.transitStateService.userInput$,
-          this.myIndex$ )
-        .withLatestFrom( this.gameRoomCommunication.thinkingState$ )
-      .takeWhile( () => this.alive )
-      .subscribe( ([[userInput, myIndex], thinkingState]) => {
-        if ( userInput.data.playerId === myIndex
-            && thinkingState[ myIndex ] === true ) {
-          this.gameRoomCommunication.setThinkingState( myIndex, false );
-        }
-      });
+        this.transitStateService.userInput$,
+        this.myIndex$ ).pipe(
+      withLatestFrom( this.gameRoomCommunication.thinkingState$ ),
+      takeWhile( () => this.alive ) )
+    .subscribe( ([[userInput, myIndex], thinkingState]) => {
+      if ( userInput.data.playerId === myIndex
+          && thinkingState[ myIndex ] === true ) {
+        this.gameRoomCommunication.setThinkingState( myIndex, false );
+      }
+    });
 
-    this.gameRoomCommunication.resetGameClicked$.skip(1)
-      .takeWhile( () => this.alive )
-      .subscribe( _ => this.startProcessing() );  // reset game
+    this.gameRoomCommunication.resetGameClicked$.pipe(
+      skip(1),
+      takeWhile( () => this.alive ) )
+    .subscribe( _ => this.startProcessing() );  // reset game
 
     combineLatest(
         this.gameStateService.turnPlayersName$,
         this.gameIsOver$ )
-      .withLatestFrom(
-        this.myGameRoomService.myIndex$,
-        this.gameStateService.gameState$,
-        this.gameRoomCommunication.resultIsSubmitted$,
-        this.gameResult$,
-        this.loading$ )
-      .takeWhile( () => this.alive )
+      .pipe(
+        withLatestFrom(
+          this.myGameRoomService.myIndex$,
+          this.gameStateService.gameState$,
+          this.gameRoomCommunication.resultIsSubmitted$,
+          this.gameResult$,
+          this.loading$ ),
+        takeWhile( () => this.alive ) )
       .subscribe( ([[name, gameIsOver], myIndex, gameState, isSubmitted, gameResult, loading]) => {
         if ( !gameIsOver ) {
           if ( !loading ) this.showChangeTurnMessage( name );
@@ -134,20 +137,21 @@ export class GameMainComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.logSnapshotSource.asObservable().skip(1)
-        .withLatestFrom(
+    this.logSnapshotSource.asObservable().pipe(
+      skip(1),
+      withLatestFrom(
             this.myGameRoomService.myIndex$,
             this.gameStateService.turnPlayerIndex$,
             this.initialStateIsReady$,
-            this.gameStateService.gameState$ )
-      .takeWhile( () => this.alive )
-      .subscribe( ([_, myIndex, turnPlayerIndex, initialStateIsReady, gameState]) =>
-          console.log(
-              `myIndex = ${myIndex}`,
-              `turnPlayerIndex = ${turnPlayerIndex}`,
-              `initialStateIsReady = ${initialStateIsReady}`,
-              gameState
-            ) );
+            this.gameStateService.gameState$ ),
+      takeWhile( () => this.alive ) )
+    .subscribe( ([_, myIndex, turnPlayerIndex, initialStateIsReady, gameState]: [any, number, number, boolean, GameState]) =>
+        console.log(
+            `myIndex = ${myIndex}`,
+            `turnPlayerIndex = ${turnPlayerIndex}`,
+            `initialStateIsReady = ${initialStateIsReady}`,
+            gameState
+          ) );
   }
 
   ngOnInit() {
@@ -166,16 +170,16 @@ export class GameMainComponent implements OnInit, OnDestroy {
 
     // 命令列の取得・適用を開始
     this.userInputSubscription
-      = this.transitStateService.gameData$
-          .takeWhile( () => this.alive )
-          .subscribe( ([[userInput, currState], myIndex, playersNameList]) =>
-            this.transitStateService.transitState(
-                userInput,
-                currState,
-                myIndex,
-                playersNameList ) );
+      = this.transitStateService.gameData$.pipe(
+          takeWhile( () => this.alive ) )
+        .subscribe( ([[userInput, currState], myIndex, playersNameList]) =>
+          this.transitStateService.transitState(
+              userInput,
+              currState,
+              myIndex,
+              playersNameList ) );
 
-    const initialState = await this.myGameRoomService.initialState$.first().toPromise();
+    const initialState = await this.myGameRoomService.initialState$.pipe( first() ).toPromise();
     this.gameStateService.setGameState( initialState );
     this.transitStateService.setNextGameState( initialState );
 
@@ -184,8 +188,8 @@ export class GameMainComponent implements OnInit, OnDestroy {
 
 
  // left sidebar
-  async toggleSideNav( sidenav ) {
-    this.user.setOnlineGameChatOpened( (await sidenav.toggle()).type === 'open' );
+  async toggleSideNav( sidenav: MatSidenav ) {
+    this.user.setOnlineGameChatOpened( (await sidenav.toggle()) === 'open' );
   }
 
   autoScrollChange( value: boolean ) {
@@ -197,7 +201,7 @@ export class GameMainComponent implements OnInit, OnDestroy {
   }
 
   logSnapshot() {  // developer mode only
-    this.logSnapshotSource.next(null);
+    this.logSnapshotSource.next(undefined);
   }
 
   initialStateIsReadyChange( value: boolean ) {

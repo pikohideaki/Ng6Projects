@@ -1,32 +1,32 @@
-export type CardType = (
-       'Curse'
-      |'Action'
-      |'Treasure'
-      |'Victory'
-      |'Attack'
-      |'Reaction'
-      |'Duration'
-      |'Ruins'
-      |'Prize'
-      |'Looter'
-      |'Shelter'
-      |'Knights'
-      |'Reserve'
-      |'Traveller'
-      |'Castle'
-      |'Gather'
-      |'EventCards'
-      |'LandmarkCards'
-      |'Spirit'
-      |'Night'
-      |'Fate'
-      |'Doom'
-      |'Heirloom'
-      |'Zombie'
-      |'Boon'
-      |'Hex'
-      |'State'
-    );
+import { utils } from '../mylib/utilities';
+
+export type CardType = 'Curse'
+                      |'Action'
+                      |'Treasure'
+                      |'Victory'
+                      |'Attack'
+                      |'Reaction'
+                      |'Duration'
+                      |'Ruins'
+                      |'Prize'
+                      |'Looter'
+                      |'Shelter'
+                      |'Knights'
+                      |'Reserve'
+                      |'Traveller'
+                      |'Castle'
+                      |'Gather'
+                      |'EventCards'
+                      |'LandmarkCards'
+                      |'Spirit'
+                      |'Night'
+                      |'Fate'
+                      |'Doom'
+                      |'Heirloom'
+                      |'Zombie'
+                      |'Boon'
+                      |'Hex'
+                      |'State';
 
 export class CardProperty {
   indexInList:         number = 0;
@@ -93,7 +93,7 @@ export class CardProperty {
   }
 
   from( cardProperty: CardProperty ): CardProperty {
-    Object.keys( cardProperty ).forEach( key => this[key] = cardProperty[key] );
+    utils.object.forEach( cardProperty, (_, key) => (this as any)[key] = (cardProperty as any)[key] );
     this.cost = new CardCost( cardProperty.cost );
     return this;
   }
@@ -156,7 +156,7 @@ export class CardProperty {
 
 
 
-export function transform( property: string, value ) {
+export function transform( property: string, value: any ) {
   switch ( property ) {
 
     case 'cardTypes' :
@@ -276,7 +276,7 @@ export function toListIndex( cardPropertyList: CardProperty[], cardId: string ) 
 
 export function numberToPrepare(
     cardPropertyList: CardProperty[],
-    cardIndex,
+    cardIndex: number,
     numberOfPlayer: number,
     DarkAges: boolean
   ): number {

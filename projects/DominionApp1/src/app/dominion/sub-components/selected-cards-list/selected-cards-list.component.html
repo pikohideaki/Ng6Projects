@@ -5,7 +5,7 @@
     } as data">
 
   <app-waiting-spinner
-    [done]="!!data.cardPropertyList && !!data.selectedCards">
+    [waiting]="!data.cardPropertyList || !data.selectedCards">
   </app-waiting-spinner>
 
   <div *ngIf="!!data.cardPropertyList && !!data.selectedCards" class="supplyTable">

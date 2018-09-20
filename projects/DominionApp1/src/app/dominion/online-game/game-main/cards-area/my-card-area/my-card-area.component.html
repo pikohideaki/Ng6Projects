@@ -16,11 +16,11 @@
         [class.is-my-turn]="data.isMyTurn">
       <app-vcoins diameter="24" [number$]="vcoin$"
           [isButton]="buttonizeVCoins"
-          (onClick)="vcoinClick()">
+          (click)="vcoinClick()">
       </app-vcoins>
       <app-debts  diameter="24" [number$]="debt$"
           [isButton]="buttonizeDebts"
-          (onClick)="debtClick()">
+          (click)="debtClick()">
       </app-debts>
     </div>
     <div class="spacer"></div>

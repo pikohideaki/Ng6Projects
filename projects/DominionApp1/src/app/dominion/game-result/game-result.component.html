@@ -76,7 +76,7 @@
   </mat-tab-group>
 
   <app-waiting-spinner
-    [done]="data.gameResultList && data.gameResultList.length > 0">
+    [waiting]="!data.gameResultList || data.gameResultList.length == 0">
   </app-waiting-spinner>
 </div>
 </ng-container>

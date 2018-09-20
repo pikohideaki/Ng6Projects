@@ -8,6 +8,7 @@ import { AngularFireAuth } from 'angularfire2/auth';
 import { FireDatabaseService } from '../../database.service';
 
 import { User } from '../../../classes/user';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-up',
@@ -18,13 +19,13 @@ export class SignUpComponent implements OnInit {
 
   waitingForResponse = false;
 
-  email:    string;
-  password: string;
-  name:     string;
-  nameYomi: string;
+  email!:    string;
+  password!: string;
+  name!:     string;
+  nameYomi!: string;
 
-  errorMessageForEmail: string;
-  errorMessageForPassword: string;
+  errorMessageForEmail!: string;
+  errorMessageForPassword!: string;
 
 
   constructor(
@@ -39,26 +40,26 @@ export class SignUpComponent implements OnInit {
   }
 
 
-  emailOnChange( value ) {
-    this.email = value;
+  emailOnChange( email: string ) {
+    this.email = email;
   }
 
-  passwordOnChange( value ) {
-    this.password = value;
+  passwordOnChange( password: string ) {
+    this.password = password;
   }
 
-  nameOnChange( value ) {
-    this.name = value;
+  nameOnChange( name: string ) {
+    this.name = name;
   }
 
-  nameYomiOnChange( value ) {
-    this.nameYomi = value;
+  nameYomiOnChange( nameYomi: string ) {
+    this.nameYomi = nameYomi;
   }
 
 
   async signUp() {
     const expansionNameList
-      = await this.database.expansionNameList$.first().toPromise();
+      = await this.database.expansionNameList$.pipe( first() ).toPromise();
     const isSelectedExpansionsInit = expansionNameList.map( _ => true );
 
     this.errorMessageForEmail = '';
@@ -68,10 +69,10 @@ export class SignUpComponent implements OnInit {
     this.afAuth.auth.createUserWithEmailAndPassword( this.email, this.password )
     .then( afUser => {
       this.waitingForResponse = false;
-
+      const uid = (afUser.user || { uid: '' }).uid;
       this.database.user.setUser(
-          afUser.uid,
-          new User( afUser.uid, {
+          uid,
+          new User( uid, {
             name:     this.name,
             nameYomi: this.nameYomi,
             randomizerGroupId: '',

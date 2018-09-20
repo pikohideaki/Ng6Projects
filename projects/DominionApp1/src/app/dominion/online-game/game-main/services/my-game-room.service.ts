@@ -7,7 +7,7 @@ import { GameState } from '../../../../classes/online-game/game-state';
 
 import { UserService } from '../../../../database/user.service';
 import { FireDatabaseService } from '../../../../database/database.service';
-import { distinctUntilChanged, startWith } from 'rxjs/operators';
+import { distinctUntilChanged, startWith, map, filter, first } from 'rxjs/operators';
 
 
 @Injectable()
@@ -20,29 +20,34 @@ export class MyGameRoomService {
         (list, id) => (list.find( e => e.databaseKey === id ) || new GameRoom()) );
 
   initialState$: Observable<GameState>
-    = this.myGameRoom$.map( e => e.initialState )
-                      .filter( e => !e.isEmpty() );
+    = this.myGameRoom$.pipe(
+          map( e => e.initialState ),
+          filter( e => !e.isEmpty() ) );
 
   myIndex$: Observable<number>
     = combineLatest(
-          this.myGameRoom$.map( e => e.playersNameShuffled() ).distinctUntilChanged(),
+          this.myGameRoom$.pipe(
+              map( e => e.playersNameShuffled() ),
+              distinctUntilChanged() ),
           this.user.name$,
           (playersName, myName) => playersName.findIndex( e => e === myName ) )
-        .first();
+        .pipe( first() );
 
   playersNameShuffled$: Observable<string[]>
-    = this.myGameRoom$.map( e => e.playersNameShuffled() );
+    = this.myGameRoom$.pipe( map( e => e.playersNameShuffled() ) );
 
   gameRoomCommunicationId$
-    = this.myGameRoom$.map( e => e.gameRoomCommunicationId )
-        .distinctUntilChanged();
+    = this.myGameRoom$.pipe(
+        map( e => e.gameRoomCommunicationId ),
+        distinctUntilChanged() );
 
-  private selectedCards$ = this.myGameRoom$.map( e => e.selectedCards );
+  private selectedCards$ = this.myGameRoom$.pipe( map( e => e.selectedCards ) );
 
   Prosperity$: Observable<boolean>
-    = this.selectedCards$.map( e => e.Prosperity )
-        .startWith( false )
-        .distinctUntilChanged();
+    = this.selectedCards$.pipe(
+        map( e => e.Prosperity ),
+        startWith( false ),
+        distinctUntilChanged() );
 
   usePotion$: Observable<boolean>
     = combineLatest(
@@ -54,8 +59,9 @@ export class MyGameRoomService {
           distinctUntilChanged(), );
 
   numberOfPlayers$: Observable<number>
-    = this.myGameRoom$.map( e => e.numberOfPlayers )
-        .distinctUntilChanged();
+    = this.myGameRoom$.pipe(
+        map( e => e.numberOfPlayers ),
+        distinctUntilChanged() );
 
 
 

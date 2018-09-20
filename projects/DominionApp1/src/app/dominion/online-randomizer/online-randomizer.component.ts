@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { UserService } from '../../database/user.service';
 import { MyRandomizerGroupService } from './my-randomizer-group.service';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 
 
 @Component({
@@ -27,8 +28,9 @@ export class OnlineRandomizerComponent implements OnInit {
     this.signedInToRandomizerGroup$ = this.user.signedInToRandomizerGroup$;
     this.myRandomizerGroupName$ = this.myRandomizerGroup.name$;
     this.BlackMarketIsUsed$
-      = this.myRandomizerGroup.selectedCards$.map( e => e.BlackMarketPile.length > 0 )
-          .distinctUntilChanged();
+      = this.myRandomizerGroup.selectedCards$.pipe(
+          map( e => e.BlackMarketPile.length > 0 ),
+          distinctUntilChanged() );
   }
 
   ngOnInit() {

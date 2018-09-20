@@ -1,7 +1,7 @@
-import { HeaderSetting } from './header-setting';
+import { IHeaderSetting } from './header-setting';
 
 export interface ITableSettings {
-  headerSettings:      HeaderSetting[];
+  headerSettings:      IHeaderSetting[];
   itemsPerPageOptions: number[];
   itemsPerPageInit:    number;
   displayNo?:          boolean;

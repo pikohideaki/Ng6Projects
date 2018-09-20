@@ -29,6 +29,7 @@ import {
     MatDialogModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatSortModule,
   } from '@angular/material';
 
 
@@ -61,6 +62,7 @@ import {
     MatDialogModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatSortModule,
   ],
   exports: [
     BrowserAnimationsModule,
@@ -89,6 +91,7 @@ import {
     MatDialogModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatSortModule,
   ],
   declarations: [],
   providers: [

@@ -19,6 +19,8 @@ import { SetVpDialogComponent } from './set-vp-dialog.component';
 import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.component';
 import { SubmitGameResultDialogComponent } from '../../sub-components/submit-game-result-dialog/submit-game-result-dialog.component';
 import { NumberOfVictoryCards } from '../../../classes/number-of-victory-cards';
+import { map, startWith } from 'rxjs/operators';
+import { PlayerData } from '../../../classes/online-game/players-data';
 
 
 
@@ -41,53 +43,56 @@ export class AddGameResultComponent implements OnInit {
         this.myRandomizerGroup.isSelectedExpansions$,
         (nameList, selected) =>
           nameList.filter( (_, i) => selected[i] ) )
-      .startWith([]);
+      .pipe( startWith([]) );
 
   places$: Observable<string[]>
-    = this.database.gameResultList$.map( gameResultList =>
+    = this.database.gameResultList$.pipe(
+        map( gameResultList =>
           utils.array.uniq(
               gameResultList
                 .map( e => e.place )
-                .filter( e => e !== '' ) ) )
-        .startWith([]);
+                .filter( e => e !== '' ) ) ),
+        startWith([]) );
 
   place$: Observable<string>
     = this.myRandomizerGroup.newGameResult.place$
-        .startWith('');
+        .pipe( startWith('') );
 
   playerResults$: Observable<PlayerResult[]>
     = this.myRandomizerGroup.newGameResult.players$
-        .startWith([]);
+        .pipe( startWith([]) );
 
   lastTurnPlayerName$: Observable<string>
     = this.myRandomizerGroup.newGameResult.lastTurnPlayerName$
-        .startWith('');
+        .pipe( startWith('') );
 
   selectedPlayers$: Observable<PlayerResult[]>
-    = this.playerResults$.map( list =>
-          list.filter( e => e.selected ) )
-        .startWith([]);
+    = this.playerResults$.pipe(
+        map( list =>
+          list.filter( e => e.selected ) ),
+        startWith([]) );
 
   turnOrderFilled$: Observable<boolean>
-    = this.selectedPlayers$.map( list =>
-      list.every( e => e.turnOrder !== 0 ) );
+    = this.selectedPlayers$.pipe( map( list =>
+        list.every( e => e.turnOrder !== 0 ) ) );
 
   // turnOrders == [1, 0, 0, 2] -> 3
   nextMissingNumber$: Observable<number>
-    = this.selectedPlayers$.map( list =>
-          list.filter( e => e.turnOrder !== 0 ).length + 1 )
-        .startWith(1);
+    = this.selectedPlayers$.pipe(
+        map( list =>
+          list.filter( e => e.turnOrder !== 0 ).length + 1 ),
+        startWith(1) );
 
   memo$: Observable<string>
     = this.myRandomizerGroup.newGameResult.memo$
-        .startWith('');
+        .pipe( startWith('') );
 
   newGameResultDialogOpened$: Observable<boolean>
     = this.myRandomizerGroup.newGameResultDialogOpened$;
 
   numberOfPlayersOK$: Observable<boolean>
-    = this.selectedPlayers$.map( e => e.length )
-        .map( e => ( 2 <= e && e <= 6 ) );
+    = this.selectedPlayers$.pipe(
+        map( e => ( 2 <= e.length && e.length <= 6 ) ) );
 
 
   numberOfVictoryCardsString$: Observable<string[]>
@@ -167,7 +172,7 @@ export class AddGameResultComponent implements OnInit {
   async rotateTurnOrders( selectedPlayers: PlayerResult[], step: number ) {
     if ( selectedPlayers.length < 2 ) return;
     const N = selectedPlayers.length;
-    const next = val => (((val - 1) + N - step) % N) + 1;
+    const next = (val: number) => (((val - 1) + N - step) % N) + 1;
     selectedPlayers.forEach( e => e.turnOrder = next( e.turnOrder ) );
     await this.submitTurnOrders( selectedPlayers );
   }
@@ -184,9 +189,9 @@ export class AddGameResultComponent implements OnInit {
   }
 
 
-  async VPClicked( uid: string, selectedPlayers ) {
+  async VPClicked( uid: string, selectedPlayers: PlayerResult[] ) {
     const dialogRef = this.dialog.open( SetVpDialogComponent );
-    dialogRef.componentInstance.VP = selectedPlayers.find( e => e.uid === uid ).VP;
+    dialogRef.componentInstance.VP = (selectedPlayers.find( e => e.uid === uid ) || { VP: 0 }).VP;
     const result = await dialogRef.afterClosed().toPromise();
     if ( !result ) return;
     await this.myRandomizerGroup.setNGRPlayerVP( uid, result );
@@ -214,9 +219,9 @@ export class AddGameResultComponent implements OnInit {
     selectedPlayers:           PlayerResult[],
     lastTurnPlayerName:        string,
   ) {
-    const indexToId = cardIndex => cardPropertyList[cardIndex].cardId;
+    const indexToId = (cardIndex: number) => cardPropertyList[cardIndex].cardId;
 
-    const newGameResult = new GameResult( null, {
+    const newGameResult = new GameResult( undefined, {
       timeStamp  : Date.now(),
       place      : place,
       memo       : memo,

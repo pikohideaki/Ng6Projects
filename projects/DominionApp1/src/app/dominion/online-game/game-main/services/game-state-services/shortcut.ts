@@ -85,11 +85,11 @@ export const buttonizeIf = ( dcards: DCard[],
 
 export const buttonizeSupplyIf = ( gameState: GameState,
   playerId: number,
-  condition: (Dcard) => boolean,
+  condition: (Dcard: DCard) => boolean,
   gainCardStateSetter: (state: boolean) => void
 ) => {
   const topCards
-    = [].concat(
+    = ([] as DCard[]).concat(
           utils.object.map( gameState.DCards.BasicCards, e => e[0] ),
           gameState.DCards.KingdomCards.map( pile => pile[0] ) )
         .filter( c => c !== undefined );
@@ -108,7 +108,7 @@ export const resetDCardsAttributes = ( gameState: GameState,
       c.isButton.forEach( (_, i) => c.isButton[i] = false ) );
 
   // サプライは表に
-  [].concat(
+  ([] as DCard[]).concat(
     gameState.DCards.BasicCards.getDCards(),
     gameState.DCards.KingdomCards.getDCards(),
     gameState.DCards.trashPile
@@ -122,7 +122,7 @@ export const resetDCardsAttributes = ( gameState: GameState,
   });
   // 場・捨て山は表に
   gameState.DCards.allPlayersCards.forEach( playerCards => {
-    [].concat( playerCards.DiscardPile, playerCards.PlayArea )
+    ([] as DCard[]).concat( playerCards.DiscardPile, playerCards.PlayArea )
       .forEach( c => c.faceUp.forEach( (_, i, ar) => ar[i] = true ) );
   });
   // 手札は自分にのみ表に
@@ -154,7 +154,8 @@ export const draw1Card = async ( playerId: number,
     data.gameStateSetter( data.gameState );
   }
   await utils.asyncOperation.sleep( 0.1 );
-  playerCards.HandCards.push( playerCards.Deck.pop() );
+  const top = playerCards.Deck.pop();
+  if ( !!top ) playerCards.HandCards.push( top );
   data.gameStateSetter( data.gameState );
 };
 
@@ -245,7 +246,7 @@ export const cleanUp = async ( playerId: number,
   // 場と手札のカードを捨て札に
   await utils.asyncOperation.sleep( 0.1 );
   const playerCards = data.gameState.DCards.allPlayersCards[ playerId ];
-  discard( [].concat( playerCards.HandCards, playerCards.PlayArea ), playerId, data, false );
+  discard( ([] as DCard[]).concat( playerCards.HandCards, playerCards.PlayArea ), playerId, data, false );
   // 手札に5枚カードを引く
   await drawCards( 5, playerId, data, false );
 };

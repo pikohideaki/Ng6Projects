@@ -1,5 +1,5 @@
 import { utils } from '../../utilities';
-import { HeaderSetting } from '../types/header-setting';
+import { IHeaderSetting } from '../types/header-setting';
 import { SelectorOption } from '../types/selector-option';
 import { TCell, TCellPrimitive } from '../types/table-cell';
 
@@ -7,7 +7,7 @@ import { TCell, TCellPrimitive } from '../types/table-cell';
 export const makeSelectOptions = (
   table: TCell[][],
   tableFiltered: TCell[][],
-  headerSettings: HeaderSetting[],
+  headerSettings: IHeaderSetting[],
 ): SelectorOption[][] => {
 
   const selectorOptions: SelectorOption[][]

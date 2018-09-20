@@ -50,7 +50,7 @@ export class OtherPlayerAreaComponent implements OnInit {
   }
 
 
-  onCardClick( value ) {
+  onCardClick( value: any ) {
     this.cardClicked.emit( value );
   }
 }

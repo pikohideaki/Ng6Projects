@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
-import {  } from 'rxjs/operators';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 import { AngularFireAuth } from 'angularfire2/auth';
 
@@ -42,11 +42,11 @@ export class UserService {
     private database: FireDatabaseService,
   ) {
     this.signedIn$
-      = this.afAuth.authState.map( user => !!user );
+      = this.afAuth.authState.pipe( map( user => !!user ) );
     this.uid$
-      = this.afAuth.authState.map( user => ( !user ? '' : user.uid ) );
+      = this.afAuth.authState.pipe( map( user => ( user || { uid: '' } ).uid || '' ) );
     this.myDisplayName$
-      = this.afAuth.authState.map( user => ( !user ? '' : user.displayName ) );
+      = this.afAuth.authState.pipe( map( user => ( user || { displayName: '' } ).displayName || '' ) );
 
     this.user$ = combineLatest(
         this.uid$,
@@ -57,49 +57,62 @@ export class UserService {
               : users.find( e => e.databaseKey === uid ) || new User() );
 
     this.name$
-      = this.user$.map( e => e.name )
-          .distinctUntilChanged();
+      = this.user$.pipe(
+          map( e => e.name ),
+          distinctUntilChanged() );
     this.nameYomi$
-      = this.user$.map( e => e.nameYomi )
-          .distinctUntilChanged();
+      = this.user$.pipe(
+          map( e => e.nameYomi ),
+          distinctUntilChanged() );
     this.randomizerGroupId$
-      = this.user$.map( e => e.randomizerGroupId )
-          .distinctUntilChanged();
+      = this.user$.pipe(
+          map( e => e.randomizerGroupId ),
+          distinctUntilChanged() );
     this.onlineGame = {
       isSelectedExpansions$ : combineLatest(
-                this.database.expansionNameList$.map( list => list.map( _ => false ) ),
-                this.user$.map( e => e.onlineGame.isSelectedExpansions )
-                  .distinctUntilChanged(),
+                this.database.expansionNameList$.pipe(
+                    map( list => list.map( _ => false ) ) ),
+                this.user$.pipe(
+                    map( e => e.onlineGame.isSelectedExpansions ),
+                    distinctUntilChanged() ),
                 (initArray, isSelectedExpansions) =>
                     initArray.map( (_, i) => !!isSelectedExpansions[i] ) ),
       numberOfPlayers$ :
-        this.user$.map( e => e.onlineGame.numberOfPlayers )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.numberOfPlayers ),
+            distinctUntilChanged() ),
       roomId$ :
-        this.user$.map( e => e.onlineGame.roomId )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.roomId ),
+            distinctUntilChanged() ),
       communicationId$ :
-        this.user$.map( e => e.onlineGame.communicationId )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.communicationId ),
+            distinctUntilChanged() ),
       chatOpened$ :
-        this.user$.map( e => e.onlineGame.chatOpened )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.chatOpened ),
+            distinctUntilChanged() ),
       cardSizeAutoChange$ :
-        this.user$.map( e => e.onlineGame.cardSizeAutoChange )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.cardSizeAutoChange ),
+            distinctUntilChanged() ),
       cardSizeRatio$ :
-        this.user$.map( e => e.onlineGame.cardSizeRatio )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.cardSizeRatio ),
+            distinctUntilChanged() ),
       // messageSec$ :
-      //   this.user$.map( e => e.onlineGame.messageSec )
-      //     .distinctUntilChanged(),
+      //   this.user$.pipe(
+      //       map( e => e.onlineGame.messageSec ),
+      //       distinctUntilChanged() ),
       autoSort$ :
-        this.user$.map( e => e.onlineGame.autoSort )
-          .distinctUntilChanged(),
+        this.user$.pipe(
+            map( e => e.onlineGame.autoSort ),
+            distinctUntilChanged() ),
     };
 
     this.signedInToRandomizerGroup$
-      = this.randomizerGroupId$.map( groupId => !!groupId );
+      = this.randomizerGroupId$.pipe( map( groupId => !!groupId ) );
 
     this.uid$.subscribe( val => this.uid = val );
   }

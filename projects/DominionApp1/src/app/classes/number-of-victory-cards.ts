@@ -1,6 +1,7 @@
 import { CardProperty } from './card-property';
 
 export class NumberOfVictoryCards {
+  [key: string]: any;
   VPtoken:          number = 0;
   others:           number = 0;
   othersMinus:      number = 0;
@@ -46,7 +47,7 @@ export class NumberOfVictoryCards {
   Distant_Lands_on_TavernMat:    number = 0;  // for Distant_Lands
 
 
-  constructor( initObj? ) {
+  constructor( initObj?: { [key: string]: any } ) {
     if ( !initObj ) return;
     Object.keys( initObj ).forEach( key =>
       this[key] = ( initObj[key] || 0 ) );
@@ -173,14 +174,14 @@ export class NumberOfVictoryCards {
 
 
   toStr( cardPropertyList: CardProperty[] ): string {
-    const result = [];
+    const result: string[] = [];
 
     if ( this.VPtoken !== 0 ) result.push(`VPトークン(${this.VPtoken})`);
     if ( this.others - this.othersMinus !== 0 ) {
       result.push(`その他(${this.others - this.othersMinus})`);
     }
 
-    const toNameJp = (id =>
+    const toNameJp = ((id: string) =>
       ( cardPropertyList.find( e => e.cardId === id ) || new CardProperty() ).nameJp );
 
     [ 'Curse',

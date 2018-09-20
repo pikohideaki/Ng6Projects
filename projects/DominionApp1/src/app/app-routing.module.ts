@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { HomeComponent             } from './home.component';
 import { NotFoundPageComponent     } from './not-found-page.component';
 
+import { DataTableDemoComponent    } from './mylib/data-table/data-table-demo.component';
+
 import { EditDatabaseComponent     } from './database/edit-database.component';
 import { UserAdminComponent        } from './database/user-admin/user-admin.component';
 import { MyPageComponent           } from './database/my-page.component';
@@ -33,6 +35,7 @@ import { GameMainComponent         } from './dominion/online-game/game-main/game
       { component: GameResultComponent,       path: 'game-result'       },
       { component: CardPropertyListComponent, path: 'cardlist'          },
       { component: RuleBooksComponent,        path: 'rulebooks'         },
+      { component: DataTableDemoComponent,    path: 'data-table-demo'   },
       { component: NotFoundPageComponent,     path: '**'                },
     ], { useHash: true } ),
   ],

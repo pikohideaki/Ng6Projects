@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { GameStateService } from '../../../services/game-state-services/game-state.service';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -17,7 +18,7 @@ export class TurnInfoComponent implements OnInit {
   potion$: Observable<number> = this.gameStateService.potion$;
 
   phaseCharacter$:  Observable<string>
-    = this.gameStateService.phase$.map( phase => {
+    = this.gameStateService.phase$.pipe( map( phase => {
           switch ( phase ) {
             case ''            : return '';
             case 'StartOfTurn' : return '';
@@ -34,9 +35,9 @@ export class TurnInfoComponent implements OnInit {
             default :
               throw new Error(`unknown phase name '${phase}'`);
           }
-      });
+      }) );
 
-  potionRepeater$ = this.potion$.map( potion => Array.from( new Array(potion) ) );
+  potionRepeater$ = this.potion$.pipe( map( potion => Array.from( new Array(potion) ) ) );
 
 
   constructor(

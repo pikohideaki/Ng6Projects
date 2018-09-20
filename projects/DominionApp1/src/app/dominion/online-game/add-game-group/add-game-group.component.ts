@@ -16,6 +16,7 @@ import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.com
 import { SelectedCards       } from '../../../classes/selected-cards';
 import { BlackMarketPileCard } from '../../../classes/black-market-pile-card';
 import { testKingdomCards } from '../game-main/services/game-state-services/card-effect-definitions/testKingdomCards10';
+import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
 
 
 
@@ -55,13 +56,14 @@ export class AddGameGroupComponent implements OnInit {
 
   disableMakeRoomButton$: Observable<boolean>
     = combineLatest(
-        this.numberOfPlayers$.map( e => !utils.number.isInRange( e, 2, 7 ) ),
-        this.isSelectedExpansions$.map( list => list.every( e => !e ) ),
-        this.selectedCards$.map( e => e.isEmpty() ),
+        this.numberOfPlayers$.pipe( map( e => !utils.number.isInRange( e, 2, 7 ) ) ),
+        this.isSelectedExpansions$.pipe( map( list => list.every( e => !e ) ) ),
+        this.selectedCards$.pipe( map( e => e.isEmpty() ) ),
         this.preparingDialog$,
         (...conditions: boolean[]) => conditions.some( e => e ) )
-      .startWith( true )
-      .distinctUntilChanged();
+      .pipe(
+        startWith( true ),
+        distinctUntilChanged() );
 
   isdevmode: boolean = isDevMode();
   addTestPlayer: boolean = false;

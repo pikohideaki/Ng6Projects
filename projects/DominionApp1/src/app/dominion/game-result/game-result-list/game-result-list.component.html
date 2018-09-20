@@ -1,4 +1,5 @@
 <ng-container *ngIf="{
+      selectedPageIndex:  selectedPageIndex$  | async,
       itemsPerPage:       itemsPerPage$       | async,
       currentPageData:    currentPageData$    | async,
       filteredDataLength: filteredDataLength$ | async
@@ -8,18 +9,18 @@
                   && data.filteredDataLength
                 ">
 
-  <app-data-table--items-per-page
-    [itemsPerPageOptions]='[ 25, 50, 100, 200, 400 ]'
+  <app-items-per-page
+    [options]='[ 25, 50, 100, 200, 400 ]'
     [itemsPerPage]='data.itemsPerPage'
     (itemsPerPageChange)="changeItemsPerPage( $event )">
-  </app-data-table--items-per-page>
+  </app-items-per-page>
 
-  <app-data-table--pagenation
-    [selectedPageIndex$]="selectedPageIndex$"
-    [itemsPerPage$]='itemsPerPage$'
-    [dataSize$]='filteredDataLength$'
-    (selectedPageIndexChange)="changeSelectedPageIndex( $event )">
-  </app-data-table--pagenation>
+  <app-pagination
+    [pageNumber]="data.selectedPageIndex"
+    [itemsPerPage]='data.itemsPerPage'
+    [rowSize]='data.filteredDataLength'
+    (pageNumberChange)="changeSelectedPageIndex( $event )">
+  </app-pagination>
 
 
   <p>{{data.filteredDataLength}} Games</p>
@@ -95,17 +96,17 @@
   </table>
 
 
-  <app-data-table--items-per-page
-    [itemsPerPageOptions]='[ 25, 50, 100, 200, 400 ]'
+  <app-items-per-page
+    [options]='[ 25, 50, 100, 200, 400 ]'
     [itemsPerPage]='data.itemsPerPage'
     (itemsPerPageChange)="changeItemsPerPage( $event )">
-  </app-data-table--items-per-page>
+  </app-items-per-page>
 
-  <app-data-table--pagenation
-    [selectedPageIndex$]='selectedPageIndex$'
-    [itemsPerPage$]='itemsPerPage$'
-    [dataSize$]='filteredDataLength$'
-    (selectedPageIndexChange)="changeSelectedPageIndex( $event )">
-  </app-data-table--pagenation>
+  <app-pagination
+    [pageNumber]="data.selectedPageIndex"
+    [itemsPerPage]='data.itemsPerPage'
+    [rowSize]='data.filteredDataLength'
+    (pageNumberChange)="changeSelectedPageIndex( $event )">
+  </app-pagination>
 </div>
 </ng-container>

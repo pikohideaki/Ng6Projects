@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { CardProperty } from '../../../classes/card-property';
 import { FireDatabaseService } from '../../../database/database.service';
 import { utils } from '../../../mylib/utilities';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -18,7 +19,7 @@ import { utils } from '../../../mylib/utilities';
 })
 export class CardPropertyDialogComponent implements OnInit {
 
-  indiceInCardList$: Observable<number[]>;  // input
+  indiceInCardList$!: Observable<number[]>;  // input
 
   // option（Dialogを開いたまま次のカード情報を見る）
   showingIndexInit: number = 0;  // input (option)
@@ -28,8 +29,8 @@ export class CardPropertyDialogComponent implements OnInit {
 
   private cardPropertyList$ = this.database.cardPropertyList$;
 
-  card$: Observable<CardProperty>;
-  cardForView$: Observable<Object>;
+  card$!: Observable<CardProperty>;
+  cardForView$!: Observable<Object>;
 
   items = [
     { memberName: 'no'           , name: 'Card No.' },
@@ -71,7 +72,7 @@ export class CardPropertyDialogComponent implements OnInit {
               ? new CardProperty()
               : cardPropertyList[ indiceInCardList[ showingIndex ] ] ) );
 
-    this.cardForView$ = this.card$.map( e => e.transformAll() );
+    this.cardForView$ = this.card$.pipe( map( e => e.transformAll() ) );
   }
 
 

@@ -1,9 +1,9 @@
 export class ChatMessage {
+  [key: string]: any;
   playerName: string = '';
   content:    string = '';
   command:    ChatCommand = '';
   date:       Date   = new Date();
-
 
   constructor( initObj?: {
     playerName: string,
@@ -18,11 +18,11 @@ export class ChatMessage {
     this.date       = new Date( initObj.timeStamp || Date.now() );
   }
 
-  asObj(): Object {
-    const obj = {};
+  asObj(): object {
+    const obj: { [key: string]: any } = {};
     Object.keys( this ).forEach( key => obj[key] = this[key] );
     delete obj['date'];
-    obj['timeStamp'] = this.date.valueOf();
+    obj['timeStamp'] = this.date.getTime();
     return obj;
   }
 }

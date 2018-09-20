@@ -1,12 +1,12 @@
 import { filterFunction } from './filter-function';
-import { HeaderSetting } from '../types/header-setting';
+import { IHeaderSetting } from '../types/header-setting';
 import { TCell } from '../types/table-cell';
 
 
 export const indexOnRawData = (
     rawData: TCell[][],
     indexOnTableFiltered: number,
-    headerSettings: HeaderSetting[],
+    headerSettings: IHeaderSetting[],
     headerValuesAll: TCell[],
 ): number => {
   for ( let i = 0, numberRemaining = 0; i < rawData.length; ++i ) {

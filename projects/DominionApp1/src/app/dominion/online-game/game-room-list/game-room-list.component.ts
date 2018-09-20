@@ -43,10 +43,10 @@ export class GameRoomListComponent implements OnInit {
 
   toYMDHMS = ( dat: Date ) => utils.date.toYMDHMS( dat );
 
-  roomClicked( clickedRoomId: string ) {
+  roomClicked( event: any, clickedRoomId: string ) {
     if ( this.selectedRoomId === clickedRoomId ) this.selectedRoomId = '';  // toggle
     else this.selectedRoomId = clickedRoomId;
-    event.stopPropagation();
+    if ( !!event ) event.stopPropagation();
   }
 
   backgroundClicked() {
@@ -61,7 +61,7 @@ export class GameRoomListComponent implements OnInit {
 
     dialogRef.componentInstance.dialogRef = dialogRef;
     dialogRef.disableClose = true;
-    const myMemberId = this.database.onlineGameRoom.addMember( roomId, myName ).key;
+    const myMemberId = this.database.onlineGameRoom.addMember( roomId, myName ).key || '';
 
     dialogRef.afterClosed().subscribe( result => {
       if ( result === 'Cancel Clicked' ) {

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import { GameConfigDialogComponent } from '../../dialogs/game-config-dialog/game-config-dialog.component';
 import { UserInputLogDialogComponent } from './user-input-log-dialog.component';
@@ -11,6 +11,7 @@ import { GameConfigService            } from '../../services/game-config.service
 import { GameRoomCommunicationService } from '../../services/game-room-communication.service';
 import { HelpDialogComponent } from '../../dialogs/help-dialog/help-dialog.component';
 import { GameMessageService } from '../../services/game-message.service';
+import { filter, startWith, withLatestFrom } from 'rxjs/operators';
 
 
 
@@ -21,12 +22,12 @@ import { GameMessageService } from '../../services/game-message.service';
 })
 export class SideBarLeftComponent implements OnInit {
 
-  @Input()  autoScroll$;
+  @Input()  autoScroll$!: Observable<boolean>;
   @Output() autoScrollChange = new EventEmitter<boolean>();
 
 
-  @Input() myIndex$;
-  @Input() chatOpened$;
+  @Input() myIndex$!: Observable<number>;
+  @Input() chatOpened$!: Observable<boolean>;
 
   @Output() logSnapshot                   = new EventEmitter<void>();
   @Output() toggleShowCardPropertyButtons = new EventEmitter<void>();
@@ -35,7 +36,7 @@ export class SideBarLeftComponent implements OnInit {
 
   devMode$ = this.config.devMode$;
 
-  newChatMessageAlert$: Observable<boolean>;
+  newChatMessageAlert$!: Observable<boolean>;
 
 
   constructor(
@@ -50,10 +51,10 @@ export class SideBarLeftComponent implements OnInit {
   ngOnInit() {
     this.newChatMessageAlert$
       = combineLatest(
-            this.chatOpened$.filter( e => e === true ).startWith( true ),
-            this.gameRoomCommunication.chatList$.filter( list => list.length > 0 ),
+            this.chatOpened$.pipe( filter( e => e === true ), startWith( true ) ),
+            this.gameRoomCommunication.chatList$.pipe( filter( list => list.length > 0 ) ),
             (onOpen, receivedNewMessage) => 0 )
-          .withLatestFrom( this.chatOpened$, (_, chatOpened) => !chatOpened );
+          .pipe( withLatestFrom( this.chatOpened$, (_, chatOpened) => !chatOpened ) );
   }
 
 
@@ -95,7 +96,7 @@ export class SideBarLeftComponent implements OnInit {
 
 
   // developer mode
-  incrementTurnCounter( myIndex ) {
+  incrementTurnCounter( myIndex: number ) {
     this.gameRoomCommunication.sendUserInput('increment turnCounter', myIndex, true );
   }
 

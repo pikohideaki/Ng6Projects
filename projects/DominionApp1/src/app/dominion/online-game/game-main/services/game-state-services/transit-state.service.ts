@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material';
 
-import { Observable, BehaviorSubject, from, zip } from 'rxjs';
-import { concatAll, pairwise } from 'rxjs/operators';
+import { Observable, BehaviorSubject, from, zip, combineLatest } from 'rxjs';
+import { concatAll, pairwise, startWith, map, withLatestFrom, skip, filter, first, debounceTime } from 'rxjs/operators';
 
 import { GameRoom         } from '../../../../../classes/online-game/game-room';
 import { CardProperty     } from '../../../../../classes/card-property';
@@ -26,42 +26,41 @@ import { phaseAction } from './phase-action';
 export class TransitStateService {
 
   userInput$: Observable<UserInput>
-    = this.gameCommunication.userInputList$.startWith([])
-        .pairwise()
-        .map( ([prev, curr]) => Observable.from( curr.slice( prev.length ) ) )
-        .concatAll();
+    = this.gameCommunication.userInputList$.pipe(
+        startWith([]),
+        pairwise(),
+        map( ([prev, curr]) => from( curr.slice( prev.length ) ) ),
+        concatAll() );
 
   private isMyTurn$ = this.gameStateService.isMyTurn$;
 
   private transitStateResultSource
     = new BehaviorSubject<GameState>( new GameState() );
   private transitStateResult$
-    = this.transitStateResultSource.asObservable().skip(1);
+    = this.transitStateResultSource.asObservable().pipe( skip(1) );
 
   gameData$
-    = Observable
-        .zip(
-          this.userInput$,
-          this.transitStateResult$ )
-        .withLatestFrom(
+    = zip( this.userInput$, this.transitStateResult$ ).pipe(
+        withLatestFrom(
           this.myGameRoom.myIndex$,
-          this.myGameRoom.playersNameShuffled$ );
+          this.myGameRoom.playersNameShuffled$ ) );
 
 
   loadingInitialUserInputList$: Observable<boolean>
     = combineLatest(
-        Observable.zip(
-            this.userInput$.map( e => e.index ).startWith(-1),
+        zip(
+            this.userInput$.pipe( map( e => e.index ), startWith(-1) ),
             this.transitStateResult$,
             (index, _) => index )
-          .startWith(-1),
-        this.gameCommunication.userInputList$
-          .map( list => list.length )
-          .filter( e => e > 0 )
-          .first(),
+          .pipe( startWith(-1) ),
+        this.gameCommunication.userInputList$.pipe(
+          map( list => list.length ),
+          filter( e => e > 0 ),
+          first() ),
         (doneIndex, initialListLength) => doneIndex < initialListLength - 1 )
-      .startWith( true )
-      .debounceTime( 500 );
+      .pipe(
+        startWith( true ),
+        debounceTime( 500 ) );
 
 
   constructor(

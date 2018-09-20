@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { TCell } from './types/table-cell';
 import { SelectorOption } from './types/selector-option';
-import { HeaderSetting } from './types/header-setting';
+import { IHeaderSetting } from './types/header-setting';
 
 @Component({
   selector: 'app-header-cell',
@@ -78,7 +78,7 @@ import { HeaderSetting } from './types/header-setting';
 })
 export class HeaderCellComponent implements OnInit {
 
-  @Input() headerSetting!: HeaderSetting;
+  @Input() headerSetting!: IHeaderSetting;
   @Input() selectorOptions!: SelectorOption[];
 
   @Input() headerValue!: TCell|undefined;

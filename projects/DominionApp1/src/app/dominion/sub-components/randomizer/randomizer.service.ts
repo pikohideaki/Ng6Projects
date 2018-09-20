@@ -4,15 +4,16 @@ import { Injectable } from '@angular/core';
 import { utils } from '../../../mylib/utilities';
 import { FireDatabaseService } from '../../../database/database.service';
 
-import { CardProperty  } from '../../../classes/card-property';
+import { CardProperty, CardType  } from '../../../classes/card-property';
 import { SelectedCards } from '../../../classes/selected-cards';
+import { DCard } from '../../../classes/online-game/dcard';
 
 
 @Injectable()
 export class RandomizerService {
 
-  private cardPropertyList;
-  private expansionNameList;
+  private cardPropertyList!: CardProperty[];
+  private expansionNameList!: string[];
 
   constructor(
     private database: FireDatabaseService,
@@ -34,7 +35,7 @@ export class RandomizerService {
     const CardsInSelectedSets_Shuffled: { index: number, data: CardProperty }[]
      = utils.number.random.getShuffled(
         this.cardPropertyList
-          .map( (val: CardProperty, index) => ({ index: index, data: val }) )
+          .map( (val: CardProperty, index: number) => ({ index: index, data: val }) )
           .filter( e => e.data.randomizerCandidate )
           .filter( e => !implementedOnly || e.data.implemented )
                         // "implementedOnly is true -> select implemented"
@@ -74,16 +75,17 @@ export class RandomizerService {
       if ( CardsInSelectedSets_Shuffled.length <= 0 ) {
         return { valid: false, selectedCards: selectedCardsTemp };
       }
-      const cardIndex = utils.array.removeIf( CardsInSelectedSets_Shuffled, e => (
+      const cardIndex = ( utils.array.removeIf( CardsInSelectedSets_Shuffled, e => (
                e.data.cost.debt   <= 0
             && e.data.cost.potion <= 0
             && e.data.cost.coin   >=  2
-            && e.data.cost.coin   <=  3 ) ).index;
+            && e.data.cost.coin   <=  3 ) )
+          || { index: 0 } ).index;
       selectedCardsTemp.BaneCard = [cardIndex];
     }
 
     // Black Market (one copy of each Kingdom card not in the supply. 15種類選択を推奨)
-    if ( [].concat( selectedCardsTemp.KingdomCards10, selectedCardsTemp.BaneCard )
+    if ( ([] as number[]).concat( selectedCardsTemp.KingdomCards10, selectedCardsTemp.BaneCard )
            .map( e => this.cardPropertyList[e].nameJp ).includes( '闇市場' ) ) {
       while ( selectedCardsTemp.BlackMarketPile.length < 15 ) {
         const card = CardsInSelectedSets_Shuffled.pop();
@@ -98,9 +100,11 @@ export class RandomizerService {
     if ( selectedCardsTemp.LandmarkCards
          .map( e => this.cardPropertyList[e].nameEng ).includes('Obelisk') ) {
       const cardIndex: number = ( () => {
-        const supplyUsed: number[] = [].concat( selectedCardsTemp.KingdomCards10, selectedCardsTemp.BaneCard );
+        const supplyUsed: number[] = ([] as number[]).concat( selectedCardsTemp.KingdomCards10, selectedCardsTemp.BaneCard );
         const ObeliskCandidatesActionCards: number[] = utils.array.copy( supplyUsed );
-        if ( supplyUsed.map( e => this.cardPropertyList[e].cardType ).includes('略奪者') ) {
+
+        const ct: CardType[] = utils.array.flatten( supplyUsed.map( e => this.cardPropertyList[e].cardTypes ) );
+        if ( ct.includes('Looter') ) {
           const ruinsIndex: number = this.cardPropertyList.findIndex( e => e.nameJp === '廃墟' );
           ObeliskCandidatesActionCards.unshift( ruinsIndex );
         }

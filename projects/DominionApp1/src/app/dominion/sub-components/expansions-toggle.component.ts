@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import { FireDatabaseService } from '../../database/database.service';
+import { startWith } from 'rxjs/operators';
 
 
 @Component({
@@ -20,11 +21,11 @@ import { FireDatabaseService } from '../../database/database.service';
 })
 export class ExpansionsToggleComponent implements OnInit {
 
-  @Input()  isSelectedExpansions$: Observable<boolean[]>;
+  @Input()  isSelectedExpansions$!: Observable<boolean[]>;
   @Output() isSelectedExpansionsPartEmitter
     = new EventEmitter<{ index: number, checked: boolean }>();
 
-  expansions$: Observable<{ selected: boolean, name: string, index: number }[]>;
+  expansions$!: Observable<{ selected: boolean, name: string, index: number }[]>;
 
 
   constructor(
@@ -40,7 +41,7 @@ export class ExpansionsToggleComponent implements OnInit {
           (isSelectedList, nameList) =>
             isSelectedList.map( (e, i) =>
               ({ selected: e, name: nameList[i], index: i }) ) )
-        .startWith([]);
+        .pipe( startWith([]) );
   }
 
   toggleExpansion( checked: boolean, index: number ) {

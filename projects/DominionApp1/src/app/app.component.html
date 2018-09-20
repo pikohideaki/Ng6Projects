@@ -1,9 +1,9 @@
 <ng-container *ngIf="{
-      signedIn:     signedIn$     | async,
-      myName:       myName$       | async
+      signedIn: signedIn$ | async,
+      myName:   myName$   | async
     } as data">
 
-  <mat-toolbar color='primary' class='header header-height box-shadow'>
+  <mat-toolbar color='primary' class='header box-shadow'>
     <a mat-icon-button routerLink='/'> <mat-icon>home</mat-icon> </a>
 
     <div *ngIf="data.signedIn">
@@ -40,10 +40,6 @@
 
 
   </mat-toolbar>
-
-
-  <!--dummy-->
-  <mat-toolbar class='header-height'></mat-toolbar>
 
   <router-outlet></router-outlet>
 </ng-container>

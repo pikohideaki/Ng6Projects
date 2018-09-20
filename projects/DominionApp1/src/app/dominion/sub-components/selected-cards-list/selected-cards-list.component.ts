@@ -28,8 +28,8 @@ export class SelectedCardsListComponent implements OnInit {
   @Input() showSelectedCardsCheckbox: boolean = false;
 
   // input data
-  @Input() selectedCards$: Observable<SelectedCards>;
-  @Input() selectedCardsCheckbox$: Observable<SelectedCardsCheckbox>;
+  @Input() selectedCards$!: Observable<SelectedCards>;
+  @Input() selectedCardsCheckbox$!: Observable<SelectedCardsCheckbox>;
 
   @Output() selectedCardsCheckboxPartEmitter
     = new EventEmitter<{ category: string, index: number, checked: boolean }>();
@@ -55,9 +55,9 @@ export class SelectedCardsListComponent implements OnInit {
   }
 
 
-  selectedCardsCheckboxOnChange( category: string, index: number, value ) {
+  selectedCardsCheckboxOnChange( category: string, index: number, check: boolean ) {
     this.selectedCardsCheckboxPartEmitter
-      .emit({ category: category, index: index, checked: value });
+      .emit({ category: category, index: index, checked: check });
   }
 
   cardInfoButtonClicked( cardIndex: number ) {

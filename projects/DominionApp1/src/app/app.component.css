@@ -1,14 +1,6 @@
 .header {
   background-color: rgba(34,49,52,0.9);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
 }
-.header-height {
-  height: var(--toolbar-height);
-}
-
 
 .userName {
   font-size: 16px;

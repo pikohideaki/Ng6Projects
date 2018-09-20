@@ -91,14 +91,14 @@ export class SelectDatesComponent implements OnInit, OnDestroy {
     //       } ) );
 
     // const selectedDatetimes$
-    //   = selectedDatetimesGrouped$.map( e => [].concat( ...e ) );
+    //   = selectedDatetimesGrouped$.pipe( map( e => [].concat( ...e ) ) );
 
-    // selectedDatetimesGrouped$
-    //   .takeWhile( () => this.alive )
+    // selectedDatetimesGrouped$.pipe(
+    //    takeWhile( () => this.alive ) )
     //   .subscribe( val => this.selectedDatetimesGrouped = val );
 
-    // selectedDatetimes$
-    //   .takeWhile( () => this.alive )
+    // selectedDatetimes$.pipe(
+    //    takeWhile( () => this.alive ) )
     //   .subscribe( val => {
     //     this.selectedDatetimes = val;
     //     this.selectedDatetimesChange.emit( this.selectedDatetimes );

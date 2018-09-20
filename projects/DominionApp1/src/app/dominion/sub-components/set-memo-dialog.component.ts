@@ -31,7 +31,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SetMemoDialogComponent implements OnInit {
 
-  memo: string;  // input
+  memo!: string;  // input
   newMemo: string = '';
 
   constructor() { }
@@ -40,7 +40,7 @@ export class SetMemoDialogComponent implements OnInit {
     this.newMemo = this.memo;
   }
 
-  changeMemo( value ) {
+  changeMemo( value: string ) {
     this.newMemo = value;
   }
 }

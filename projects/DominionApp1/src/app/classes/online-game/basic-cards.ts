@@ -1,4 +1,4 @@
-import { DCard } from './dcard';
+import { DCard, getFiltered, initDCardArray } from './dcard';
 import { utils } from '../../mylib/utilities';
 import { getDCardsByIdArray } from './get-dcards-by-id-array';
 
@@ -59,9 +59,3 @@ export class BasicCards {
   }
 
 }
-
-const getFiltered = (cardIdArray: number[], pile: DCard[]) =>
-    pile.filter( c => !cardIdArray.includes(c.id) );
-
-const initDCardArray = (initializer: DCard[]) =>
-    ( initializer || [] ).map( e => new DCard(e) );

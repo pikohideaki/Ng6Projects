@@ -13,6 +13,10 @@
   box-sizing: border-box;
 }
 
+/* code {
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+} */
+
 a {
   text-decoration: none;
 }
@@ -34,8 +38,23 @@ input[type=number] {
   text-align: right;
 }
 
+mat-icon {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+
+
 .body-with-padding {
   padding: 20px;
+}
+
+.padding5 {
+  padding: 5px;
+}
+
+.padding10 {
+  padding: 10px;
 }
 
 .margined-element {
@@ -61,6 +80,12 @@ input[type=number] {
   flex: 1 1 auto;
 }
 
+.align-center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  text-align: center;
+}
 
 .center-window {
   background-color: white;
@@ -86,6 +111,10 @@ input[type=number] {
     height: 100%;
 }
 
+
+.align-right {
+  text-align: right;
+}
 
 /*
 .mini-button {

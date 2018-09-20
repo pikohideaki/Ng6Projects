@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 
 import { FireDatabaseService } from '../../database/database.service';
 
@@ -19,8 +19,8 @@ import { FireDatabaseService } from '../../database/database.service';
 })
 export class SelectedExpansionsComponent implements OnInit {
 
-  @Input() selectedExpansionNameList$: Observable<string[]>;
-  expansions$: Observable<{ name: string, selected: boolean }[]>;
+  @Input() selectedExpansionNameList$!: Observable<string[]>;
+  expansions$!: Observable<{ name: string, selected: boolean }[]>;
 
 
   constructor(

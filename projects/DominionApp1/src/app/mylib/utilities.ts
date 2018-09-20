@@ -70,14 +70,14 @@ export const utils = {
     keysAsNumber: ( obj: object ): number[] =>
       Object.keys( obj || {} ).map( e => Number(e) ),
 
-    forEach: ( obj: any, f: (element: any, key?: string, object?: any) => any ) =>
-      Object.keys( obj || {} ).forEach( key => f( obj[key], key, obj ) ),
+    forEach: ( obj: object, f: (element: any, key: string, obj: object) => any ) =>
+      Object.keys( obj || {} ).forEach( key => f( (obj as any)[key], key, obj ) ),
 
-    map: ( obj: any, f: (element: any, key?: string, object?: any) => any ) =>
-      Object.keys( obj || {} ).map( key => f( obj[key], key, obj ) ),
+    map: ( obj: object, f: (element: any, key: string, object: object) => any ) =>
+      Object.keys( obj || {} ).map( key => f( (obj as any)[key], key, obj ) ),
 
     values: ( obj: object ) =>
-      utils.object.map( obj, e => e ),
+      Object.keys( obj ).map( key => (obj as any)[key] ),
 
     entries: ( obj: object ) =>
       utils.object.map( obj, (el, key) => ({ key: key, value: el }) ),
@@ -215,8 +215,11 @@ export const utils = {
     isInArrayRange: ( index: number, arr: any[] ): boolean =>
       utils.number.isInRange( index, 0, arr.length ),
 
-    expandAndCombine: ( array2d: any[][] ): any[] =>
+    expandAndCombine: <T>( array2d: T[][] ): T[] =>
       array2d.reduce( (prev, curr) => utils.array.getCombined(prev, curr), [] ),
+
+    flatten: <T>( array2d: T[][] ): T[] =>
+      utils.array.expandAndCombine( array2d ),
   },
 
 
@@ -261,10 +264,10 @@ export const utils = {
       getRandomElement: <T>( array: T[] ): T =>
         array[ utils.number.random.genIntegerIn( 0, array.length - 1 ) ],
 
-      getShuffled: ( arr: any[] ): any[] =>
-        arr.map( e => [e, Math.random()] )
+      getShuffled: <T>( arr: T[] ): T[] =>
+        arr.map<[T, number]>( e => [e, Math.random()] )
             .sort( (x, y) => x[1] - y[1] )
-            .map( pair => pair[0] ),
+            .map<T>( pair => pair[0] ),
 
       shuffle: ( arr: any[] ) => {
         const shuffled = utils.number.random.getShuffled( arr );

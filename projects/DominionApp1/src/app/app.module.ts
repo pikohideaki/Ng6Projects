@@ -15,7 +15,7 @@ import { MyOwnAngularFireModule } from './database/my-own-angular-fire.module';
 import { NgPipesModule } from 'ngx-pipes';
 
 /* my modules & components */
-import { MyLibModule } from './mylib/mylib';
+import { MyLibModule } from './mylib/mylib.module';
 
 import { HomeComponent } from './home.component';
 

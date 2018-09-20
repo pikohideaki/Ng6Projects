@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { distinctUntilChanged, first } from 'rxjs/operators';
 
 import { utils } from '../../mylib/utilities';
 import { FireDatabaseService } from '../../database/database.service';
@@ -16,10 +16,10 @@ import { GameResult } from '../../classes/game-result';
 export class GameResultComponent implements OnInit {
 
   private dateBeginSource = new BehaviorSubject<Date>( new Date() );
-  dateBegin$ = this.dateBeginSource.asObservable().distinctUntilChanged();
+  dateBegin$ = this.dateBeginSource.asObservable().pipe( distinctUntilChanged() );
 
   private dateEndSource   = new BehaviorSubject<Date>( new Date() );
-  dateEnd$ = this.dateEndSource.asObservable().distinctUntilChanged();
+  dateEnd$ = this.dateEndSource.asObservable().pipe( distinctUntilChanged() );
 
   private numberOfPlayersOptionsSource
     = new BehaviorSubject<{ numberOfPlayers: number, checked: boolean }[]>(
@@ -45,8 +45,9 @@ export class GameResultComponent implements OnInit {
               const mDate = utils.date.toMidnight( gr.date );
               return (   mDate >= dateBegin
                       && mDate <= dateEnd
-                      && numberOfPlayersChecked
-                          .find( e => e.numberOfPlayers === gr.players.length )
+                      && (numberOfPlayersChecked
+                            .find( e => e.numberOfPlayers === gr.players.length )
+                          || {checked: false})
                           .checked );
             }) );
 
@@ -54,7 +55,7 @@ export class GameResultComponent implements OnInit {
   constructor(
     private database: FireDatabaseService
   ) {
-    this.gameResultList$.first()
+    this.gameResultList$.pipe( first() )
       .subscribe( list => this.resetFormControls( list ) );
   }
 
@@ -77,7 +78,9 @@ export class GameResultComponent implements OnInit {
   }
   numberOfPlayersOnCheck( checked: boolean, numberOfPlayers: number ) {
     const options = this.numberOfPlayersOptionsSource.value;
-    options.find( e => e.numberOfPlayers === numberOfPlayers ).checked = checked;
+    (options.find( e => e.numberOfPlayers === numberOfPlayers )
+        || {checked: false})
+      .checked = checked;
     this.numberOfPlayersOptionsSource.next( options );
   }
 

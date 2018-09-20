@@ -15,7 +15,7 @@ import { NgPipesModule } from 'ngx-pipes';
 import { ClipboardModule } from 'ngx-clipboard';
 
 /* my modules & components */
-import { MyLibModule } from './mylib/mylib';
+import { MyLibModule } from './mylib/mylib.module';
 
 /* angularfire2 */
 import { MyOwnAngularFireModule } from './database/my-own-angular-fire.module';

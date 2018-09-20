@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable, BehaviorSubject, combineLatest, merge } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, merge, ReplaySubject } from 'rxjs';
 import { map,
          withLatestFrom,
          debounceTime,
@@ -29,11 +29,17 @@ export class DataTableComponent implements OnInit, OnDestroy {
   private alive: boolean = true;
 
   /**
-   * number, string, boolean or Array of those are supported for cell type
+   * sypported cell types: number, string, boolean,
+   *    Array<number>, Array<string>, Array<boolean>
    */
 
-  @Input() table$!: Observable<TCell[][]>;
-  @Input() settings!: ITableSettings;
+  private tableSource = new ReplaySubject<TCell[][]>(1);
+  table$: Observable<TCell[][]> = this.tableSource.asObservable();
+  @Input() set table( value: TCell[][] ) {
+    if ( !value || !Array.isArray( value ) || !Array.isArray( value[0] ) ) return;
+    this.tableSource.next( value );
+  }
+  @Input() readonly settings!: ITableSettings;
 
   @Output() cellClicked = new EventEmitter<CellPosition>();
 
@@ -63,7 +69,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     /* Input check */
-    console.assert( !!this.table$,
+    console.assert( !!this.table,
       'テーブルデータが与えられていません。' );
 
     console.assert( !!this.settings,
