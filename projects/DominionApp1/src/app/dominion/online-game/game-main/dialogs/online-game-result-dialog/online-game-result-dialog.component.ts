@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { GameResult } from '../../../../../classes/game-result';
-import { CardProperty } from '../../../../../classes/card-property';
+import { GameResult } from '../../../../types/game-result';
+import { CardProperty } from '../../../../types/card-property';
 
 
 @Component({

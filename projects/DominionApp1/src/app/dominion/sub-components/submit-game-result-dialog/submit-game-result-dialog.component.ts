@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { FireDatabaseService } from '../../../database/database.service';
-import { GameResult } from '../../../classes/game-result';
+import { GameResult } from '../../types/game-result';
 import { first } from 'rxjs/operators';
 
 

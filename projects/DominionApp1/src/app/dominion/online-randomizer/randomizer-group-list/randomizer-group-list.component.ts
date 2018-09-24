@@ -1,10 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-
-import { NgForm } from '@angular/forms';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material';
 
 import { Observable, combineLatest } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 import { utils } from '../../../mylib/utilities';
 import { FireDatabaseService } from '../../../database/database.service';
@@ -12,12 +11,9 @@ import { UserService } from '../../../database/user.service';
 
 import { MyRandomizerGroupService } from '../my-randomizer-group.service';
 
-import { SelectedCards         } from '../../../classes/selected-cards';
-import { RandomizerGroup       } from '../../../classes/online-randomizer/randomizer-group';
-import { User                  } from '../../../classes/user';
-import { SelectedCardsCheckbox } from '../../../classes/selected-cards-checkbox-values';
-import { BlackMarketPhase      } from '../../../classes/online-randomizer/black-market-phase.enum';
-import { first } from 'rxjs/operators';
+import { RandomizerGroup       } from '../types/randomizer-group';
+import { SelectedCardsCheckbox } from '../../types/selected-cards-checkbox-values';
+import { BlackMarketPhase      } from '../types/black-market-phase.enum';
 
 
 @Component({

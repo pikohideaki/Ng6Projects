@@ -1,5 +1,5 @@
-import { DCard } from '../../../../../../classes/online-game/dcard';
-import { GameState } from '../../../../../../classes/online-game/game-state';
+import { DCard } from '../../../../types/dcard';
+import { GameState } from '../../../../types/game-state';
 
 
 export interface DataForCardEffect {

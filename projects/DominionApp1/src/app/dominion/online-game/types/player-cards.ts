@@ -1,7 +1,7 @@
 import { DCard, initDCardArray, getFiltered } from './dcard';
-import { CardType } from '../card-property';
-import { utils } from '../../mylib/utilities';
-import { getDCardsByIdArray } from './get-dcards-by-id-array';
+import { utils } from '../../../mylib/utilities';
+import { getDCardsByIdArray } from '../../functions/get-dcards-by-id-array';
+import { CardType } from '../../types/card-type';
 
 
 export class PlayerCards {
@@ -31,7 +31,7 @@ export class PlayerCards {
 
 
   sortByCardType( dcards: DCard[] ): DCard[] {
-    let sorted = dcards.sort( (a, b) => a.cardProperty.no - b.cardProperty.no );
+    let sorted = dcards.sort( (a, b) => a.cardProperty.indexInList - b.cardProperty.indexInList );
     let Actions, Treasures, Victories;
     const f = (type: CardType) => ((d: DCard) => d.cardProperty.cardTypes.includes(type));
     [Actions,   sorted] = utils.array.filterRemove( sorted, f('Action')   );

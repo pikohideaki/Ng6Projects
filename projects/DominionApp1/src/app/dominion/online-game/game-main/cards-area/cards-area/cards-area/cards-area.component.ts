@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material';
 import { Observable, of } from 'rxjs';
 
 import { CardPropertyDialogComponent } from '../../../../../sub-components/card-property-dialog/card-property-dialog.component';
-import { DCard } from '../../../../../../classes/online-game/dcard';
+import { DCard } from '../../../../types/dcard';
 import { map } from 'rxjs/operators';
 
 

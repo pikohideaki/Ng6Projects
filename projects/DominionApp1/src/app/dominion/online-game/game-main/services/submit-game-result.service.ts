@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 
-import { GameResult           } from '../../../../classes/game-result';
-import { NumberOfVictoryCards } from '../../../../classes/number-of-victory-cards';
+import { GameResult           } from '../../../types/game-result';
+import { NumberOfVictoryCards } from '../../../types/number-of-victory-cards';
 
 import { FireDatabaseService } from '../../../../database/database.service';
 import { GameStateService } from './game-state-services/game-state.service';
 import { MyGameRoomService } from './my-game-room.service';
 import { utils } from '../../../../mylib/utilities';
-import { GameState } from '../../../../classes/online-game/game-state';
+import { GameState } from '../../types/game-state';
 
 
 @Injectable()
@@ -85,7 +85,7 @@ export class SubmitGameResultService {
     allCards
       .filter( dcard => dcard.cardProperty.cardTypes.includes('Victory') )
       .forEach( dcard => {
-        (nofVictoryCards as any)[ dcard.cardProperty.cardId ]++;
+        nofVictoryCards[ dcard.cardProperty.cardId ]++;
       });
     nofVictoryCards.DeckSize
       = allCards.length;

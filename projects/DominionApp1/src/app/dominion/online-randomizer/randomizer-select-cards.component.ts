@@ -1,12 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
-
-import { Observable, combineLatest } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 
 import { MyRandomizerGroupService } from './my-randomizer-group.service';
 
-import { SelectedCards       } from '../../classes/selected-cards';
-import { BlackMarketPileCard } from '../../classes/black-market-pile-card';
-import { BlackMarketPhase    } from '../../classes/online-randomizer/black-market-phase.enum';
+import { SelectedCards       } from '../types/selected-cards';
+import { BlackMarketPileCard } from '../types/black-market-pile-card';
+import { BlackMarketPhase    } from './types/black-market-phase.enum';
 
 
 @Component({

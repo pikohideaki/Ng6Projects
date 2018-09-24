@@ -8,7 +8,7 @@ import { slice } from '../../../mylib/data-table/functions/slice';
 import { FireDatabaseService } from '../../../database/database.service';
 import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.component';
 import { GameResultDetailDialogComponent    } from './game-result-detail-dialog/game-result-detail-dialog.component';
-import { GameResult } from '../../../classes/game-result';
+import { GameResult } from '../../types/game-result';
 import { takeWhile, map } from 'rxjs/operators';
 
 

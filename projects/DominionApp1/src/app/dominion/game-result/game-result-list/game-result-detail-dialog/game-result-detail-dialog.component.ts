@@ -4,9 +4,9 @@ import { MatDialog, MatSnackBar } from '@angular/material';
 import { Observable, of } from 'rxjs';
 
 
-import { GameResult    } from '../../../../classes/game-result';
-import { SelectedCards } from '../../../../classes/selected-cards';
-import { CardProperty  } from '../../../../classes/card-property';
+import { GameResult    } from '../../../types/game-result';
+import { SelectedCards } from '../../../types/selected-cards';
+import { CardProperty  } from '../../../types/card-property';
 
 import { FireDatabaseService } from '../../../../database/database.service';
 import { ConfirmDialogComponent } from '../../../../mylib/confirm-dialog.component';

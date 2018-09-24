@@ -9,10 +9,10 @@ import { AlertDialogComponent   } from '../../../mylib/alert-dialog.component';
 import { ConfirmDialogComponent } from '../../../mylib/confirm-dialog.component';
 
 
-import { CardProperty          } from '../../../classes/card-property';
-import { SelectedCards         } from '../../../classes/selected-cards';
-import { SelectedCardsCheckbox } from '../../../classes/selected-cards-checkbox-values';
-import { BlackMarketPileCard   } from '../../../classes/black-market-pile-card';
+import { CardProperty          } from '../../types/card-property';
+import { SelectedCards         } from '../../types/selected-cards';
+import { SelectedCardsCheckbox } from '../../types/selected-cards-checkbox-values';
+import { BlackMarketPileCard   } from '../../types/black-market-pile-card';
 import { map, delay, startWith } from 'rxjs/operators';
 
 

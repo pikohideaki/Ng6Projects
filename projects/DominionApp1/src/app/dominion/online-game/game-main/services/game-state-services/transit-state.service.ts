@@ -4,16 +4,16 @@ import { MatDialog } from '@angular/material';
 import { Observable, BehaviorSubject, from, zip, combineLatest } from 'rxjs';
 import { concatAll, pairwise, startWith, map, withLatestFrom, skip, filter, first, debounceTime } from 'rxjs/operators';
 
-import { GameRoom         } from '../../../../../classes/online-game/game-room';
-import { CardProperty     } from '../../../../../classes/card-property';
+import { GameRoom         } from '../../../types/game-room';
+import { CardProperty     } from '../../../../types/card-property';
 
 import { FireDatabaseService } from '../../../../../database/database.service';
 import { utils } from '../../../../../mylib/utilities';
 import { GameRoomCommunicationService } from '../game-room-communication.service';
 import { MyGameRoomService } from '../my-game-room.service';
 import { GameStateService } from './game-state.service';
-import { GameState } from '../../../../../classes/online-game/game-state';
-import { UserInput } from '../../../../../classes/online-game/user-input';
+import { GameState } from '../../../types/game-state';
+import { UserInput } from '../../../types/user-input';
 import { nextPhase, sortHandCards } from './shortcut';
 import { DataForCardEffect } from './card-effect-definitions/data-for-card-effect';
 import { GameMessageService } from '../game-message.service';

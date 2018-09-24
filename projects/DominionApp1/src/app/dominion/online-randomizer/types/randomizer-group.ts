@@ -1,8 +1,8 @@
-import { SelectedCards         } from '../selected-cards';
-import { SelectedCardsCheckbox } from '../selected-cards-checkbox-values';
-import { PlayerResult          } from '../online-randomizer/player-result';
-import { BlackMarketPileCard   } from '../black-market-pile-card';
-import { BlackMarketPhase      } from '../online-randomizer/black-market-phase.enum';
+import { SelectedCards         } from '../../types/selected-cards';
+import { SelectedCardsCheckbox } from '../../types/selected-cards-checkbox-values';
+import { PlayerResult          } from './player-result';
+import { BlackMarketPileCard   } from '../../types/black-market-pile-card';
+import { BlackMarketPhase      } from './black-market-phase.enum';
 
 
 export class RandomizerGroup {
@@ -44,11 +44,11 @@ export class RandomizerGroup {
     selectedCardsCheckbox:   SelectedCardsCheckbox,
     BlackMarketPileShuffled: BlackMarketPileCard[],
     BlackMarketPhase:        number,
-    selectedCardsHistory:    Object[],
+    selectedCardsHistory:    object[],
     selectedIndexInHistory:  number,
 
     newGameResult: {
-      players:            Object,
+      players:            object,
       place:              string,
       memo:               string,
       lastTurnPlayerName: string,

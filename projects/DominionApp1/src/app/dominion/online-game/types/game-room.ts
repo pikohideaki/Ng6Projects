@@ -1,9 +1,11 @@
-import { utils } from '../../mylib/utilities';
-import { SelectedCards } from '../selected-cards';
+import { utils } from '../../../mylib/utilities';
+import { SelectedCards } from '../../types/selected-cards';
 import { GameState } from './game-state';
-import { CardProperty, numberToPrepare, toListIndex } from '../card-property';
+import { CardProperty } from '../../types/card-property';
 import { DCard } from './dcard';
 import { PlayerCards } from './player-cards';
+import { pileSize } from '../functions/pile-size';
+import { toListIndex } from '../../functions/to-list-index';
 
 
 
@@ -80,7 +82,7 @@ export class GameRoom {
     };
 
     const addMultipleCards = ( placePath: (string|number)[], cardListIndex: number ) => {
-        const N = numberToPrepare(
+        const N = pileSize(
                     cardList,
                     cardListIndex,
                     this.numberOfPlayers,

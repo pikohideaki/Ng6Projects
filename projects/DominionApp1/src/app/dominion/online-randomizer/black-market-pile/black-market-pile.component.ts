@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { Observable } from 'rxjs';
 
@@ -9,9 +9,9 @@ import { utils } from '../../../mylib/utilities';
 import { FireDatabaseService } from '../../../database/database.service';
 import { MyRandomizerGroupService } from '../my-randomizer-group.service';
 
-import { CardProperty        } from '../../../classes/card-property';
-import { BlackMarketPileCard } from '../../../classes/black-market-pile-card';
-import { BlackMarketPhase as BMPhase, BlackMarketPhase } from '../../../classes/online-randomizer/black-market-phase.enum';
+import { CardProperty        } from '../../types/card-property';
+import { BlackMarketPileCard } from '../../types/black-market-pile-card';
+import { BlackMarketPhase as BMPhase, BlackMarketPhase } from '../types/black-market-phase.enum';
 import { startWith, map } from 'rxjs/operators';
 
 
@@ -44,7 +44,7 @@ export class BlackMarketPileComponent implements OnInit {
         }) );
 
 
-  private promiseResolver = {};
+  private promiseResolver: { [key: string]: any } = {};
 
 
   constructor(
@@ -68,7 +68,7 @@ export class BlackMarketPileComponent implements OnInit {
     switch ( operation ) {  // check operation string
       case 'buy' :
       case 'putOnTheBottom' :
-        (this.promiseResolver as any)[operation]( value );
+        this.promiseResolver[operation]( value );
         break;
       default :
         console.error( `'promiseResolver' does not have operation '${operation}'.` );
@@ -115,7 +115,7 @@ export class BlackMarketPileComponent implements OnInit {
       while (true) {
         const clickedElementValue
           = await new Promise<number>( resolve =>
-              (this.promiseResolver as any)['putOnTheBottom'] = resolve );
+              this.promiseResolver['putOnTheBottom'] = resolve );
         if ( clickedElementValue === -1 ) break;
 
         const selectedElement = utils.array.removeAt( BlackMarketPileShuffled, clickedElementValue );

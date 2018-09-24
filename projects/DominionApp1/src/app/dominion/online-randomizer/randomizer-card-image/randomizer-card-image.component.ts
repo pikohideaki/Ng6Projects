@@ -7,8 +7,8 @@ import { MatDialog } from '@angular/material';
 import { FireDatabaseService } from '../../../database/database.service';
 import { MyRandomizerGroupService       } from '../my-randomizer-group.service';
 
-import { CardProperty  } from '../../../classes/card-property';
-import { SelectedCards } from '../../../classes/selected-cards';
+import { CardProperty  } from '../../types/card-property';
+import { SelectedCards } from '../../types/selected-cards';
 
 import { CardPropertyDialogComponent } from '../../sub-components/card-property-dialog/card-property-dialog.component';
 

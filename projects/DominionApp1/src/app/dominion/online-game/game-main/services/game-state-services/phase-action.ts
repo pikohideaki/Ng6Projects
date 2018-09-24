@@ -1,10 +1,10 @@
-import { CardProperty } from '../../../../../classes/card-property';
+import { CardProperty } from '../../../../types/card-property';
 
 import { GameStateService } from './game-state.service';
-import { UserInput } from '../../../../../classes/online-game/user-input';
-import { Phase } from '../../../../../classes/online-game/phase';
-import { DCard } from '../../../../../classes/online-game/dcard';
-import { GameState } from '../../../../../classes/online-game/game-state';
+import { UserInput } from '../../../types/user-input';
+import { Phase } from '../../../types/phase';
+import { DCard } from '../../../types/dcard';
+import { GameState } from '../../../types/game-state';
 import { buttonizeForTurnPlayer, buttonizeSupplyIf, resetDCardsAttributes, cleanUp } from './shortcut';
 import { DataForCardEffect } from './card-effect-definitions/data-for-card-effect';
 

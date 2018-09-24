@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 
 import { GameConfigService } from '../../services/game-config.service';
-import { DCard } from '../../../../../classes/online-game/dcard';
+import { DCard } from '../../../types/dcard';
 import { map, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 
 

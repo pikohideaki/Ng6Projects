@@ -5,7 +5,7 @@ import { distinctUntilChanged, first } from 'rxjs/operators';
 import { utils } from '../../mylib/utilities';
 import { FireDatabaseService } from '../../database/database.service';
 
-import { GameResult } from '../../classes/game-result';
+import { GameResult } from '../types/game-result';
 
 
 @Component({

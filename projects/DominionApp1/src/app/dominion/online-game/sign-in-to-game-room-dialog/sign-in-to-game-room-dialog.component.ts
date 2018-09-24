@@ -8,8 +8,8 @@ import { MatDialog, MatDialogRef } from '@angular/material';
 
 import { UserService             } from '../../../database/user.service';
 import { FireDatabaseService } from '../../../database/database.service';
-import { GameRoom } from '../../../classes/online-game/game-room';
-import { SelectedCards } from '../../../classes/selected-cards';
+import { GameRoom } from '../types/game-room';
+import { SelectedCards } from '../../types/selected-cards';
 
 
 @Component({

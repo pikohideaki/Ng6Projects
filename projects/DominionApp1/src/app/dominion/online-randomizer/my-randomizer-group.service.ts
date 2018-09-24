@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 
 import { Observable, combineLatest, Subject } from 'rxjs';
-import { switchMap, switchMapTo, map, distinctUntilChanged } from 'rxjs/operators';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 import { FireDatabaseService } from '../../database/database.service';
 import { UserService } from '../../database/user.service';
 
-import { RandomizerGroup       } from '../../classes/online-randomizer/randomizer-group';
-import { SelectedCards         } from '../../classes/selected-cards';
-import { SelectedCardsCheckbox } from '../../classes/selected-cards-checkbox-values';
-import { BlackMarketPileCard   } from '../../classes/black-market-pile-card';
-import { BlackMarketPhase      } from '../../classes/online-randomizer/black-market-phase.enum';
-import { PlayerResult          } from '../../classes/online-randomizer/player-result';
-import { NumberOfVictoryCards } from '../../classes/number-of-victory-cards';
+import { RandomizerGroup       } from './types/randomizer-group';
+import { SelectedCards         } from '../types/selected-cards';
+import { SelectedCardsCheckbox } from '../types/selected-cards-checkbox-values';
+import { BlackMarketPileCard   } from '../types/black-market-pile-card';
+import { BlackMarketPhase      } from './types/black-market-phase.enum';
+import { PlayerResult          } from './types/player-result';
+import { NumberOfVictoryCards } from '../types/number-of-victory-cards';
 
 
 @Injectable()

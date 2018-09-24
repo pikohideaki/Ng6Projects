@@ -18,9 +18,9 @@ import { GameStateService             } from './services/game-state-services/gam
 import { TransitStateService          } from './services/game-state-services/transit-state.service';
 
 import { ValuesForViewService } from './services/values-for-view.service';
-import { DCard } from '../../../classes/online-game/dcard';
+import { DCard } from '../types/dcard';
 import { withLatestFrom, takeWhile, skip, first, distinctUntilChanged, map } from 'rxjs/operators';
-import { GameState } from '../../../classes/online-game/game-state';
+import { GameState } from '../types/game-state';
 
 
 

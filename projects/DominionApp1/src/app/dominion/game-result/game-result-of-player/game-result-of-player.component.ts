@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { utils } from '../../../mylib/utilities';
 
-import { GameResult } from '../../../classes/game-result';
+import { GameResult } from '../../types/game-result';
 import { map, startWith } from 'rxjs/operators';
 
 

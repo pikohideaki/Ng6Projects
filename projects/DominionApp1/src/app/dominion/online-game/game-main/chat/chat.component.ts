@@ -2,7 +2,7 @@ import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
-import { ChatMessage } from '../../../../classes/online-game/chat-message';
+import { ChatMessage } from '../../types/chat-message';
 import { UserService } from '../../../../database/user.service';
 import { GameRoomCommunicationService } from '../services/game-room-communication.service';
 import { MatSidenav } from '@angular/material';

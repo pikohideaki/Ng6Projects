@@ -1,4 +1,4 @@
-import { DCard } from '../../../../../classes/online-game/dcard';
+import { DCard } from '../../../types/dcard';
 import { DataForCardEffect } from './card-effect-definitions/data-for-card-effect';
 import { drawCards, indeterminatePhaseOf, determinatePhaseOf } from './shortcut';
 

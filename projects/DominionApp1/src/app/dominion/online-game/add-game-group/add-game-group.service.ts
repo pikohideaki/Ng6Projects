@@ -4,14 +4,12 @@ import { utils } from '../../../mylib/utilities';
 import { UserService } from '../../../database/user.service';
 import { FireDatabaseService } from '../../../database/database.service';
 
-import { CardProperty, numberToPrepare, toListIndex } from '../../../classes/card-property';
-import { SelectedCards       } from '../../../classes/selected-cards';
-import { GameRoom            } from '../../../classes/online-game/game-room';
-import { GameCommunication   } from '../../../classes/online-game/game-room-communication';
-import { BlackMarketPileCard } from '../../../classes/black-market-pile-card';
-import { ChatMessage         } from '../../../classes/online-game/chat-message';
-import { UserInput           } from '../../../classes/online-game/user-input';
-import { TurnInfo            } from '../../../classes/online-game/turn-info';
+import { CardProperty } from '../../types/card-property';
+import { SelectedCards       } from '../../types/selected-cards';
+import { GameRoom            } from '../types/game-room';
+import { GameCommunication   } from '../types/game-room-communication';
+import { UserInput           } from '../types/user-input';
+import { TurnInfo            } from '../types/turn-info';
 
 
 

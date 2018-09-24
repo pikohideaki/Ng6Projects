@@ -1,8 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../../database/user.service';
-import { PlayerCards } from '../../../../../classes/online-game/player-cards';
-import { DCard } from '../../../../../classes/online-game/dcard';
+import { PlayerCards } from '../../../types/player-cards';
+import { DCard } from '../../../types/dcard';
 import { filter, map } from 'rxjs/operators';
 
 

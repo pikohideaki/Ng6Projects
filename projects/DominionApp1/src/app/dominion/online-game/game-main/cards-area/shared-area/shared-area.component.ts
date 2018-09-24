@@ -5,7 +5,7 @@ import { utils } from '../../../../../mylib/utilities';
 import { MyGameRoomService } from '../../services/my-game-room.service';
 import { GameStateService  } from '../../services/game-state-services/game-state.service';
 import { GameConfigService } from '../../services/game-config.service';
-import { DCard } from '../../../../../classes/online-game/dcard';
+import { DCard } from '../../../types/dcard';
 import { map } from 'rxjs/operators';
 
 

@@ -1,15 +1,16 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { skip, takeWhile, withLatestFrom, map } from 'rxjs/operators';
 
 
 import { FireDatabaseService } from '../../../database/database.service';
 
-import { CardProperty, toListIndex } from '../../../classes/card-property';
-import { SelectedCards        } from '../../../classes/selected-cards';
-import { NumberOfVictoryCards } from '../../../classes/number-of-victory-cards';
+import { CardProperty } from '../../types/card-property';
+import { SelectedCards        } from '../../types/selected-cards';
+import { NumberOfVictoryCards } from '../../types/number-of-victory-cards';
 import { utils } from '../../../mylib/utilities';
+import { toListIndex } from '../../functions/to-list-index';
 
 
 @Component({

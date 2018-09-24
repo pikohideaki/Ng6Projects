@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material';
-import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from 'angularfire2/auth';
 
 import { FireDatabaseService } from '../../database.service';
 
-import { User } from '../../../classes/user';
+import { User } from '../../user';
 import { first } from 'rxjs/operators';
 
 @Component({

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { Observable, combineLatest } from 'rxjs';
 
-import { GameRoom } from '../../../../classes/online-game/game-room';
-import { GameState } from '../../../../classes/online-game/game-state';
+import { GameRoom } from '../../types/game-room';
+import { GameState } from '../../types/game-state';
 
 import { UserService } from '../../../../database/user.service';
 import { FireDatabaseService } from '../../../../database/database.service';

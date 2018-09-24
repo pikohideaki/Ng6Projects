@@ -1,6 +1,4 @@
-import { utils } from '../../mylib/utilities';
-import { CardProperty, CardType } from '../card-property';
-import { PlayerCardDirectory } from './player-card-directory';
+import { utils } from '../../../mylib/utilities';
 
 import { DCardPath   } from './dcard-path';
 import { PlayerCards } from './player-cards';
@@ -9,8 +7,7 @@ import { TurnInfo } from './turn-info';
 import { PlayerData } from './players-data';
 import { BasicCards } from './basic-cards';
 import { KingdomCards } from './kingdom-cards';
-import { BasicCardsDirectory } from './basic-cards-directory';
-import { getDCardsByIdArray } from './get-dcards-by-id-array';
+import { getDCardsByIdArray } from '../../functions/get-dcards-by-id-array';
 
 
 

@@ -1,6 +1,6 @@
 import { DCard, getFiltered, initDCardArray } from './dcard';
-import { utils } from '../../mylib/utilities';
-import { getDCardsByIdArray } from './get-dcards-by-id-array';
+import { utils } from '../../../mylib/utilities';
+import { getDCardsByIdArray } from '../../functions/get-dcards-by-id-array';
 
 
 export class BasicCards {

@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore    } from 'angularfire2/firestore';
 import { AngularFireDatabase } from 'angularfire2/database';
 
-import { CardProperty } from '../classes/card-property';
+import { CardProperty } from '../dominion/types/card-property';
 
 
 @Component({

@@ -4,9 +4,10 @@ import { Injectable } from '@angular/core';
 import { utils } from '../../../mylib/utilities';
 import { FireDatabaseService } from '../../../database/database.service';
 
-import { CardProperty, CardType  } from '../../../classes/card-property';
-import { SelectedCards } from '../../../classes/selected-cards';
-import { DCard } from '../../../classes/online-game/dcard';
+import { CardProperty } from '../../types/card-property';
+import { SelectedCards } from '../../types/selected-cards';
+import { DCard } from '../../online-game/types/dcard';
+import { CardType } from '../../types/card-type';
 
 
 @Injectable()

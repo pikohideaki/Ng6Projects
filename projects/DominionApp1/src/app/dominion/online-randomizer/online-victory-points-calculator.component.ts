@@ -7,9 +7,9 @@ import { FireDatabaseService } from '../../database/database.service';
 import { MyRandomizerGroupService } from './my-randomizer-group.service';
 import { UserService } from '../../database/user.service';
 
-import { SelectedCards } from '../../classes/selected-cards';
-import { NumberOfVictoryCards } from '../../classes/number-of-victory-cards';
-import { PlayerResult } from '../../classes/online-randomizer/player-result';
+import { SelectedCards } from '../types/selected-cards';
+import { NumberOfVictoryCards } from '../types/number-of-victory-cards';
+import { PlayerResult } from './types/player-result';
 
 
 @Component({

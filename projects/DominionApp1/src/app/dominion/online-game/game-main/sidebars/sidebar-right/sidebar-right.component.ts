@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material';
 
 import { Observable } from 'rxjs';
 
-import { GameResult } from '../../../../../classes/game-result';
+import { GameResult } from '../../../../types/game-result';
 
 import { ConfirmDialogComponent } from '../../../../../mylib/confirm-dialog.component';
 import { OnlineGameResultDialogComponent } from '../../dialogs/online-game-result-dialog/online-game-result-dialog.component';

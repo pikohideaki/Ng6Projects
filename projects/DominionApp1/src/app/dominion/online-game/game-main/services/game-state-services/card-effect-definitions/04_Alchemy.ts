@@ -1,6 +1,6 @@
 import { DataForCardEffect } from './data-for-card-effect';
 import * as cs from './card-effect-shortcut';
-import { DCard } from '../../../../../../classes/online-game/dcard';
+import { DCard } from '../../../../types/dcard';
 import { drawCards } from '../shortcut';
 import { utils } from '../../../../../../mylib/utilities';
 

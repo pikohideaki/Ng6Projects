@@ -3,10 +3,11 @@ import { MatDialogRef } from '@angular/material';
 
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
-import { CardProperty } from '../../../classes/card-property';
+import { CardProperty } from '../../types/card-property';
 import { FireDatabaseService } from '../../../database/database.service';
 import { utils } from '../../../mylib/utilities';
 import { map } from 'rxjs/operators';
+import { cardPropertyToStr } from '../../functions/transform-card-property';
 
 
 @Component({
@@ -72,7 +73,7 @@ export class CardPropertyDialogComponent implements OnInit {
               ? new CardProperty()
               : cardPropertyList[ indiceInCardList[ showingIndex ] ] ) );
 
-    this.cardForView$ = this.card$.pipe( map( e => e.transformAll() ) );
+    this.cardForView$ = this.card$.pipe( map( cardPropertyToStr ) );
   }
 
 

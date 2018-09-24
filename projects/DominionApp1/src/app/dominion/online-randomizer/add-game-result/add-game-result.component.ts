@@ -9,18 +9,18 @@ import { UserService } from '../../../database/user.service';
 
 import { MyRandomizerGroupService } from '../my-randomizer-group.service';
 
-import { CardProperty  } from '../../../classes/card-property';
-import { GameResult    } from '../../../classes/game-result';
-import { PlayerResult  } from '../../../classes/online-randomizer/player-result';
-import { SelectedCards } from '../../../classes/selected-cards';
-import { SelectedCardsCheckbox } from '../../../classes/selected-cards-checkbox-values';
+import { CardProperty  } from '../../types/card-property';
+import { GameResult    } from '../../types/game-result';
+import { PlayerResult  } from '../types/player-result';
+import { SelectedCards } from '../../types/selected-cards';
+import { SelectedCardsCheckbox } from '../../types/selected-cards-checkbox-values';
 
 import { SetVpDialogComponent } from './set-vp-dialog.component';
 import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.component';
 import { SubmitGameResultDialogComponent } from '../../sub-components/submit-game-result-dialog/submit-game-result-dialog.component';
-import { NumberOfVictoryCards } from '../../../classes/number-of-victory-cards';
+import { NumberOfVictoryCards } from '../../types/number-of-victory-cards';
 import { map, startWith } from 'rxjs/operators';
-import { PlayerData } from '../../../classes/online-game/players-data';
+import { PlayerData } from '../../online-game/types/players-data';
 
 
 

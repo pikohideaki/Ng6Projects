@@ -1,8 +1,9 @@
-import { GameState } from '../../../../../classes/online-game/game-state';
-import { UserInput } from '../../../../../classes/online-game/user-input';
+import { GameState } from '../../../types/game-state';
+import { UserInput } from '../../../types/user-input';
 import { buyCard, playCard } from './shortcut';
 import { getCardEffect } from './card-effect';
 import { DataForCardEffect } from './card-effect-definitions/data-for-card-effect';
+import { isBasicTreasure } from '../../../../functions/is-basic-treasure';
 
 
 
@@ -11,7 +12,7 @@ export const playAllTreasures = async ( playerId: number, showMessage: boolean,
 ) => {
   const basicTreasures
     = data.gameState.DCards.allPlayersCards[ playerId ].HandCards
-        .filter( d => d.cardProperty.isBasicTreasure() );
+        .filter( d => isBasicTreasure( d.cardProperty.cardId ) );
 
   if ( showMessage ) {
     const name = basicTreasures.map( e => e.cardProperty.nameJp ).join('、');

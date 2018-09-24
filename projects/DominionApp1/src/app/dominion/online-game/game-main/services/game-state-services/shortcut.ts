@@ -1,8 +1,8 @@
 import { utils               } from '../../../../../mylib/utilities';
-import { Phase               } from '../../../../../classes/online-game/phase';
-import { GameState           } from '../../../../../classes/online-game/game-state';
-import { DCard               } from '../../../../../classes/online-game/dcard';
-import { UserInput           } from '../../../../../classes/online-game/user-input';
+import { Phase               } from '../../../types/phase';
+import { GameState           } from '../../../types/game-state';
+import { DCard               } from '../../../types/dcard';
+import { UserInput           } from '../../../types/user-input';
 import { DataForCardEffect   } from './card-effect-definitions/data-for-card-effect';
 // import { getAdditionalEffect, getCardEffect } from './card-effect';
 

@@ -2,8 +2,9 @@ import { Component, OnInit, Inject, Input, OnChanges, SimpleChanges, Output, Eve
 
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
-import { CardProperty } from '../../../classes/card-property';
+import { CardProperty } from '../../types/card-property';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { isWideCard } from '../../functions/is-wide-card';
 
 
 @Component({
@@ -38,7 +39,7 @@ export class DominionCardImageComponent implements OnInit, OnChanges {
    = combineLatest(
         this.card$, this.width$,
         (card, width) =>
-          Math.floor( width * ( card.isWideType() ? (15 / 23) : (23 / 15) ) ) )
+          Math.floor( width * ( isWideCard( card.cardTypes ) ? (15 / 23) : (23 / 15) ) ) )
       .pipe( distinctUntilChanged() );
 
   borderWidth$:  Observable<number>
@@ -115,7 +116,7 @@ export class DominionCardImageComponent implements OnInit, OnChanges {
 
   private widthFromHeight( height: number ) {
     const card = this.cardSource.getValue();
-    return Math.floor( height * ( card.isWideType() ? (23 / 15) : (15 / 23) ) );
+    return Math.floor( height * ( isWideCard( card.cardTypes ) ? (23 / 15) : (15 / 23) ) );
   }
 
   onClicked() {

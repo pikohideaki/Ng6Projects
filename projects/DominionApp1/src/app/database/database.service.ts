@@ -7,19 +7,19 @@ import * as firebase from 'firebase/app';
 
 import { utils } from '../mylib/utilities';
 
-import { User                  } from '../classes/user';
-import { CardProperty          } from '../classes/card-property';
-import { GameResult            } from '../classes/game-result';
-import { SelectedCards         } from '../classes/selected-cards';
-import { SelectedCardsCheckbox } from '../classes/selected-cards-checkbox-values';
-import { BlackMarketPileCard   } from '../classes/black-market-pile-card';
-import { NumberOfVictoryCards  } from '../classes/number-of-victory-cards';
-import { RandomizerGroup       } from '../classes/online-randomizer/randomizer-group';
-import { PlayerResult          } from '../classes/online-randomizer/player-result';
-import { GameRoom              } from '../classes/online-game/game-room';
-import { ChatMessage           } from '../classes/online-game/chat-message';
-import { GameCommunication     } from '../classes/online-game/game-room-communication';
-import { UserInput             } from '../classes/online-game/user-input';
+import { User                  } from './user';
+import { CardProperty          } from '../dominion/types/card-property';
+import { GameResult            } from '../dominion/types/game-result';
+import { SelectedCards         } from '../dominion/types/selected-cards';
+import { SelectedCardsCheckbox } from '../dominion/types/selected-cards-checkbox-values';
+import { BlackMarketPileCard   } from '../dominion/types/black-market-pile-card';
+import { NumberOfVictoryCards  } from '../dominion/types/number-of-victory-cards';
+import { RandomizerGroup       } from '../dominion/online-randomizer/types/randomizer-group';
+import { PlayerResult          } from '../dominion/online-randomizer/types/player-result';
+import { GameRoom              } from '../dominion/online-game/types/game-room';
+import { ChatMessage           } from '../dominion/online-game/types/chat-message';
+import { GameCommunication     } from '../dominion/online-game/types/game-room-communication';
+import { UserInput             } from '../dominion/online-game/types/user-input';
 import { map, first } from 'rxjs/operators';
 
 

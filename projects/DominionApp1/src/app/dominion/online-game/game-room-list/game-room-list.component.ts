@@ -8,7 +8,7 @@ import { ReversePipe } from 'ngx-pipes';
 
 import { FireDatabaseService } from '../../../database/database.service';
 
-import { GameRoom } from '../../../classes/online-game/game-room';
+import { GameRoom } from '../types/game-room';
 import { SignInToGameRoomDialogComponent } from '../sign-in-to-game-room-dialog/sign-in-to-game-room-dialog.component';
 import { UserService } from '../../../database/user.service';
 import { Router } from '@angular/router';

@@ -5,10 +5,10 @@ import { Observable, combineLatest } from 'rxjs';
 import { first, startWith, switchMap, distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 
-import { ChatMessage, ChatCommand } from '../../../../classes/online-game/chat-message';
-import { GameCommunication        } from '../../../../classes/online-game/game-room-communication';
-import { UserInput                } from '../../../../classes/online-game/user-input';
-import { UserInputCommand         } from '../../../../classes/online-game/user-input-command';
+import { ChatMessage, ChatCommand } from '../../types/chat-message';
+import { GameCommunication        } from '../../types/game-room-communication';
+import { UserInput                } from '../../types/user-input';
+import { UserInputCommand         } from '../../types/user-input-command';
 
 import { UserService             } from '../../../../database/user.service';
 import { FireDatabaseService } from '../../../../database/database.service';

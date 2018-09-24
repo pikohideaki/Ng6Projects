@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DCard } from '../../../../../classes/online-game/dcard';
+import { DCard } from '../../../types/dcard';
 
 
 

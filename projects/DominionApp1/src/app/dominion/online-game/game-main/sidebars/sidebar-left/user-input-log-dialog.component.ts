@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Observable, combineLatest } from 'rxjs';
-import { UserInput } from '../../../../../classes/online-game/user-input';
-import { GameState } from '../../../../../classes/online-game/game-state';
+import { UserInput } from '../../../types/user-input';
+import { GameState } from '../../../types/game-state';
 
 
 

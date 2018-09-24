@@ -13,8 +13,8 @@ import { AddGameGroupService } from './add-game-group.service';
 import { SignInToGameRoomDialogComponent } from '../sign-in-to-game-room-dialog/sign-in-to-game-room-dialog.component';
 import { SetMemoDialogComponent } from '../../sub-components/set-memo-dialog.component';
 
-import { SelectedCards       } from '../../../classes/selected-cards';
-import { BlackMarketPileCard } from '../../../classes/black-market-pile-card';
+import { SelectedCards       } from '../../types/selected-cards';
+import { BlackMarketPileCard } from '../../types/black-market-pile-card';
 import { testKingdomCards } from '../game-main/services/game-state-services/card-effect-definitions/testKingdomCards10';
 import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
 

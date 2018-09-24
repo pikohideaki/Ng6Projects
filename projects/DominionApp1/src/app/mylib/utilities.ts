@@ -70,14 +70,18 @@ export const utils = {
     keysAsNumber: ( obj: object ): number[] =>
       Object.keys( obj || {} ).map( e => Number(e) ),
 
-    forEach: ( obj: object, f: (element: any, key: string, obj: object) => any ) =>
-      Object.keys( obj || {} ).forEach( key => f( (obj as any)[key], key, obj ) ),
+    forEach: (
+        obj: { [key: string]: any },
+        f: (element: any, key: string, obj: object) => any ) =>
+      Object.keys( obj || {} ).forEach( key => f( obj[key], key, obj ) ),
 
-    map: ( obj: object, f: (element: any, key: string, object: object) => any ) =>
-      Object.keys( obj || {} ).map( key => f( (obj as any)[key], key, obj ) ),
+    map: (
+        obj: { [key: string]: any },
+        f: (element: any, key: string, object: object) => any ) =>
+      Object.keys( obj || {} ).map( key => f( obj[key], key, obj ) ),
 
-    values: ( obj: object ) =>
-      Object.keys( obj ).map( key => (obj as any)[key] ),
+    values: ( obj: { [key: string]: any } ) =>
+      Object.keys( obj ).map( key => obj[key] ),
 
     entries: ( obj: object ) =>
       utils.object.map( obj, (el, key) => ({ key: key, value: el }) ),

@@ -6,8 +6,8 @@ import { utils } from '../../../../../mylib/utilities';
 import { MyGameRoomService } from '../../services/my-game-room.service';
 import { GameStateService } from '../../services/game-state-services/game-state.service';
 import { GameConfigService } from '../../services/game-config.service';
-import { DCard } from '../../../../../classes/online-game/dcard';
-import { PlayerCards } from '../../../../../classes/online-game/player-cards';
+import { DCard } from '../../../types/dcard';
+import { PlayerCards } from '../../../types/player-cards';
 import { map } from 'rxjs/operators';
 
 

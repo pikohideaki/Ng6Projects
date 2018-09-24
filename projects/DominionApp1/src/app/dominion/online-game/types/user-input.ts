@@ -1,5 +1,5 @@
 import { UserInputCommand } from './user-input-command';
-import { utils } from '../../mylib/utilities';
+import { utils } from '../../../mylib/utilities';
 
 
 export class UserInput {

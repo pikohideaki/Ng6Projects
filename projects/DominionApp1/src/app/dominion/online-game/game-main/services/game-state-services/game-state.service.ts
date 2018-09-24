@@ -4,10 +4,10 @@ import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 
 import { MyGameRoomService } from '../my-game-room.service';
 import { GameRoomCommunicationService } from '../game-room-communication.service';
-import { PlayerCards } from '../../../../../classes/online-game/player-cards';
-import { GameState   } from '../../../../../classes/online-game/game-state';
-import { TurnInfo    } from '../../../../../classes/online-game/turn-info';
-import { PlayerData  } from '../../../../../classes/online-game/players-data';
+import { PlayerCards } from '../../../types/player-cards';
+import { GameState   } from '../../../types/game-state';
+import { TurnInfo    } from '../../../types/turn-info';
+import { PlayerData  } from '../../../types/players-data';
 import { map, distinctUntilChanged, startWith } from 'rxjs/operators';
 
 

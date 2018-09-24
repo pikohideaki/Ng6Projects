@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
 import { AngularFireAuth } from 'angularfire2/auth';
 
-import { User } from '../classes/user';
+import { User } from './user';
 import { FireDatabaseService } from './database.service';
 
 

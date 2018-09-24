@@ -6,7 +6,7 @@ import { ConfirmDialogComponent } from '../../../../mylib/confirm-dialog.compone
 
 import { MessageForMeListDialogComponent } from '../dialogs/message-for-me-dialog-list.component';
 import { GameRoomCommunicationService } from '../services/game-room-communication.service';
-import { DCard } from '../../../../classes/online-game/dcard';
+import { DCard } from '../../types/dcard';
 
 
 @Component({
