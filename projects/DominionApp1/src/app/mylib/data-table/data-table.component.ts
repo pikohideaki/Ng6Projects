@@ -1,18 +1,23 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Sort, SortDirection } from '@angular/material';
 
-import { Observable, BehaviorSubject, combineLatest, merge, ReplaySubject } from 'rxjs';
-import { map, withLatestFrom, debounceTime, startWith, skip } from 'rxjs/operators';
+import { Observable, combineLatest, merge, ReplaySubject } from 'rxjs';
+import { map, scan, startWith, takeWhile } from 'rxjs/operators';
 
-import { filterFunction } from './functions/filter-function';
-import { indexOnRawData } from './functions/index-on-raw-data';
-import { slice } from './functions/slice';
+import { shareWithCache } from '../my-rxjs-operators/share-with-cache';
+import { avoidGlitch    } from '../my-rxjs-operators/avoid-glitch';
+
+import { filterFunction    } from './functions/filter-function';
+import { slice             } from './functions/slice';
 import { makeSelectOptions } from './functions/make-select-options';
-import { SelectorOption } from './types/selector-option';
-import { TCell } from './types/table-cell';
-import { CellPosition } from './types/cell-position';
-import { ITableSettings } from './types/table-settings';
-import { isValidSetting } from './functions/is-valid-setting';
-import { Sort } from '@angular/material';
+import { isValidSetting    } from './functions/is-valid-setting';
+
+import { SelectorOption    } from './types/selector-option';
+import { TCell             } from './types/table-cell';
+import { CellPosition      } from './types/cell-position';
+import { ITableSettings    } from './types/table-settings';
+import { isValidTable      } from './functions/is-valid-table';
+import { GetSortedAsIndice } from './functions/get-sorted-indice';
 
 
 @Component({
@@ -20,7 +25,8 @@ import { Sort } from '@angular/material';
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.css']
 })
-export class DataTableComponent implements OnInit {
+export class DataTableComponent implements OnInit, OnDestroy {
+  private alive = true;
 
   /**
    * sypported cell types:
@@ -32,204 +38,260 @@ export class DataTableComponent implements OnInit {
    *   * Array<boolean>
    */
 
+
+  // input & output
+
   private tableSource = new ReplaySubject<TCell[][]>(1);
   table$: Observable<TCell[][]> = this.tableSource.asObservable();
   @Input() set table( value: TCell[][] ) {
-    // console.log( 'table', value );
-    if ( !value || !Array.isArray( value ) || !Array.isArray( value[0] ) ) return;
+    if ( !isValidTable( value ) ) return;
     this.tableSource.next( value );
   }
 
-
   private settingsSource = new ReplaySubject<ITableSettings>(1);
-  private _settings!: ITableSettings;
+  settings$ = this.settingsSource.asObservable();
   @Input() set settings( value: ITableSettings ) {
     if ( !value ) return;
     this.settingsSource.next( value );
-    this._settings = value;
   }
-  settings$ = this.settingsSource.asObservable();
-  usePagenation$: Observable<boolean>
-    = this.settings$.pipe( map( e => !!e.usepagination ) );
-  displayNo$: Observable<boolean>
-    = this.settings$.pipe( map( e => !!e.displayNo ) );
 
+  @Output() clickedCellPosition = new EventEmitter<CellPosition>();
 
-  @Output() cellClicked = new EventEmitter<CellPosition>();
-
-  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
-  private headerValuesAllSource = new BehaviorSubject<(TCell|undefined)[]>([]);
-  headerValuesAll$!: Observable<(TCell|undefined)[]>;
+  /***************************************************************************/
 
-  selectorOptionsAll$!: Observable<SelectorOption[][]>;
 
-  private pageNumberSource = new BehaviorSubject<number>(1);
-  private itemsPerPageSource = new BehaviorSubject<number>(100);
+  /* user input */
 
-  private sortBySource = new BehaviorSubject<Sort>({ active: 'NoColumn', direction: '' });
-  private sortBy$!: Observable<Sort>;
+  private itemsPerPageSource = new ReplaySubject<number>(1);
+  private itemsPerPageChange$ = this.itemsPerPageSource.asObservable();
 
-  itemsPerPage$!: Observable<number>;
-  pageLength$!: Observable<number>;
-  pageNumber$!: Observable<number>;
+  private pageNumberSource = new ReplaySubject<number>(1);
+  private pageNumberChange$ = this.pageNumberSource.asObservable();
 
-  private tableWithDefault$!: Observable<TCell[][]>;
-  private tableFiltered$!: Observable<TCell[][]>;
-  private indiceFiltered$!: Observable<number[]>;
-  tableFilteredRowSize$!: Observable<number>;
+  private headerValueSource
+    = new ReplaySubject<{ columnIndex: number, value: any }>(1);
+  private headerValueChange$ = this.headerValueSource.asObservable();
 
-  private indiceFilteredSorted$!: Observable<number[]>;
+  private resetAllClickSource = new ReplaySubject<void>(1);
+  private resetAllClick$ = this.resetAllClickSource.asObservable();
 
-  private indiceSliced$!: Observable<number[]>;
-  private tableSliced$!: Observable<TCell[][]>;
+  private resetClickSource = new ReplaySubject<number>(1);
+  private resetClick$ = this.resetClickSource.asObservable();
+
+  private sortBySource = new ReplaySubject<Sort>(1);
+  private sortByChange$ = this.sortBySource.asObservable();
+
+
+  /***************************************************************************/
+
+  itemsPerPage$!:           Observable<number>;
+  pageNumber$!:             Observable<number>;
+  headerValuesAll$!:        Observable<(TCell|undefined)[]>;
+  selectorOptionsAll$!:     Observable<SelectorOption[][]>;
+  indiceSliced$!:           Observable<number[]>;
   tableSlicedTransformed$!: Observable<string[][]>;
+  filteredRowSize$!:        Observable<number>;
 
-  private resetAllClickedSource = new BehaviorSubject<void>( undefined );
-  resetAllClicked$ = this.resetAllClickedSource.asObservable().pipe( skip(1) );
-
+  readonly NoColumn = 'No.Column';
 
 
   constructor() { }
 
+
+  ngOnDestroy() {
+    this.alive = false;
+  }
+
   ngOnInit() {
-    this.itemsPerPageSource.next( this._settings.itemsPerPageInit );
 
-    /* observables */
+    const tableWithDefault$: Observable<TCell[][]>
+      = combineLatest(
+          this.table$,
+          this.settings$
+        ).pipe(
+          avoidGlitch(),
+          map( ([table, settings]) => ( isValidSetting( settings, table ) ? table : [] ) ),
+          shareWithCache(),
+        );
 
-    this.sortBy$ = merge(
-      this.sortBySource.asObservable(),
-      this.resetAllClicked$.pipe( map( () => <Sort>({ active: '', direction: '' }) )) );
 
-    this.tableWithDefault$
-      = this.table$
-          .pipe( map( table => isValidSetting( this._settings ) ? table : [] ) );
+    /* table header */
 
     this.headerValuesAll$
-      = this.headerValuesAllSource.asObservable()
-              .pipe( debounceTime(300) );
+      = merge(
+          this.settings$.pipe( map( e => e.headerSettings.map( () => undefined ) ) ),  // 初期値
+          this.resetAllClick$.pipe( map( () => ({ columnIndex: -1, value: undefined }) ) ),
+          this.resetClick$.pipe( map( colIndex => ({ columnIndex: colIndex, value: undefined }) )),
+          this.headerValueChange$,
+        ).pipe(
+          avoidGlitch(),
+          scan( ( acc: (TCell|undefined)[],
+              value: { columnIndex: number, value: any } | undefined[]
+            ) => {
+              if ( Array.isArray( value ) ) {
+                return value;
+              } else {
+                if ( value.columnIndex === -1 ) {
+                  acc.forEach( (_, i, a) => a[i] = undefined );
+                  return acc;
+                } else {
+                  acc[ value.columnIndex ] = value.value;
+                  return acc;
+                }
+              }
+            },
+            [] as (TCell|undefined)[] ),
+          shareWithCache(),
+        );
 
-    this.indiceFiltered$
+    const sortBy$: Observable<Sort>
+      = merge(
+          this.sortByChange$,
+          this.resetAllClick$.pipe( map( () => ({ active: '', direction: <SortDirection>'' }) ))
+        ).pipe(
+          avoidGlitch(),
+          startWith({ active: this.NoColumn , direction: <SortDirection>'' }),
+          shareWithCache(),
+        );
+
+
+    const indiceFiltered$: Observable<number[]>
       = combineLatest(
-          this.tableWithDefault$,
+          tableWithDefault$,
           this.headerValuesAll$,
-          (table, headerValuesAll) =>
+          this.settings$
+        ).pipe(
+          avoidGlitch(),
+          map( ([table, headerValuesAll, settings]) =>
             table.map( (e, i) => ({ val: e, idx: i }) )
               .filter( e => filterFunction(
                               e.val,
-                              this._settings.headerSettings,
+                              settings.headerSettings,
                               headerValuesAll ) )
-              .map( e => e.idx ) );
-
-    this.tableFiltered$
-      = this.indiceFiltered$.pipe(
-          withLatestFrom( this.tableWithDefault$ ),
-          map( ([indice, table]) => indice.map( idx => table[idx] ) )
+              .map( e => e.idx ) ),
+          shareWithCache(),
         );
 
-    this.selectorOptionsAll$
-      = this.tableFiltered$.pipe(
-          withLatestFrom( this.tableWithDefault$ ),
-          map( ([tableFiltered, table]) =>
-                  makeSelectOptions(
-                    table,
-                    tableFiltered,
-                    this._settings.headerSettings, ) )
-        );
+    this.filteredRowSize$
+      = indiceFiltered$.pipe( map( e => e.length ) );
 
-    this.tableFilteredRowSize$
-      = this.tableFiltered$.pipe( map( e => e.length ) );
 
-    this.itemsPerPage$
-      = this.itemsPerPageSource.asObservable().pipe( skip(1) )
-          .pipe( startWith( this._settings.itemsPerPageInit || 100 ) );
+    /* pagenation */
 
-    this.pageLength$
+    const pageLength$: Observable<number>
       = combineLatest(
-          this.tableFilteredRowSize$,
-          this.itemsPerPage$,
-          (length, itemsPerPage) =>
-            Math.ceil( length / itemsPerPage ) );
+          this.filteredRowSize$,
+          this.itemsPerPage$
+        ).pipe(
+          avoidGlitch(),
+          map( ([length, itemsPerPage]) =>
+            Math.ceil( length / itemsPerPage ) ),
+          shareWithCache(),
+        );
 
     this.pageNumber$
       = merge(
-          this.pageNumberSource.asObservable(),
-          this.pageLength$.pipe( map( _ => 1 ) ) );
-
-    this.indiceFilteredSorted$
-      = combineLatest(
-          this.indiceFiltered$,
-          this.sortBy$,
+          this.pageNumberChange$,
+          pageLength$.pipe( map( () => 1 ) )
         ).pipe(
-          withLatestFrom( this.tableFiltered$ ),
-          map( ([[indiceFiltered, sortBy], tableFiltered]) => {
-            // console.log( indiceFiltered, sortBy, tableFiltered);
+          startWith(1),
+          shareWithCache(),
+        );
 
-            if ( sortBy.direction === '' ) return indiceFiltered;
+    this.itemsPerPage$
+      = merge(
+          this.settings$.pipe( map( e => e.itemsPerPageInit || 100 ) ),
+          this.itemsPerPageChange$
+        ).pipe(
+          avoidGlitch(),
+          shareWithCache(),
+        );
 
-            let sorted = indiceFiltered.slice();
 
-            if ( sortBy.active === 'NoColumn') {
-              if ( sortBy.direction === 'desc') sorted.reverse();
-              return sorted;
-            } else {
-              const colIndex = Number( sortBy.active );
-              const cmp = this._settings.headerSettings[colIndex].compareFn;
-              if ( Array.isArray( tableFiltered[0][colIndex] ) ) {
-                throw new Error('要素が配列型の列のソートは非対応です。');
-              }
-              sorted = indiceFiltered.sort( (x, y) => cmp(
-                                      tableFiltered[x][colIndex],
-                                      tableFiltered[y][colIndex] ) );
-              if ( sortBy.direction === 'desc') sorted.reverse();
-              return sorted;
-            }
-          })
+    /* table */
+
+    const indiceFilteredSorted$: Observable<number[]>
+      = combineLatest(
+          indiceFiltered$,
+          sortBy$,
+          tableWithDefault$,
+          this.settings$
+        ).pipe(
+          avoidGlitch(),
+          map( ([indiceFiltered, sortBy, table, settings]) =>
+            GetSortedAsIndice( indiceFiltered, sortBy, table, settings, this.NoColumn ) ),
+          shareWithCache(),
         );
 
     this.indiceSliced$
       = combineLatest(
           this.itemsPerPage$,
           this.pageNumber$,
-          this.usePagenation$,
-          this.indiceFilteredSorted$,
-          (itemsPerPage, pageNumber, usePagenation, indiceFiltered) =>
+          this.settings$.pipe( map( e => !!e.usepagination ) ),
+          indiceFilteredSorted$
+        ).pipe(
+          avoidGlitch(),
+          map( ([itemsPerPage, pageNumber, usePagenation, indiceFiltered]) =>
             ( usePagenation ? slice( indiceFiltered, itemsPerPage, pageNumber )
-                            : indiceFiltered ) );
+                            : indiceFiltered ) ),
+          shareWithCache(),
+        );
 
-
-    this.tableSliced$
-      = this.indiceSliced$.pipe(
-          withLatestFrom( this.tableWithDefault$ ),
-          map( ([indice, table]) => indice.map( idx => table[idx] ) )
+    const tableSliced$: Observable<TCell[][]>
+      = combineLatest(
+          this.indiceSliced$,
+          tableWithDefault$
+        ).pipe(
+          avoidGlitch(),
+          map( ([indice, table]) => indice.map( idx => table[idx] ) ),
+          shareWithCache(),
         );
 
     this.tableSlicedTransformed$
-      = this.tableSliced$.pipe(
-          map( table => table.map( line =>
+      = combineLatest(
+          tableSliced$,
+          this.settings$
+        ).pipe(
+          avoidGlitch(),
+          map( ([table, settings]) => table.map( line =>
             line.map( (elm, idx) =>
-              this._settings.headerSettings[idx].transform( elm ) ) )) );
-            // ( Array.isArray( elm )
-            //         ? elm.map( e => this.transform( key, e ) ).join(', ')
-            //         : this.transform( key, elm ) );
+              settings.headerSettings[idx].transform( elm ) ) )),
+          shareWithCache(),
+        );
 
 
+    const tableFiltered$: Observable<TCell[][]>
+      = combineLatest(
+          indiceFiltered$,
+          tableWithDefault$,
+        ).pipe(
+          avoidGlitch(),
+          map( ([indice, table]) => indice.map( idx => table[idx] ) ),
+          shareWithCache(),
+        );
 
-    // this.headerValuesAll$
-    //   .subscribe( val => console.log( 'headerValuesAll', val ) );
-    // this.sortBy$
-    //   .subscribe( val => console.log( 'sortBy', val ) );
-    this.indiceFiltered$
-      .subscribe( val => console.log( 'indiceFiltered', val ) );
+    this.selectorOptionsAll$
+      = combineLatest(
+          tableFiltered$,
+          tableWithDefault$,
+          this.settings$,
+        ).pipe(
+          avoidGlitch(),
+          map( ([tableFiltered, table, settings]) =>
+              makeSelectOptions(
+                table,
+                tableFiltered,
+                settings.headerSettings ) ),
+          shareWithCache(),
+        );
 
-    this.indiceFilteredSorted$
-      .subscribe( val => console.log( 'indiceFilteredSorted', val ) );
-
-    this.indiceSliced$
-      .subscribe( val => console.log( 'indiceSliced', val ) );
-
-
+    indiceFiltered$.pipe(
+      takeWhile( () => this.alive )
+    ).subscribe(
+      val => this.indiceFilteredChange.emit( val )
+    );
   }
 
 
@@ -242,58 +304,34 @@ export class DataTableComponent implements OnInit {
     this.pageNumberSource.next( pageNumber );
   }
 
-  headerValueOnChange(
-    columnIndex: number,
-    value: TCell|undefined,
-    indiceFiltered: number[],
-    tableFiltered: TCell[][],
-  ) {
-    const headerValues = this.headerValuesAllSource.getValue();
-    headerValues[columnIndex] = value;
-    this.headerValuesAllSource.next( headerValues );
-    this.indiceFilteredChange.emit( indiceFiltered );
-    this.tableFilteredChange.emit( tableFiltered );
+  headerValueOnChange( columnIndex: number, value: TCell|undefined ) {
+    this.headerValueSource.next({ columnIndex: columnIndex, value: value });
   }
 
-  reset(
-    columnIndex: number,
-    indiceFiltered: number[],
-    tableFiltered: TCell[][],
-  ) {
-    this.headerValueOnChange( columnIndex, undefined, indiceFiltered, tableFiltered );
+  resetOnClick( columnIndex: number ) {
+    this.resetClickSource.next( columnIndex );
   }
 
-  resetAll() {
-    const headerValues = this.headerValuesAllSource.getValue();
-    headerValues.fill( undefined );
-    this.headerValuesAllSource.next( headerValues );
-    this.resetAllClickedSource.next( undefined );
-    // this.sortBySource.next({ active: '', direction: '' });
+  resetAllOnClick() {
+    this.resetAllClickSource.next( undefined );
   }
 
-  cellOnClick(
-    rawData: TCell[][],
-    rowIndexInThisPage: number,
-    columnIndex: number,
-    headerValuesAll: TCell[],
-  ) {
-    const rowIndexInTableFiltered
-       = this.itemsPerPageSource.value * this.pageNumberSource.value
-            + rowIndexInThisPage;
-    this.cellClicked.emit({
-      rowIndex: indexOnRawData(
-                  rawData,
-                  rowIndexInTableFiltered,
-                  this._settings.headerSettings,
-                  headerValuesAll ),
-      rowIndexInTableFiltered: rowIndexInTableFiltered,
-      columnIndex: columnIndex
-    });
-  }
-
-  sortOnClick( sortBy: Sort ) {
+  sortOnChange( sortBy: Sort ) {
     this.sortBySource.next( sortBy );
   }
 
 
+  cellOnClick(
+    rowIndexInThisPage: number,
+    columnIndex:        number,
+    indiceSliced:       number[],
+    itemsPerPage:       number,
+    pageNumber:         number,
+  ) {
+    this.clickedCellPosition.emit({
+      rowIndex: indiceSliced[ rowIndexInThisPage ],
+      rowIndexInTableFiltered: itemsPerPage * (pageNumber - 1) + rowIndexInThisPage,
+      columnIndex: columnIndex
+    });
+  }
 }

@@ -22,7 +22,7 @@ import { TCell } from '../mylib/data-table/types/table-cell';
       <app-data-table
         [table]='table$ | async'
         [settings]='settings'
-        (onClick)='showDetail( $event )'
+        (clickedCellPosition)='showDetail( $event )'
         (filteredIndiceOnChange)="filteredIndiceOnChange( $event )">
       </app-data-table>
     </div>

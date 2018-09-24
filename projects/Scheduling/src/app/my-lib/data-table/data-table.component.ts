@@ -41,9 +41,8 @@ export class DataTableComponent implements OnInit, OnDestroy {
   }
   @Input() readonly settings!: ITableSettings;
 
-  @Output() cellClicked = new EventEmitter<CellPosition>();
+  @Output() clickedCellPosition = new EventEmitter<CellPosition>();
 
-  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
   private headerValuesAllSource = new BehaviorSubject<(TCell|undefined)[]>([]);
@@ -162,10 +161,6 @@ export class DataTableComponent implements OnInit, OnDestroy {
         this.indiceFilteredChange.emit( val );
       });
 
-    this.tableFiltered$
-      .pipe( takeWhile( () => this.alive ) )
-      .subscribe( val => this.tableFilteredChange.emit( val ) );
-
     this.tableSlicedTransformed$
       .pipe( takeWhile( () => this.alive ) )
       .subscribe( val => console.log( 'tst', val ) );
@@ -211,7 +206,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
     const rowIndexInTableFiltered
        = this.itemsPerPageSource.value * this.pageNumberSource.value
             + rowIndexInThisPage;
-    this.cellClicked.emit({
+    this.clickedCellPosition.emit({
       rowIndex: indexOnRawData(
                   rawData,
                   rowIndexInTableFiltered,

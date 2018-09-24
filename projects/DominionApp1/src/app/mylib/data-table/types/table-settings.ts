@@ -7,3 +7,11 @@ export interface ITableSettings {
   displayNo?:          boolean;
   usepagination?:      boolean;
 }
+
+export const defaultSetting = (): ITableSettings => ({
+  headerSettings:      [],
+  itemsPerPageOptions: [25, 50, 100],
+  itemsPerPageInit:    25,
+  displayNo:           false,
+  usepagination:       true,
+});

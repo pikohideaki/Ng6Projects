@@ -143,10 +143,19 @@ export const utils = {
      * @param arr target array
      * @param mapFn perform identity check after mapping by the map function
      */
-    uniq: <T>( arr: T[], mapFn: (value: T) => any = (e => e) ) =>
-      arr.map( (e) => [ e, mapFn(e) ] )
-         .filter( (val, index, array) => (array.map( a => a[1] ).indexOf( val[1] ) === index) )
-         .map( a => a[0] ),
+    uniq: <T>( arr: T[], mapFn?: (value: T) => any ) => {
+      if ( !mapFn ) {
+        return Array.from( new Set(arr) );
+      } else {
+        const mappedValues = new Set();
+        return arr.filter( val => {
+          const mappedValue = mapFn(val);
+          if ( mappedValues.has( mappedValue ) ) return false;
+          mappedValues.add( mappedValue );
+          return true;
+        } );
+      }
+    },
 
     sortNumeric: ( arr: any[] ): any[] =>
       arr.sort( (a, b) => ( parseFloat(a) - parseFloat(b) ) ),

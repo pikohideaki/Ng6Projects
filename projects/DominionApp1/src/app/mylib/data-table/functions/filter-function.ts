@@ -8,7 +8,6 @@ export const filterFunction = (
   headerSettings: IHeaderSetting[],
   headerValuesAll: (TCell|undefined)[],
 ): boolean => {
-
   for ( let colIndex = 0; colIndex < headerSettings.length; ++colIndex ) {
     const headerValue = headerValuesAll[ colIndex ];
     if ( headerValue === undefined ) continue;

@@ -9,7 +9,6 @@ export const makeSelectOptions = (
   tableFiltered: TCell[][],
   headerSettings: IHeaderSetting[],
 ): SelectorOption[][] => {
-
   const selectorOptions: SelectorOption[][]
      = headerSettings.map( () => [] );  // initialize
 
@@ -24,10 +23,9 @@ export const makeSelectOptions = (
 
     const header = headerSettings[ colIndex ];
 
-    if ( ![ 'select',
-            'multiSelect-or',
-            'multiSelect-and'
-          ].includes( header.filterType )
+    if ( header.filterType !== 'select'
+      && header.filterType !== 'multiSelect-or'
+      && header.filterType !== 'multiSelect-and'
     ) {
       selectorOptions[ colIndex ] = [];
       continue;

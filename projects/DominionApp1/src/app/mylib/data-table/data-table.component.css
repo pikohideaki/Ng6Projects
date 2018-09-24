@@ -57,6 +57,11 @@ table.data-table.shadow3px {
   background: rgba(0,0,0,0.06);
 }
 
+.data-table .header-cell {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
 
 
 

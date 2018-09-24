@@ -20,9 +20,8 @@ export class ObjectDataTableComponent implements OnInit {
   @Input() table$!: Observable<TCell[][]>;
   @Input() settings!: IObjectTableSettings;
 
-  @Output() cellClicked = new EventEmitter<CellPosition>();
+  @Output() clickedCellPosition = new EventEmitter<CellPosition>();
 
-  @Output() tableFilteredChange = new EventEmitter<TCell[][]>();
   @Output() indiceFilteredChange = new EventEmitter<number[]>();
 
   // private headerValuesSource = new BehaviorSubject<TableCell[]>([]);

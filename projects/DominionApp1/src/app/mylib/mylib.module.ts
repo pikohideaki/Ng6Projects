@@ -16,7 +16,7 @@ import { DataTableDemoComponent } from './data-table/data-table-demo.component';
 import { ItemsPerPageComponent } from './data-table/items-per-page.component';
 import { PaginationComponent } from './data-table/pagination/pagination.component';
 import { DataTableComponent } from './data-table/data-table.component';
-import { HeaderCellComponent } from './data-table/header-cell.component';
+import { HeaderCellComponent } from './data-table/header-cell/header-cell.component';
 
 import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-date-picker.component';
 
@@ -53,7 +53,6 @@ import { MultipleDatePickerComponent } from './multiple-date-picker/multiple-dat
     HeaderCellComponent,
     MultipleDatePickerComponent,
   ],
-  providers: [],
   entryComponents: [
     MessageDialogComponent,
     AlertDialogComponent,

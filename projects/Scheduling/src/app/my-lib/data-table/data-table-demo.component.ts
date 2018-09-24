@@ -10,8 +10,7 @@ import { ITableSettings } from './types/table-settings';
       <app-data-table
         [table]="table"
         [settings]="settings"
-        (cellclicked)="cellOnClick( $event )"
-        (tableFilteredChange)="tableFilteredOnChange( $event )"
+        (clickedCellPosition)="cellOnClick( $event )"
         (indiceFilteredChange)="indiceFilteredOnChange( $event )" >
       </app-data-table>
     </div>

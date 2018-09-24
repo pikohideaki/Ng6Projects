@@ -11,8 +11,7 @@ import { utils } from '../utilities';
       <app-data-table
         [table]="table"
         [settings]="settings"
-        (cellclicked)="cellOnClick( $event )"
-        (tableFilteredChange)="tableFilteredOnChange( $event )"
+        (clickedCellPosition)="cellOnClick( $event )"
         (indiceFilteredChange)="indiceFilteredOnChange( $event )" >
       </app-data-table>
     </div>
@@ -43,11 +42,13 @@ export class DataTableDemoComponent implements OnInit {
           displayName : 'alphabets',
           filterType  : 'input',
           sort        : true,
+          isButton    : true,
         }),
         new HeaderSetting({
           displayName : 'alphabets set',
           filterType  : 'multiSelect-and',
           sort        : false,
+          isButton    : true,
         }),
         new HeaderSetting({
           displayName : 'length',
@@ -65,10 +66,6 @@ export class DataTableDemoComponent implements OnInit {
 
 
   cellOnClick( event: any ) {
-    console.log( event );
-  }
-
-  tableFilteredOnChange( event: any ) {
     console.log( event );
   }
 

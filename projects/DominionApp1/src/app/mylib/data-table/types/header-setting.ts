@@ -37,7 +37,7 @@ export class HeaderSetting implements IHeaderSetting {
     align?:      'l'|'c'|'r',
     isButton?:   boolean,
     isLink?:     boolean,
-    sort?: boolean,
+    sort?:       boolean,
     compareFn?:  (x: TCell, y: TCell) => number,
     transform?:  (value: TCell, pos?: CellPosition) => string,
   }) {
@@ -47,7 +47,7 @@ export class HeaderSetting implements IHeaderSetting {
       this.align       = 'c';
       this.isButton    = false;
       this.isLink      = false;
-      this.sort  = false;
+      this.sort        = false;
       this.compareFn   = ((x: TCell, y: TCell) => x.toString().localeCompare( y.toString() ) ),
       this.transform   = ((value, _) => value.toString());
     } else {
@@ -56,7 +56,7 @@ export class HeaderSetting implements IHeaderSetting {
       this.align       = initializer.align       || 'c';
       this.isButton    = initializer.isButton    || false;
       this.isLink      = initializer.isLink      || false;
-      this.sort  = initializer.sort  || false;
+      this.sort        = initializer.sort  || false;
       this.compareFn   = initializer.compareFn   || ((x: TCell, y: TCell) => x.toString().localeCompare( y.toString() ) );
       this.transform   = initializer.transform   || ((value, _) => value.toString());
     }
