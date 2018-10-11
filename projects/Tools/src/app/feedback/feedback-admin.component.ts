@@ -9,7 +9,7 @@ import { Feedback } from '../classes/feedback';
   selector: 'app-feedback-admin',
   template: `
     <div class="body-with-padding">
-      <table class="data-table  data-table--shadow3px data-table--vertical-line">
+      <table class="data-table  shadow3px vertical-line">
         <thead>
           <tr>
             <th>Done</th>
