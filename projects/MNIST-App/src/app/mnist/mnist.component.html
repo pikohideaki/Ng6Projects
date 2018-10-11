@@ -1,0 +1,60 @@
+<ng-container  *ngIf="{
+      accuracyScores   : accuracyScores$   | async,
+      maxAccuracyIndex : maxAccuracyIndex$ | async,
+      modelIsReady     : modelIsReady$     | async
+    } as obs">
+
+  <div class="container">
+    <h1 class="title">MNIST recognition</h1>
+    <h2 class="subtitle">Using pre-trained model (CNN)</h2>
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="draw-area">
+          <canvas id="canvas" width="280" height="280"
+            (mousedown)="onMousedown( $event )"
+            (mousemove)="onMousemove( $event )"
+            (mouseup)="onMouseup( $event )" >
+          </canvas>
+        </div>
+        <div class="buttons">
+          <div class="margined-element">
+            <button id="predict-button" class="button is-link is-loading"
+                mat-raised-button color="primary"
+                [disabled]="!obs.modelIsReady"
+                (click)="prediction()">
+              Prediction
+            </button>
+          </div>
+          <div class="margined-element">
+            <button class="button"
+                mat-raised-button color="primary"
+                [disabled]="!obs.modelIsReady"
+                (click)="clearCanvas()">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="column is-3">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let score of obs.accuracyScores; let i = index"
+                [class.is-selected]="i === obs.maxAccuracyIndex">
+              <th>{{i}}</th>
+              <td class="accuracy">
+                {{score === undefined ? '-' : score}}
+              </td>
+            </tr>
+            <!-- <tr><th>sum</th><td>{{obs.accuracyScoreSum}}</td></tr> -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</ng-container>
