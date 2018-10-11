@@ -10,7 +10,7 @@
     <ng-template #rowIsDate>
       <table
           matSort (matSortChange)="sortData( $event, data.scEvent, data.spreadSheet )"
-          class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
+          class="data-table  shadow3px  no-hover-effect  vertical-line">
         <thead>
           <tr>
             <th><button mat-button (click)="flipTable()">行列入れ替え</button></th>
@@ -93,7 +93,7 @@
 
     <ng-template #rowIsUser>
       <table
-          class="data-table  data-table--shadow3px  no-hover-effect  data-table--vertical-line">
+          class="data-table  shadow3px  no-hover-effect  vertical-line">
         <thead>
           <tr>
             <th><button mat-button (click)="flipTable()">行列入れ替え</button></th>
