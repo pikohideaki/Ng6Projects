@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, ReplaySubject, merge } from 'rxjs';
 
 import { CardProperty } from '../../types/card-property';
 import { FireDatabaseService } from '../../../database/database.service';
 import { utils } from '../../../mylib/utilities';
-import { map } from 'rxjs/operators';
+import { map, mapTo, scan } from 'rxjs/operators';
 import { cardPropertyToStr } from '../../functions/transform-card-property';
 
 
@@ -20,18 +20,31 @@ import { cardPropertyToStr } from '../../functions/transform-card-property';
 })
 export class CardPropertyDialogComponent implements OnInit {
 
-  indiceInCardList$!: Observable<number[]>;  // input
+  private indiceInCardListSource = new ReplaySubject<number[]>(1);
+  indiceInCardList$ = this.indiceInCardListSource.asObservable();
+  set indiceInCardList( value: number[] ) {
+    if ( !value ) return;
+    this.indiceInCardListSource.next( value );
+  }
 
   // option（Dialogを開いたまま次のカード情報を見る）
-  showingIndexInit: number = 0;  // input (option)
-  private showingIndexSource = new BehaviorSubject<number>(0);
-  showingIndex$ = this.showingIndexSource.asObservable();
+  private showingIndexInputSource = new ReplaySubject<number>(1);
+  showingIndexInput$ = this.showingIndexInputSource.asObservable();
+  set showingIndexInit( value: number ) { // input (option)
+    if ( value === undefined ) return;
+    this.showingIndexInputSource.next( value );
+  }
+
+  private showingIndexIncrementSource = new ReplaySubject<void>(1);
+  private showingIndexDecrementSource = new ReplaySubject<void>(1);
+
+  showingIndex$!: Observable<number>;
 
 
   private cardPropertyList$ = this.database.cardPropertyList$;
 
   card$!: Observable<CardProperty>;
-  cardForView$!: Observable<Object>;
+  cardForView$!: Observable<object>;
 
   items = [
     { memberName: 'no'           , name: 'Card No.' },
@@ -61,7 +74,28 @@ export class CardPropertyDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.showingIndexSource.next( this.showingIndexInit );
+    const showingIndexIncrement$: Observable<string>
+      = this.showingIndexIncrementSource.asObservable()
+          .pipe( mapTo('increment') );
+
+    const showingIndexDecrement$: Observable<string>
+      = this.showingIndexDecrementSource.asObservable()
+          .pipe( mapTo('decrement') );
+
+    this.showingIndex$
+      = merge(
+          showingIndexIncrement$,
+          showingIndexDecrement$,
+          this.showingIndexInput$,
+      ).pipe(
+        scan( (acc: number, value: number|'increment'|'decrement' ) => {
+          switch (value) {
+            case 'increment' : return acc + 1;
+            case 'decrement' : return acc - 1;
+            default : return value;
+          }
+        }, 0 ),
+      );
 
     this.card$ = combineLatest(
         this.showingIndex$,
@@ -77,16 +111,16 @@ export class CardPropertyDialogComponent implements OnInit {
   }
 
 
-  cardListLinkPath( linkId: number ) {
-    return `http://suka.s5.xrea.com/dom/list.cgi?mode=show&id=${linkId}`;
-  }
-
   goToNextCard() {
-    this.showingIndexSource.next( this.showingIndexSource.getValue() + 1 );
+    this.showingIndexIncrementSource.next();
   }
 
   goToPreviousCard() {
-    this.showingIndexSource.next( this.showingIndexSource.getValue() - 1 );
+    this.showingIndexDecrementSource.next();
+  }
+
+  cardListLinkPath( linkId: number ) {
+    return `http://suka.s5.xrea.com/dom/list.cgi?mode=show&id=${linkId}`;
   }
 
   /**

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { FireDatabaseService } from '../database/database.service';
@@ -13,7 +13,6 @@ import { CellPosition } from '../mylib/data-table/types/cell-position';
 import { TCell } from '../mylib/data-table/types/table-cell';
 import { cardCostToStr, cardTypeToJpStr, implementedToStr, randomizerCandidateToStr } from './functions/transform-card-property';
 import { CardType } from './types/card-type';
-import { CardCost } from './types/card-cost';
 
 
 
@@ -31,8 +30,6 @@ import { CardCost } from './types/card-cost';
   `,
 })
 export class CardPropertyListComponent implements OnInit {
-
-  private filteredIndiceSource = new BehaviorSubject<number[]>([]);
 
   settings: ITableSettings = {
     displayNo: true,
@@ -123,6 +120,8 @@ export class CardPropertyListComponent implements OnInit {
               ] ))
   );
 
+  filteredIndice: number[] = [];
+
   constructor(
     public dialog: MatDialog,
     private database: FireDatabaseService,
@@ -134,12 +133,11 @@ export class CardPropertyListComponent implements OnInit {
 
   showDetail( position: CellPosition ) {
     const dialogRef = this.dialog.open( CardPropertyDialogComponent, { autoFocus: false } );
-    dialogRef.componentInstance.indiceInCardList$
-      = of( this.filteredIndiceSource.getValue() );
+    dialogRef.componentInstance.indiceInCardList = this.filteredIndice;
     dialogRef.componentInstance.showingIndexInit = position.rowIndexInTableFiltered;
   }
 
   filteredIndiceOnChange( indice: number[] ) {
-    this.filteredIndiceSource.next( indice );
+    this.filteredIndice = indice;
   }
 }

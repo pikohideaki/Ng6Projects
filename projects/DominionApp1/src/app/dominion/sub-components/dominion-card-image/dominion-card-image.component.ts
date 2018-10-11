@@ -1,10 +1,11 @@
-import { Component, OnInit, Inject, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
-import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, combineLatest, ReplaySubject, merge } from 'rxjs';
 
 import { CardProperty } from '../../types/card-property';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { isWideCard } from '../../functions/is-wide-card';
+import { shareWithCache } from '../../../mylib/my-rxjs-operators/share-with-cache';
 
 
 @Component({
@@ -12,50 +13,107 @@ import { isWideCard } from '../../functions/is-wide-card';
   templateUrl: './dominion-card-image.component.html',
   styleUrls: ['./dominion-card-image.component.css']
 })
-export class DominionCardImageComponent implements OnInit, OnChanges {
+export class DominionCardImageComponent implements OnInit {
 
   @Output() private cardClicked = new EventEmitter<void>();
 
   @Input() description: string = '';
 
-  @Input() card:     CardProperty = new CardProperty();
-  @Input() width!:    number;
-  @Input() height!:   number;
-  @Input() faceUp!:   boolean;
-  @Input() isButton!: boolean;
-  @Input() empty!:    boolean;
-  private cardSource     = new BehaviorSubject<CardProperty>( new CardProperty() );
-  private widthSource    = new BehaviorSubject<number>(0);
-  private faceUpSource   = new BehaviorSubject<boolean>(true);
-  private isButtonSource = new BehaviorSubject<boolean>(false);
-  private emptySource    = new BehaviorSubject<boolean>(false);
-  card$     = this.cardSource    .asObservable();
-  width$    = this.widthSource   .asObservable().pipe( distinctUntilChanged() );
-  faceUp$   = this.faceUpSource  .asObservable().pipe( distinctUntilChanged() );
+  private cardSource = new ReplaySubject<CardProperty>(1);
+  card$ = this.cardSource.asObservable();
+  @Input() set card( value: CardProperty ) {
+    if ( !value ) return;
+    this.cardSource.next( value );
+  }
+
+  private widthSource    = new ReplaySubject<number>(1);
+  widthInput$ = this.widthSource.asObservable().pipe( distinctUntilChanged() );
+  @Input() set width( value: number ) {
+    if ( value === undefined ) return;
+    this.widthSource.next( value || 0 );
+  }
+
+  private heightSource = new ReplaySubject<number>(1);
+  heightInput$ = this.heightSource.asObservable().pipe( distinctUntilChanged() );
+  @Input() set height( value: number ) {
+    if ( value === undefined ) return;
+    this.heightSource.next( value || 0 );
+  }
+
+  private faceUpSource = new ReplaySubject<boolean>(1);
+  faceUp$ = this.faceUpSource.asObservable().pipe( distinctUntilChanged() );
+  @Input() set faceUp( value: boolean ) {
+    if ( value === undefined ) return;
+    this.faceUpSource.next( !!value );
+  }
+
+  private isButtonSource = new ReplaySubject<boolean>(1);
   isButton$ = this.isButtonSource.asObservable().pipe( distinctUntilChanged() );
-  empty$    = this.emptySource   .asObservable().pipe( distinctUntilChanged() );
+  @Input() set isButton( value: boolean ) {
+    if ( value === undefined ) return;
+    this.isButtonSource.next( !!value );
+  }
 
-  height$: Observable<number>  // widthから計算
-   = combineLatest(
-        this.card$, this.width$,
-        (card, width) =>
-          Math.floor( width * ( isWideCard( card.cardTypes ) ? (15 / 23) : (23 / 15) ) ) )
-      .pipe( distinctUntilChanged() );
-
-  borderWidth$:  Observable<number>
-    = combineLatest(
-        this.width$, this.height$,
-        (width, height) => (18 / 250) * Math.floor( Math.min( width, height ) ) );
-
-  borderRadius$: Observable<number> = this.borderWidth$;
-
-  sourceDir$: Observable<string>;
+  private emptySource = new ReplaySubject<boolean>(1);
+  empty$ = this.emptySource.asObservable().pipe( distinctUntilChanged() );
+  @Input() set empty( value: boolean ) {
+    if ( value === undefined ) return;
+    this.emptySource.next( !!value );
+  }
 
 
-  constructor(
-  ) {
-    // this.card$.subscribe( val => console.log( this.description, val ) );
-    const CARD_IMAGE_DIR = 'assets/img/card';
+  width$!: Observable<number>;
+  height$!: Observable<number>;
+  borderWidth$!:  Observable<number>;
+  borderRadius$!: Observable<number>;
+  sourceDir$!: Observable<string>;
+
+
+  constructor() {}
+
+
+  ngOnInit() {
+    const isWideCard$: Observable<boolean>
+      = this.card$.pipe(
+          map( e => isWideCard( e.cardTypes ) ),
+          shareWithCache(),
+        );
+
+    this.width$
+      = merge(  // widthから計算
+          this.widthInput$,
+          combineLatest(
+            isWideCard$,
+            this.heightInput$,
+            (wide, heightInput) =>
+              Math.floor( heightInput * ( wide ? (15 / 23) : (23 / 15) ) ) )
+        ).pipe(
+          distinctUntilChanged(),
+          shareWithCache(),
+        );
+
+    this.height$
+      = merge(  // widthから計算
+          this.heightInput$,
+          combineLatest(
+            isWideCard$,
+            this.widthInput$,
+            (wide, widthInput) =>
+              Math.floor( widthInput * ( wide ? (15 / 23) : (23 / 15) ) ) )
+        ).pipe(
+          distinctUntilChanged(),
+          shareWithCache(),
+        );
+
+    this.borderWidth$
+      = combineLatest(
+          this.widthInput$,
+          this.height$,
+          (width, height) => (18 / 250) * Math.floor( Math.min( width, height ) ) );
+
+    this.borderRadius$ = this.borderWidth$;
+
+    const CARD_IMAGE_DIR = 'projects/DominionApp1/assets/img/card';
     this.sourceDir$ = combineLatest(
       this.empty$, this.faceUp$, this.card$,
       (empty, faceUp, card) => {
@@ -71,51 +129,7 @@ export class DominionCardImageComponent implements OnInit, OnChanges {
   }
 
 
-  ngOnChanges( changes: SimpleChanges ) {
-    // console.log(changes);
-    if ( changes.card !== undefined
-          && changes.card.currentValue !== undefined ) {
-      this.cardSource.next( changes.card.currentValue || new CardProperty() );
-    }
-    if ( changes.width !== undefined
-          && changes.width.currentValue !== undefined ) {
-      this.widthSource.next( changes.width.currentValue || 0 );
-    }
-    if ( changes.height !== undefined
-          && changes.height.currentValue !== undefined ) {
-      this.widthSource.next( this.widthFromHeight( changes.height.currentValue ) );
-    }
-    if ( changes.faceUp !== undefined
-         && changes.faceUp.currentValue !== undefined ) {
-      this.faceUpSource.next( changes.faceUp.currentValue || false );
-    }
-    if ( changes.isButton !== undefined
-         && changes.isButton.currentValue !== undefined ) {
-      this.isButtonSource.next( changes.isButton.currentValue || false );
-    }
-    if ( changes.empty !== undefined
-         && changes.empty.currentValue !== undefined ) {
-      this.emptySource.next( changes.empty.currentValue || false );
-    }
-  }
-
-  ngOnInit() {
-    this.cardSource    .next( this.card     );
-    this.faceUpSource  .next( this.faceUp   );
-    this.isButtonSource.next( this.isButton );
-    this.emptySource   .next( this.empty    );
-    if ( this.width !== undefined ) {
-      this.widthSource.next( this.width );
-    } else if ( this.height !== undefined ) {
-      this.widthSource.next( this.widthFromHeight( this.height ) );
-    } else {
-      console.error(`width or height must be given`);
-    }
-  }
-
-
-  private widthFromHeight( height: number ) {
-    const card = this.cardSource.getValue();
+  private widthFromHeight( card: CardProperty, height: number ) {
     return Math.floor( height * ( isWideCard( card.cardTypes ) ? (23 / 15) : (15 / 23) ) );
   }
 
