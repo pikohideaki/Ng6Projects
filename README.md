@@ -32,8 +32,10 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 * cli
     * `ng g application <app-name>`
+    * `ng build --prod --project=MNIST-App --aot`
 * firebase
     * `firebase list`
     * `firebase deploy`
+    * `firebase deploy --project=mnist --public=dist/MNIST-App`
 
 

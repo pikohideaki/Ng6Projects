@@ -1,7 +1,7 @@
 {
   "projects": {
-    "scheduleapp1-prod": "pikoappsproduct",
-    "public": "dist/ScheduleApp1",
-    "default": "pikoappsproduct"
+    "default": "pikoappsproduct",
+    "mnist": "mnist-app-64c12",
+    "schedule-app1": "pikoappsproduct"
   }
 }
