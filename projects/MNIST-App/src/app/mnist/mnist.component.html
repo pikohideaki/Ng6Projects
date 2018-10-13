@@ -1,7 +1,8 @@
 <ng-container  *ngIf="{
       accuracyScores   : accuracyScores$   | async,
       maxAccuracyIndex : maxAccuracyIndex$ | async,
-      modelIsReady     : modelIsReady$     | async
+      modelIsReady     : modelIsReady$     | async,
+      calculating      : calculating$      | async
     } as obs">
 
   <div class="container">
@@ -11,24 +12,27 @@
       <div class="column">
         <div class="draw-area">
           <canvas id="canvas" width="280" height="280"
-            (mousedown)="onMousedown( $event )"
-            (mousemove)="onMousemove( $event )"
-            (mouseup)="onMouseup( $event )" >
+            (touchstart)="onTouchStart( $event )"
+            (touchmove)="onTouchMove( $event )"
+            (touchend)="onTouchEnd( $event )"
+            (mousedown)="onMouseDown( $event )"
+            (mousemove)="onMouseMove( $event )"
+            (mouseup)="onMouseUp( $event )" >
           </canvas>
         </div>
         <div class="buttons">
           <div class="margined-element">
             <button id="predict-button" class="button is-link is-loading"
                 mat-raised-button color="primary"
-                [disabled]="!obs.modelIsReady"
+                [disabled]="!obs.modelIsReady || obs.calculating"
                 (click)="prediction()">
-              Prediction
+              Infer
             </button>
           </div>
           <div class="margined-element">
             <button class="button"
                 mat-raised-button color="primary"
-                [disabled]="!obs.modelIsReady"
+                [disabled]="!obs.modelIsReady || obs.calculating"
                 (click)="clearCanvas()">
               Reset
             </button>
@@ -51,9 +55,9 @@
                 {{score === undefined ? '-' : score}}
               </td>
             </tr>
-            <!-- <tr><th>sum</th><td>{{obs.accuracyScoreSum}}</td></tr> -->
           </tbody>
         </table>
+        <p *ngIf="obs.calculating">thinking...</p>
       </div>
     </div>
   </div>

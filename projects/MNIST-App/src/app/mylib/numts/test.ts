@@ -2,7 +2,7 @@
 import * as np from './num';
 
 { // newArray
-  /* 省略 */
+  /* ToDo */
 }
 { // seq
   const a = np.seq(5, 1, 2);
@@ -13,13 +13,16 @@ import * as np from './num';
   if ( a[4] !== 9 ) throw new Error('seq');
 }
 { // createNdArray
-  /* 省略 */
+  /* ToDo */
 }
 { // dim
-  /* 省略 */
+  /* ToDo */
+}
+{ // deepCopy
+  /* ToDo */
 }
 { // shapeOf
-  /* 省略 */
+  /* ToDo */
 }
 { // isSameShape
   const a = np.zeros([3, 4, 5]);
@@ -234,7 +237,6 @@ import * as np from './num';
   if ( a[1][0] !== 12 ) throw new Error('dot (matrix/matrix)');
   if ( a[1][1] !== 10 ) throw new Error('dot (matrix/matrix)');
 
-
   /**
    * vector/matrix
    *
@@ -293,4 +295,6 @@ import * as np from './num';
   const d = np.max(a, 2) as number[][];
   if ( d[1][0] !== 4 ) throw new Error('max (axis = 2)');
 }
-
+{ // sum
+  /* ToDo */
+}

@@ -1,10 +1,12 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { Observable, ReplaySubject, combineLatest, merge } from 'rxjs';
-import { takeWhile, map, startWith, filter } from 'rxjs/operators';
+import { Observable, ReplaySubject, combineLatest, merge, from } from 'rxjs';
+import { takeWhile, map, startWith, filter, switchMap } from 'rxjs/operators';
 
 import { shareWithCache } from '../mylib/my-rxjs-operators/share-with-cache';
 import * as np from '../mylib/numts/num';
 import { ModelService } from './model.service';
+import { MatDialog } from '@angular/material';
+import { MessageDialogComponent } from '../mylib/message-dialog.component';
 
 
 @Component({
@@ -18,6 +20,7 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // canvas
   private $canvas!: HTMLCanvasElement;
+  private $canvasOffset!: { left: number, top: number };
   private context!: CanvasRenderingContext2D;
   private moveflg = 0;
   private Xpoint!: number;
@@ -40,8 +43,11 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
   calculating$!: Observable<boolean>;
   modelIsReady$!: Observable<boolean>;
 
+  private dialogRef!: any;
+
   constructor(
     private model: ModelService,
+    public dialog: MatDialog,
   ) {
   }
 
@@ -57,6 +63,7 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
       = combineLatest( imageData$, this.model.predict$,
             (imageData, predict) => this.getAccuracyScores( imageData, predict )
         ).pipe(
+          switchMap( promise => from( promise ) ),
           shareWithCache(),
         );
 
@@ -72,6 +79,7 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
           this.predictionClick$.pipe( map( _ => true ) ),
           latestScores$.pipe( map( _ => false ) ),
         ).pipe(
+          startWith(false),
           shareWithCache(),
         );
 
@@ -100,11 +108,23 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
           shareWithCache(),
         );
 
-
     this.resetClick$.pipe(
       takeWhile( () => this.alive )
     ).subscribe( () => {
-      this.context.clearRect(0, 0, this.context.canvas.clientWidth, this.context.canvas.clientHeight);
+      this.context.clearRect( 0, 0,
+          this.context.canvas.clientWidth,
+          this.context.canvas.clientHeight );
+    });
+
+
+    // loading modal
+    setTimeout( () => { this.showLoadingModal(); }, 0 );
+
+    this.modelIsReady$.pipe(
+      filter( e => e === true ),
+      takeWhile( () => this.alive )
+    ).subscribe( () => {
+      this.closeLoadingModal();
     });
   }
 
@@ -120,6 +140,15 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
+  private showLoadingModal = () => {
+    this.dialogRef = this.dialog.open( MessageDialogComponent, { autoFocus: false } );
+    this.dialogRef.componentInstance.message = 'Loading...';
+  }
+
+  private closeLoadingModal = () => {
+    this.dialogRef.close();
+  }
+
   prediction() {
     this.predictionClickSource.next();
   }
@@ -129,31 +158,58 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  onMousedown( event: any ) {
+
+  onTouchStart( event: any ) {
     event.preventDefault();
+    const t = event.changedTouches[0];
+    this.$canvasOffset = {
+      left: this.$canvas.offsetLeft,
+      top: this.$canvas.offsetTop,
+    };
+    this.startPoint( t.pageX - this.$canvasOffset.left, t.pageY - this.$canvasOffset.top );
+  }
+  onMouseDown( event: any ) {
+    event.preventDefault();
+    this.startPoint( event.layerX, event.layerY );
+  }
+
+  onTouchMove( event: any ) {
+    const t = event.changedTouches[0];
+    this.movePoint( t.pageX - this.$canvasOffset.left, t.pageY - this.$canvasOffset.top );
+  }
+  onMouseMove( event: any ) {
+    if ( event.buttons === 1 || event.witch === 1 || event.type === 'touchmove') {
+      this.movePoint( event.layerX, event.layerY );
+    }
+  }
+
+  onTouchEnd() { this.endPoint(); }
+  onMouseUp() { this.endPoint(); }
+
+
+
+  private startPoint( Xpoint: number, Ypoint: number ) {
     this.context.beginPath();
 
-    this.Xpoint = event.layerX;
-    this.Ypoint = event.layerY;
+    this.Xpoint = Xpoint;
+    this.Ypoint = Ypoint;
 
     this.context.moveTo( this.Xpoint, this.Ypoint );
   }
 
-  onMousemove( event: any ) {
-    if ( event.buttons === 1 || event.witch === 1 || event.type === 'touchmove') {
-      this.Xpoint = event.layerX;
-      this.Ypoint = event.layerY;
-      this.moveflg = 1;
+  private movePoint( Xpoint: number, Ypoint: number ) {
+    this.Xpoint = Xpoint;
+    this.Ypoint = Ypoint;
+    this.moveflg = 1;
 
-      this.context.lineTo( this.Xpoint, this.Ypoint );
-      this.context.lineCap = 'round';
-      this.context.lineWidth = this.defSize * 2;
-      this.context.strokeStyle = this.defColor;
-      this.context.stroke();
-    }
+    this.context.lineTo( this.Xpoint, this.Ypoint );
+    this.context.lineCap = 'round';
+    this.context.lineWidth = this.defSize * 2;
+    this.context.strokeStyle = this.defColor;
+    this.context.stroke();
   }
 
-  onMouseup() {
+  private endPoint() {
     if ( this.moveflg === 0 ) {
        this.context.lineTo( this.Xpoint - 1, this.Ypoint - 1 );
        this.context.lineCap = 'round';
@@ -163,7 +219,6 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.moveflg = 0;
   }
-
 
 
   private getImageTable(): np.TNdNum {
@@ -192,8 +247,8 @@ export class MnistComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private getAccuracyScores = (
     imageData: np.TNdNum,
-    predict: (input: np.TNdNum) => number[]
-  ): number[] => {
+    predict: (input: np.TNdNum) => Promise<number[]>
+  ): Promise<number[]> => {
     return predict( [[imageData]] );
   }
 

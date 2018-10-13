@@ -1,4 +1,29 @@
-import { utils } from '../utilities';
+// utils
+
+export const isInt = ( value: number ): boolean =>
+    Math.round( value ) === value;
+
+export const roundAt = ( val: number, precision: number ) => {
+  const digit = 10 ** precision;
+  return Math.round( val * digit ) / digit;
+};
+
+export const randn = (m = 0.0, v = 1.0): number => {
+  const a = 1 - Math.random();
+  const b = 1 - Math.random();
+  const c = Math.sqrt(-2 * Math.log(a));
+  if (0.5 - Math.random() > 0) {
+    return c * Math.sin(Math.PI * 2 * b) * v + m;
+  } else {
+    return c * Math.cos(Math.PI * 2 * b) * v + m;
+  }
+};
+
+
+/**
+ * type definition
+ * usage: const x: NdArray = [1, 2, [3, [4, [5, [6, [7, [8]]]]]]];
+ */
 
 export type TNdNum = number|INdArray;
 interface INdArray extends Array<TNdNum> {
@@ -7,16 +32,11 @@ interface INdArray extends Array<TNdNum> {
 
 
 
-
-// export type NdValue = NdArray;
-// export type NdArray = any;
-
-
-// const x: NdArray = [1, 2, [3, [4, [5, [6, [7, [8]]]]]]];
-
+// methods
 
 export const newArray = <T>(length: number, initialValue: T): T[] =>
   Array.apply(null, Array(length)).fill( initialValue );
+
 
 export const seq = (length: number, begin = 0, step = 1 ): number[] =>
   newArray( length, 0 ).map( (_, i) => i * step + begin );
@@ -34,14 +54,19 @@ export const createNdArray = (shape: number[], initialValue: number = 0 ): TNdNu
   }
 };
 
-export const deepCopy = (x: TNdNum): TNdNum => {
+
+const deepCopy_s = (d: number, x: TNdNum): TNdNum => {
   if ( typeof x === 'number' ) return x;
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).slice();
   } else {
-    return x.map( line => deepCopy( line ) );
+    return x.map( line => deepCopy_s( d - 1, line ) );
   }
 };
+
+export const deepCopy = (x: TNdNum): TNdNum =>
+  deepCopy_s( dim(x), x );
+
 
 export const dim = (x: TNdNum): number => {
   if ( !x || typeof x === 'number' ) {
@@ -52,95 +77,131 @@ export const dim = (x: TNdNum): number => {
 };
 
 
-export const shapeOf = (x: TNdNum): number[] => {
+const shapeOf_s = (acc: number[], x: TNdNum): void => {
   if ( !x || typeof x === 'number' ) {
-    return [];
+    return;
   } else {
-    return [x.length, ...shapeOf( x[0] )];
+    acc.push( x.length );
+    shapeOf_s( acc, x[0] );
   }
 };
+
+export const shapeOf = (x: TNdNum): number[] => {
+  const acc: number[] = [];
+  shapeOf_s(acc, x);
+  return acc;
+};
+
 
 export const isSameShape = (x: TNdNum, y: TNdNum): boolean => {
   const xShape = shapeOf(x);
   const yShape = shapeOf(y);
+  if ( xShape.length !== yShape.length ) return false;
   return xShape.every( (e, i) => e === yShape[i] );
 };
 
+
 export const nofElements = (x: TNdNum): number =>
   shapeOf(x).reduce( (a, b) => a * b, 1 );
-//   if ( !x || typeof x === 'number' ) return 1;
-//   if ( dim(x) === 1 ) return x.length;
-//   return x.reduce<number>( (acc: number, small_x: TNdNum) => acc + nofElements(small_x), 0 );
-// };
 
-export const at = (x: TNdNum, pos: number[]): number => {
+
+const at_s = (d: number, x: TNdNum, pos: number[]): number => {
   if ( typeof x === 'number' ) return x;
-  if ( dim(x) !== pos.length ) throw new Error('dim(x) and pos.length does not match');
-  return at( x[ pos[0] ], pos.slice(1) );
+  if ( d !== pos.length ) {
+    throw new Error('dim(x) and pos.length does not match');
+  }
+  return at_s( d - 1, x[ pos[0] ], pos.slice(1) );
+};
+
+export const at = (x: TNdNum, pos: number[]): number =>
+  at_s( dim(x), x, pos );
+
+
+const set_s = (d: number, x: TNdNum, pos: number[], value: number): void => {
+  if ( !x || typeof x === 'number' ) return;
+  if ( d === 1 ) {
+    x[ pos[0] ] = value;
+  } else {
+    set_s( d - 1, x[ pos[0] ], pos.slice(1), value );
+  }
 };
 
 export const set = (x: TNdNum, pos: number[], value: number): void => {
-  if ( !x || typeof x === 'number' ) return;
-  if ( dim(x) === 1 ) {
-    x[ pos[0] ] = value;
-  } else {
-    set( x[ pos[0] ], pos.slice(1), value );
-  }
+  set_s( dim(x), x, pos, value );
 };
 
-export const map = ( x: TNdNum, f: (e: number) => number ): TNdNum => {
+
+const map_s = (d: number, x: TNdNum, f: (e: number) => number): TNdNum => {
   if ( typeof x === 'number' ) return f(x);
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).map( e => f(e) );
   } else {
-    return x.map( line => map( line, f ) );
+    return x.map( line => map_s( d - 1, line, f ) );
   }
 };
 
-export const updateValue = ( x: TNdNum, f: (e: number) => number ): void => {
+export const map = (x: TNdNum, f: (e: number) => number): TNdNum =>
+  map_s( dim(x), x, f );
+
+
+const updateValue_s = (d: number, x: TNdNum, f: (e: number) => number ): void => {
   if ( typeof x === 'number' ) return;
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     (x as number[]).forEach( (e, i) => x[i] = f(e) );
   } else {
-    x.map( line => updateValue( line, f ) );
+    x.map( line => updateValue_s( d - 1, line, f ) );
   }
+};
+
+export const updateValue = ( x: TNdNum, f: (e: number) => number): void => {
+  updateValue_s( dim(x), x, f );
 };
 
 
 
 
-
-const flatten_sub = (x: TNdNum, acc: number[]): void => {
+const flatten_s = (d: number, x: TNdNum, acc: number[]): void => {
   if ( typeof x === 'number' ) {
     acc.push(x);
-  } else if ( dim(x) === 1 ) {
+  } else if ( d === 1 ) {
     Array.prototype.push.apply( acc, x );
   } else {
-    x.forEach( e => flatten_sub( e, acc ) );
+    x.forEach( e => flatten_s( d - 1, e, acc ) );
   }
 };
 
 export const flatten = (x: TNdNum): number[] => {
   const acc: number[] = [];
-  flatten_sub(x, acc);
+  flatten_s( dim(x), x, acc );
   return acc;
 };
 
 
 
-const reshape_sub = (from: number[], to: TNdNum): void => {
-  if ( !to || typeof to === 'number' ) return;
-  if ( dim(to) === 1 ) {
-    to.forEach( (_, i) => to[i] = from[i] );
+const reshape_s = (
+  from: number[],
+  begin: number,
+  end: number,
+  shape: number[],
+  shapeIdx: number,
+): TNdNum => {
+  if ( shapeIdx > shape.length - 1 ) {
+    throw new Error('shapeIdx should be in shape index range');
+  }
+  if ( shapeIdx === shape.length - 1 ) {  // dim === 1
+    return from.slice( begin, end );
   } else {
-    const n = nofElements( to[0] );
-    reshape_sub( from, to[0] );
-    reshape_sub( from.slice(n), to.slice(1) );
+    const l = shape[ shapeIdx ];
+    const chunkSize = (end - begin) / l;
+    return seq(l).map( i => reshape_s( from,
+                                          begin + chunkSize * i,
+                                          begin + chunkSize * (i + 1),
+                                          shape,
+                                          shapeIdx + 1 ) );
   }
 };
 
 export const reshape = (x: TNdNum, shape: number[]): TNdNum => {
-  // console.log('reshape', x, shape);
   if ( typeof x === 'number' ) return x;
 
   const x_1d = flatten(x);
@@ -151,14 +212,44 @@ export const reshape = (x: TNdNum, shape: number[]): TNdNum => {
     shape_full[ blankIndex ]
       = nofElements(x) / (shape_full.filter( e => e !== -1 )
                                     .reduce( (a, v) => a * v, 1 ) );
-    if ( !utils.number.isInt( shape_full[ blankIndex ] ) ) throw new Error('invalid value in shape (must be integer)');
+    if ( !isInt( shape_full[ blankIndex ] ) ) {
+      throw new Error('invalid value in shape (must be integer)');
+    }
   }
-  const result = zeros( shape_full );
-  reshape_sub( x_1d, result );
-  return result;
+  return reshape_s( x_1d, 0, x_1d.length, shape_full, 0 );
 };
 
 
+
+const slice_s = (
+  d: number,
+  x: TNdNum,
+  range: {
+    begin?:  number,
+    end?:    number,
+    stride?: number,
+  }[],
+): TNdNum => {
+  if ( typeof x === 'number' ) return x;
+  if ( d !== range.length ) {
+    throw new Error('range length does not match');
+  }
+
+  const range0_cmpl = {
+    begin:  range[0].begin  || 0,
+    end:    range[0].end    || undefined,
+    stride: range[0].stride || 1,
+  };
+
+  if ( d === 1 ) {
+    return x.slice( range0_cmpl.begin, range0_cmpl.end )
+            .filter( (_, i) => i % range0_cmpl.stride === 0 );
+  } else {
+    return x.slice( range0_cmpl.begin, range0_cmpl.end )
+            .filter( (_, i) => i % range0_cmpl.stride === 0 )
+            .map( line => slice_s( d - 1, line, range.slice(1) ) );
+  }
+};
 
 export const slice = (
   x: TNdNum,
@@ -168,52 +259,39 @@ export const slice = (
     stride?: number,
   }[],
 ): TNdNum => {
-  if ( typeof x === 'number' ) return x;
-  if ( dim(x) !== range.length ) throw new Error('range length does not match');
-
-  const range0_cmpl = {
-    begin:  range[0].begin  || 0,
-    end:    range[0].end    || undefined,
-    stride: range[0].stride || 1,
-  };
-
-  if ( dim(x) === 1 ) {
-    return x.slice( range0_cmpl.begin, range0_cmpl.end )
-            .filter( (_, i) => i % range0_cmpl.stride === 0 );
-  } else {
-    return x.slice( range0_cmpl.begin, range0_cmpl.end )
-            .filter( (_, i) => i % range0_cmpl.stride === 0 )
-            .map( line => slice( line, range.slice(1) ) );
-  }
+  return slice_s( dim(x), x, range );
 };
 
 
 
-const transpose_sub = (
+const transpose_s = (
   from: TNdNum,
+  d: number,
   to: TNdNum,
   tr: number[],
   pos: number[],
 ): void => {
   if ( typeof from === 'number' ) return;
-  if ( dim(from) === 1 ) {
+  if ( d === 1 ) {
     (from as number[]).forEach( (e: number, i) => {
-      const pos2 = [...pos, i];
+      const pos2 = pos.concat([i]); // [...pos, i];
       set( to, tr.map( j => pos2[j] ), e );
     } );
   } else {
     from.forEach( (_, i) => {
-      transpose_sub( from[i], to, tr, [...pos, i] );
+      transpose_s( from[i], d - 1, to, tr, pos.concat([i]) /* [...pos, i] */ );
     } );
   }
 };
 
 export const transpose = (x: TNdNum, tr: number[]) => {
   if ( typeof x === 'number' ) return x;
-  if ( dim(x) !== tr.length ) throw new Error('dim(x) and tr.length does not match');
-
+  const d = dim(x);
+  if ( d !== tr.length ) {
+    throw new Error('dim(x) and tr.length does not match');
+  }
   const result = zeros( tr.map( i => shapeOf(x)[i] ) );
-  transpose_sub( x, result, tr, [] );
+  transpose_s( x, d, result, tr, [] );
   return result;
 };
 
@@ -235,7 +313,7 @@ export const exp = (x: TNdNum): TNdNum => {
 
 
 
-export const add = (x: TNdNum, y: TNdNum): TNdNum => {
+const add_s = (d: number, x: TNdNum, y: TNdNum): TNdNum => {
   if ( typeof x === 'number' || typeof y === 'number' ) {
     if ( typeof x === 'number' && typeof y === 'number' ) {
       return x + y;
@@ -243,17 +321,19 @@ export const add = (x: TNdNum, y: TNdNum): TNdNum => {
       throw new Error('type does not match');
     }
   }
-
-  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).map( (e, i) => e + (y as number[])[i] );
   } else {
-    return x.map( (line, i) => add(line, y[i]) );
+    return x.map( (line, i) => add_s( d - 1, line, y[i] ) );
   }
+};
+export const add = (x: TNdNum, y: TNdNum): TNdNum => {
+  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
+  return add_s( dim(x), x, y );
 };
 
 
-export const sub = (x: TNdNum, y: TNdNum): TNdNum => {
+const sub_s = (d: number, x: TNdNum, y: TNdNum): TNdNum => {
   if ( typeof x === 'number' || typeof y === 'number' ) {
     if ( typeof x === 'number' && typeof y === 'number' ) {
       return x - y;
@@ -261,17 +341,19 @@ export const sub = (x: TNdNum, y: TNdNum): TNdNum => {
       throw new Error('type does not match');
     }
   }
-
-  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).map( (e, i) => e - (y as number[])[i] );
   } else {
-    return x.map( (line, i) => sub(line, y[i]) );
+    return x.map( (line, i) => sub_s( d - 1, line, y[i] ) );
   }
+};
+export const sub = (x: TNdNum, y: TNdNum): TNdNum => {
+  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
+  return sub_s( dim(x), x, y );
 };
 
 
-export const mul = (x: TNdNum, y: TNdNum): TNdNum => {
+const mul_s = (d: number, x: TNdNum, y: TNdNum): TNdNum => {
   if ( typeof x === 'number' || typeof y === 'number' ) {
     if ( typeof x === 'number' && typeof y === 'number' ) {
       return x * y;
@@ -279,17 +361,19 @@ export const mul = (x: TNdNum, y: TNdNum): TNdNum => {
       throw new Error('type does not match');
     }
   }
-
-  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).map( (e, i) => e * (y as number[])[i] );
   } else {
-    return x.map( (line, i) => mul(line, y[i]) );
+    return x.map( (line, i) => mul_s( d - 1, line, y[i] ) );
   }
+};
+export const mul = (x: TNdNum, y: TNdNum): TNdNum => {
+  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
+  return mul_s( dim(x), x, y );
 };
 
 
-export const div = (x: TNdNum, y: TNdNum): TNdNum => {
+const div_s = (d: number, x: TNdNum, y: TNdNum): TNdNum => {
   if ( typeof x === 'number' || typeof y === 'number' ) {
     if ( typeof x === 'number' && typeof y === 'number' ) {
       return x / y;
@@ -297,13 +381,15 @@ export const div = (x: TNdNum, y: TNdNum): TNdNum => {
       throw new Error('type does not match');
     }
   }
-
-  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).map( (e, i) => e / (y as number[])[i] );
   } else {
-    return x.map( (line, i) => div(line, y[i]) );
+    return x.map( (line, i) => div_s( d - 1, line, y[i] ) );
   }
+};
+export const div = (x: TNdNum, y: TNdNum): TNdNum => {
+  if ( !isSameShape(x, y) ) throw new Error('shape does not match');
+  return div_s( dim(x), x, y );
 };
 
 
@@ -312,13 +398,13 @@ const matrixProduct = (x: number[][], y: number[][]): number[][] => {
   const [shape_x0, shape_x1] = shapeOf(x);
   const [shape_y0, shape_y1] = shapeOf(y);
   const result = createNdArray( [ shape_x0, shape_y1 ], 0 ) as number[][];
-  for ( let i = 0; i < shape_x0; ++i ) {
-    for ( let j = 0; j < shape_y1; ++j ) {
-      for ( let k = 0; k < shape_x1; ++k ) {
-        result[i][j] += x[i][k] * y[k][j];
-      }
-    }
-  }
+  x.forEach( (vx, ix) => {
+    y.forEach( (vy, iy) => {
+      vy.forEach( (e, j) => {
+        result[ix][j] += vx[iy] * e;
+      });
+    });
+  });
   return result;
 };
 
@@ -347,54 +433,56 @@ export const dot = (x: TNdNum, y: TNdNum): TNdNum => {
 
 
 
-const shrinkToMaxValue = (x: TNdNum): TNdNum => {
+const shrinkToMaxValue = (d: number, x: TNdNum): TNdNum => {
   if ( typeof x === 'number' ) return x;
-  if ( dim(x) === 1 ) {
-    return Math.max( ...(x as number[]) );
+  if ( d === 1 ) {
+    return Math.max.apply( null, x as number[] );
   } else {
-    return x.map( e => shrinkToMaxValue(e) );
+    return x.map( e => shrinkToMaxValue(d - 1, e) );
   }
 };
 
 export const max = (x: TNdNum, axis?: number): number|TNdNum => {
   if ( typeof x === 'number' ) return x;
+  const d = dim(x);
   if ( axis === undefined ) {
-    if ( dim(x) === 1 ) return Math.max( ...(x as number[]) );
-    return Math.max( ...(x.map( e => max(e) ) as number[]) );
+    if ( d === 1 ) return Math.max.apply(null, x as number[]);
+    return Math.max.apply( null, x.map( e => max(e) ) as number[] );
   } else  {
     // maxを取ってつぶしたい軸を末尾にずらしてmaxを取り元に戻す
-    const tr = newArray( dim(x), 0 ).map( (_, i) => i );
+    const tr = newArray( d, 0 ).map( (_, i) => i );
     tr.splice( axis, 1 );  // [0, 1, 2] -> [1, 2]
     tr.push( axis );  // [1, 2] -> [1, 2, 0]
     let result = transpose( x, tr );
-    result = shrinkToMaxValue( result );
+    result = shrinkToMaxValue( d, result );
     return result;
   }
 };
 
 
 
-const shrinkToSum = (x: TNdNum): TNdNum => {
+const shrinkToSum = (d: number, x: TNdNum): TNdNum => {
   if ( typeof x === 'number' ) return x;
-  if ( dim(x) === 1 ) {
+  if ( d === 1 ) {
     return (x as number[]).reduce( (a, b) => a + b, 0 );
   } else {
-    return x.map( e => shrinkToSum(e) );
+    return x.map( e => shrinkToSum(d - 1, e) );
   }
 };
 
 export const sum = (x: TNdNum, axis?: number): number|TNdNum => {
   if ( typeof x === 'number' ) return x;
+  const d = dim(x);
   if ( axis === undefined ) {
-    if ( dim(x) === 1 ) return (x as number[]).reduce( (a, b) => a + b, 0 );
+    if ( d === 1 ) return (x as number[]).reduce( (a, b) => a + b, 0 );
     return (x.map( e => sum(e) ) as number[]).reduce( (a, b) => a + b, 0 );
   } else  {
     // sumを取ってつぶしたい軸を末尾にずらしてsumを取り元に戻す
-    const tr = newArray( dim(x), 0 ).map( (_, i) => i );
+    const tr = newArray( d, 0 ).map( (_, i) => i );
     tr.splice( axis, 1 );  // [0, 1, 2] -> [1, 2]
     tr.push( axis );  // [1, 2] -> [1, 2, 0]
     let result = transpose( x, tr );
-    result = shrinkToSum( result );
+    result = shrinkToSum( d, result );
     return result;
   }
 };
@@ -403,12 +491,11 @@ export const sum = (x: TNdNum, axis?: number): number|TNdNum => {
 export const random = {
   randn: (shape: number[]): TNdNum => {
     const result = createNdArray( shape );
-    updateValue( result, () => utils.number.random.randn() );
+    updateValue( result, () => randn() );
     return result;
   },
-
 };
 
 export const round = (x: TNdNum, precision: number): TNdNum =>
-  map( x, e => utils.number.roundAt( e, precision ) );
+  map( x, e => roundAt( e, precision ) );
 

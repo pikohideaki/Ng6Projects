@@ -14,7 +14,7 @@ export class ModelService {
 
   private network!: SimpleConvNet;
 
-  predict$!: Observable<(input: np.TNdNum) => number[]>;
+  predict$!: Observable<(input: np.TNdNum) => Promise<number[]>>;
 
 
   constructor() {
@@ -33,7 +33,7 @@ export class ModelService {
                         {
                           'filterNum': 30,
                           'filterSize': 5,
-                          'padding':   0,
+                          'padding': 0,
                           'stride': 1
                         },
                         100,
@@ -43,23 +43,17 @@ export class ModelService {
     this.predict$ = params$.pipe(
       map( params => {
         this.network.loadParams( params );
-        return ((input: np.TNdNum) => {
-          const result = (this.network.predict( input ) as number[][])[0];
-          const resultNormalized = np.round( softmax( result ), 5 );
-          return resultNormalized as number[];
+        return ( async (input: np.TNdNum) => {
+          let resolve: any;
+          const p = new Promise<number[]>( r => resolve = r );
+          setTimeout(() => {
+            const result = (this.network.predict( input ) as number[][])[0];
+            const resultNormalized = np.round( softmax( result ), 5 ) as number[];
+            resolve( resultNormalized );
+          }, 300);
+          return p;
         });
       })
     );
-
-
-    params$.subscribe( (params: {}) => {
-      console.log(params);
-      this.network.loadParams( params );
-    });
-
   }
-
-
-
-
 }
