@@ -17,7 +17,7 @@ import { TCell             } from './types/table-cell';
 import { CellPosition      } from './types/cell-position';
 import { ITableSettings    } from './types/table-settings';
 import { isValidTable      } from './functions/is-valid-table';
-import { GetSortedAsIndice } from './functions/get-sorted-indice';
+import { getSortedAsIndice } from './functions/get-sorted-indice';
 
 
 @Component({
@@ -221,7 +221,7 @@ export class DataTableComponent implements OnInit, OnDestroy {
         ).pipe(
           avoidGlitch(),
           map( ([indiceFiltered, sortBy, table, settings]) =>
-            GetSortedAsIndice( indiceFiltered, sortBy, table, settings, this.NoColumn ) ),
+            getSortedAsIndice( indiceFiltered, sortBy, table, settings, this.NoColumn ) ),
           shareWithCache(),
         );
 

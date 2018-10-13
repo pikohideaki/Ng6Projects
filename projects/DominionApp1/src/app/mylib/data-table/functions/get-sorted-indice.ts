@@ -2,7 +2,7 @@ import { Sort } from '@angular/material';
 import { TCell } from '../types/table-cell';
 import { ITableSettings } from '../types/table-settings';
 
-export const GetSortedAsIndice = (
+export const getSortedAsIndice = (
   indiceFiltered: number[],
   sortBy: Sort,
   table: TCell[][],
